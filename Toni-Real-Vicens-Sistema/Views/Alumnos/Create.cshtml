@@ -1,0 +1,109 @@
+﻿@model Toni_Real_Vicens_Sistema.Models.Alumno
+
+@{
+    ViewData["Title"] = "Registrar Alumno";
+}
+
+<h2>Registrar Alumno</h2>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Nombres</label>
+        <input asp-for="Nombres" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Apellidos</label>
+        <input asp-for="Apellidos" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">DNI</label>
+        <input asp-for="DNI" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Sexo</label>
+        <select asp-for="Sexo" class="form-select">
+            <option value="">-- Seleccione --</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="No especifica">No especifica</option>
+        </select>
+
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Fecha de nacimiento</label>
+        <input asp-for="FechaNacimiento" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Lugar de nacimiento</label>
+        <input asp-for="LugarNacimiento" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Sección</label>
+        <input asp-for="Seccion" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Teléfono del alumno</label>
+        <input asp-for="TelefonoAlumno" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Teléfono de emergencia</label>
+        <input asp-for="TelefonoEmergencia" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tutor</label>
+        <input asp-for="Tutor" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Teléfono tutor</label>
+        <input asp-for="TutorTelefono" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nivel</label>
+        <select asp-for="Nivel" class="form-select">
+            <option value="">-- Seleccione --</option>
+            <option value="Inicial">Inicial</option>
+            <option value="Primaria">Primaria</option>
+            <option value="Secundaria">Secundaria</option>
+        </select>
+
+
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Dirección</label>
+        <input asp-for="Direccion" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Grado</label>
+        <input asp-for="Grado" class="form-control" />
+    </div>
+
+
+    <div class="form-check mb-3">
+        <input asp-for="TieneConadis" class="form-check-input" />
+        <label class="form-check-label">Cuenta con carnet CONADIS</label>
+    </div>
+
+    
+
+    <button type="submit" class="btn btn-primary">
+        Guardar
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver
+    </a>
+</form>

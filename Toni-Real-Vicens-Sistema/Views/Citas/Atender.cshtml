@@ -1,0 +1,14 @@
+﻿@model Toni_Real_Vicens_Sistema.Models.Cita
+
+<h2>Atender Cita</h2>
+
+<p><strong>Fecha:</strong> @Model.FechaHora</p>
+<p><strong>Tipo:</strong> @Model.Tipo</p>
+<p><strong>Estado:</strong> @Model.Estado</p>
+
+<form asp-action="IniciarAtencion" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button class="btn btn-success">
+        Iniciar atención
+    </button>
+</form>

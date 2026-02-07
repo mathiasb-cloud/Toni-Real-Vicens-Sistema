@@ -1,0 +1,135 @@
+﻿@model Toni_Real_Vicens_Sistema.Models.FichaDiagnostica
+
+@{
+    ViewData["Title"] = "Ficha Diagnóstica";
+}
+
+<h2>Ficha Diagnóstica</h2>
+
+<!-- PANEL SUPERIOR FIJO CON DATOS DEL ALUMNO -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Datos del Estudiante</h5>
+        <p class="mb-1"><strong>Alumno:</strong> @ViewBag.AlumnoNombre</p>
+        <p class="mb-1"><strong>DNI:</strong> @ViewBag.DNI</p>
+        <p class="mb-1"><strong>Edad:</strong> @ViewBag.Edad años</p>
+        <p class="mb-1"><strong>Grado:</strong> @ViewBag.Grado</p>
+        <p class="mb-1"><strong>Fecha de Cita:</strong> @ViewBag.FechaCita</p>
+        <p class="mb-0"><strong>Tipo:</strong> @ViewBag.Tipo</p>
+    </div>
+</div>
+
+<form asp-action="Create" method="post">
+
+    <input type="hidden" asp-for="AlumnoId" />
+    <input type="hidden" asp-for="CitaId" />
+
+    <!-- NAV TABS -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#familiar">
+                II. Aspecto Familiar
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#laboral">
+                III. Laboral y Económico
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#vivienda">
+                IV. Vivienda
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#salud">
+                V. Salud
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#academico">
+                VII. Académico
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#emocional">
+                VIII. Emocional
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#social">
+                IX. Social
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#recursos">
+                X. Recursos Personales
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+
+        <!-- II. FAMILIAR -->
+        <div class="tab-pane fade show active" id="familiar">
+            <label>¿Con quién vive?</label>
+            <textarea asp-for="InteraccionFamilia" class="form-control"></textarea>
+
+            <label class="mt-3">Relación familiar</label>
+            <textarea asp-for="InteraccionIE" class="form-control"></textarea>
+        </div>
+
+        <!-- III. LABORAL -->
+        <div class="tab-pane fade" id="laboral">
+            <label>Situación económica familiar</label>
+            <textarea asp-for="VidaDiaria" class="form-control"></textarea>
+        </div>
+
+        <!-- IV. VIVIENDA -->
+        <div class="tab-pane fade" id="vivienda">
+            <label>Condiciones de vivienda</label>
+            <textarea asp-for="Barreras" class="form-control"></textarea>
+        </div>
+
+        <!-- V. SALUD -->
+        <div class="tab-pane fade" id="salud">
+            <label>Aspectos de salud</label>
+            <textarea asp-for="Apoyos" class="form-control"></textarea>
+        </div>
+
+        <!-- VII. ACADÉMICO -->
+        <div class="tab-pane fade" id="academico">
+            <label>Comunicación</label>
+            <textarea asp-for="Comunicacion" class="form-control"></textarea>
+
+            <label class="mt-3">Matemática</label>
+            <textarea asp-for="Matematica" class="form-control"></textarea>
+        </div>
+
+        <!-- VIII. EMOCIONAL -->
+        <div class="tab-pane fade" id="emocional">
+            <label>Conclusiones emocionales</label>
+            <textarea asp-for="Conclusiones" class="form-control"></textarea>
+        </div>
+
+        <!-- IX. SOCIAL -->
+        <div class="tab-pane fade" id="social">
+            <label>Interacción social</label>
+            <textarea asp-for="Expresion" class="form-control"></textarea>
+        </div>
+
+        <!-- X. RECURSOS -->
+        <div class="tab-pane fade" id="recursos">
+            <label>Motivación personal</label>
+            <textarea asp-for="Motivacion" class="form-control"></textarea>
+
+            <label class="mt-3">Responsable</label>
+            <input asp-for="Responsable" class="form-control" />
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-success mt-4">
+        Guardar Ficha
+    </button>
+</form>

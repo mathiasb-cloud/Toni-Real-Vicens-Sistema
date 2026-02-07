@@ -1,14 +1,23 @@
-﻿namespace Toni_Real_Vicens_Sistema.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Toni_Real_Vicens_Sistema.Models
 {
     public class Cita
     {
-        public string Id { get; set; }
+        public string? Id { get; set; }
+
+        [Required]
         public string AlumnoId { get; set; }
 
-        public DateTime Fecha { get; set; }
-        public string Tipo { get; set; }
-        public string Psicologo { get; set; }
-        public string Estado { get; set; }
-    }
+        [Required]
+        public DateTime? FechaHora { get; set; }
 
+        [Required]
+        public string Tipo { get; set; } // Evaluación / Seguimiento
+
+        [Required]
+        public string Psicologo { get; set; }
+
+        public string Estado { get; set; } = "Programada";
+    }
 }

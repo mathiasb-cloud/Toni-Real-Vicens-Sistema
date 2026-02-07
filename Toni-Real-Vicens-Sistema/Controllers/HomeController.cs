@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using Toni_Real_Vicens_Sistema.Models;
 
 namespace Toni_Real_Vicens_Sistema.Controllers

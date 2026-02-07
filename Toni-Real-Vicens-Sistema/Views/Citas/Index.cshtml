@@ -1,0 +1,33 @@
+﻿@model List<Toni_Real_Vicens_Sistema.Models.Cita>
+
+<h2>Listado de Citas</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Psicólogo</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cita in Model)
+        {
+            <tr>
+                <td>@cita.FechaHora</td>
+                <td>@cita.Tipo</td>
+                <td>@cita.Psicologo</td>
+                <td>@cita.Estado</td>
+                <td>
+                    <a asp-action="Atender"
+                       asp-route-id="@cita.Id"
+                       class="btn btn-success btn-sm">
+                        Atender
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
