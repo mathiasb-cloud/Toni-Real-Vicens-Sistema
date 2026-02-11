@@ -1,135 +1,193 @@
 ﻿@model Toni_Real_Vicens_Sistema.Models.FichaDiagnostica
 
-@{
-    ViewData["Title"] = "Ficha Diagnóstica";
-}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-<h2>Ficha Diagnóstica</h2>
-
-<!-- PANEL SUPERIOR FIJO CON DATOS DEL ALUMNO -->
-<div class="card mb-4 shadow-sm">
-    <div class="card-body">
-        <h5 class="card-title">Datos del Estudiante</h5>
-        <p class="mb-1"><strong>Alumno:</strong> @ViewBag.AlumnoNombre</p>
-        <p class="mb-1"><strong>DNI:</strong> @ViewBag.DNI</p>
-        <p class="mb-1"><strong>Edad:</strong> @ViewBag.Edad años</p>
-        <p class="mb-1"><strong>Grado:</strong> @ViewBag.Grado</p>
-        <p class="mb-1"><strong>Fecha de Cita:</strong> @ViewBag.FechaCita</p>
-        <p class="mb-0"><strong>Tipo:</strong> @ViewBag.Tipo</p>
+<div class="container mt-4">
+    <div class="card mb-4 border-info shadow-sm">
+        <div class="card-body bg-light">
+            <div class="row text-center small">
+                <div class="col-md-3 border-end"><strong>Estudiante:</strong><br>@ViewBag.AlumnoNombre</div>
+                <div class="col-md-2 border-end"><strong>DNI:</strong><br>@ViewBag.DNI</div>
+                <div class="col-md-2 border-end"><strong>Grado:</strong><br>@ViewBag.Grado</div>
+                
+                <div class="col-md-3 border-end"><strong>Psicólogo Asignado:</strong><br><span class="text-primary fw-bold">@ViewBag.Psicologo</span></div>
+                <div class="col-md-2"><strong>Fecha de Ficha:</strong><br>@DateTime.Now.ToString("dd/MM/yyyy")</div>
+            </div>
+        </div>
     </div>
-</div>
 
-<form asp-action="Create" method="post">
-
-    <input type="hidden" asp-for="AlumnoId" />
-    <input type="hidden" asp-for="CitaId" />
-
-    <!-- NAV TABS -->
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs mb-4" id="fichaTab" role="tablist">
         <li class="nav-item">
-            <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#familiar">
-                II. Aspecto Familiar
-            </button>
+            <button class="nav-link active fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspecto-familiar">II. ASPECTO FAMILIAR</button>
         </li>
         <li class="nav-item">
-            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#laboral">
-                III. Laboral y Económico
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#vivienda">
-                IV. Vivienda
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#salud">
-                V. Salud
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#academico">
-                VII. Académico
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#emocional">
-                VIII. Emocional
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#social">
-                IX. Social
-            </button>
-        </li>
-        <li class="nav-item">
-            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#recursos">
-                X. Recursos Personales
-            </button>
+            <button class="nav-link disabled" id="tab-economico" data-bs-toggle="tab" data-bs-target="#aspecto-economico">III. ASPECTO ECONÓMICO</button>
         </li>
     </ul>
 
-    <div class="tab-content mt-3">
+    <form asp-action="Create" method="post">
+        @* Datos de vinculación ocultos *@
+        <input type="hidden" asp-for="AlumnoId" />
+        <input type="hidden" asp-for="CitaId" />
+        <input type="hidden" name="PsicologoNombre" value="@ViewBag.PsicologoNombre" />
 
-        <!-- II. FAMILIAR -->
-        <div class="tab-pane fade show active" id="familiar">
-            <label>¿Con quién vive?</label>
-            <textarea asp-for="InteraccionFamilia" class="form-control"></textarea>
+        <div class="tab-content border p-4 bg-white shadow-sm rounded">
 
-            <label class="mt-3">Relación familiar</label>
-            <textarea asp-for="InteraccionIE" class="form-control"></textarea>
+            <div class="tab-pane fade show active" id="aspecto-familiar">
+
+                <div class="mb-5">
+                    <h6 class="text-primary fw-bold text-uppercase"><i class="fas fa-users me-2"></i>2.1 Red familiar del estudiante:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mt-2 align-middle">
+                            <thead class="table-dark small text-center">
+                                <tr>
+                                    <th>Nombre y Apellido</th>
+                                    <th>Parentesco</th>
+                                    <th style="width: 100px;">Edad</th>
+                                    <th>Grado Instrucción</th>
+                                    <th>Ocupación</th>
+                                    <th>Teléfono</th>
+                                    <th style="width: 80px; justify-items: center;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyRedFamiliar">
+                                <tr id="fila-0">
+                                    <td><input name="RedFamiliar[0].NombreApellido" class="form-control" placeholder="Ej: Juan Pérez" /></td>
+                                    <td><input name="RedFamiliar[0].Parentesco" class="form-control" placeholder="Ej: Padre" /></td>
+                                    <td><input name="RedFamiliar[0].Edad" type="number" class="form-control" /></td>
+                                    <td><input name="RedFamiliar[0].GradoInstruccion" class="form-control" /></td>
+                                    <td><input name="RedFamiliar[0].Ocupacion" class="form-control" /></td>
+                                    <td><input name="RedFamiliar[0].Telefono" class="form-control" /></td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-secondary" disabled title="Fila obligatoria"><i class="fas fa-lock"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-dark btn-sm shadow-sm mt-1" onclick="addFila()">
+                        <i class="fas fa-plus-circle"></i> Agregar integrante
+                    </button>
+                </div>
+
+                <div class="mb-5">
+                    <h6 class="text-primary fw-bold text-uppercase">2.2 ¿Con quién vive actualmente el estudiante?</h6>
+                    <div class="row mt-3 g-3 ms-1">
+                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ViveCon" value="AmbosPadres" class="form-check-input" /> <label class="form-check-label">Ambos padres</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ViveCon" value="SoloMadre" class="form-check-input" /> <label class="form-check-label">Solo madre</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ViveCon" value="SoloPadre" class="form-check-input" /> <label class="form-check-label">Solo padre</label></div></div>
+                        <div class="col-md-3">
+                            <div class="form-check d-flex align-items-center">
+                                <input type="radio" name="ViveCon" value="Hermanos" class="form-check-input me-2" />
+                                <label class="me-2">Hermanos (N°):</label>
+                                <input asp-for="NumeroHermanos" class="form-control form-control-sm d-inline-block w-25" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-5 p-3 bg-light rounded border-start border-primary border-4">
+                    <h6 class="text-primary fw-bold text-uppercase">2.3 La relación con sus familiares es:</h6>
+                    <div class="d-flex flex-wrap gap-4 mt-3 ms-2">
+                        <div class="form-check"><input type="radio" asp-for="RelacionFamiliar" value="Armoniosa" class="form-check-input" /> <label class="form-check-label">Armoniosa</label></div>
+                        <div class="form-check"><input type="radio" asp-for="RelacionFamiliar" value="Regularmente Armoniosa" class="form-check-input" /> <label class="form-check-label">Regularmente Armoniosa</label></div>
+                        <div class="form-check"><input type="radio" asp-for="RelacionFamiliar" value="Conflictiva" class="form-check-input" /> <label class="form-check-label">Conflictiva</label></div>
+                        <div class="form-check"><input type="radio" asp-for="RelacionFamiliar" value="Violenta" class="form-check-input" /> <label class="form-check-label text-danger fw-bold">Violenta</label></div>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <h6 class="text-primary fw-bold text-uppercase">2.4 ¿Qué problemas se presentan en el hogar del estudiante?</h6>
+                    <div class="row mt-3 ms-1 g-3">
+                        <div class="col-md-3"><div class="form-check"><input asp-for="ProblemaViolencia" class="form-check-input" /> <label class="form-check-label">Violencia</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="ProblemaComunicacion" class="form-check-input" /> <label class="form-check-label">Comunicación</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="ProblemaEconomico" class="form-check-input" /> <label class="form-check-label">Económico</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="ProblemaSalud" class="form-check-input" /> <label class="form-check-label">Salud</label></div></div>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <h6 class="text-primary fw-bold text-uppercase">2.5 Generalmente, la comunicación en el hogar se ve influenciada por:</h6>
+                    <div class="row mt-3 ms-1 g-3">
+                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="FaltaTiempo" class="form-check-input" /> <label class="form-check-label">Falta de tiempo de padres</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="Desinteres" class="form-check-input" /> <label class="form-check-label">Desinterés / Indiferencia</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="FaltaComprension" class="form-check-input" /> <label class="form-check-label">Falta de comprensión</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="Temor" class="form-check-input" /> <label class="form-check-label">Temor / Miedo</label></div></div>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <h6 class="text-primary fw-bold text-uppercase">2.6 ¿Quién apoya al estudiante para realizar sus tareas escolares?</h6>
+                    <div class="d-flex flex-wrap gap-4 mt-3 ms-2">
+                        <div class="form-check"><input asp-for="ApoyoMama" class="form-check-input" /> <label class="form-check-label">Mamá</label></div>
+                        <div class="form-check"><input asp-for="ApoyoPapa" class="form-check-input" /> <label class="form-check-label">Papá</label></div>
+                        <div class="form-check"><input asp-for="ApoyoHermanos" class="form-check-input" /> <label class="form-check-label">Hermanos</label></div>
+                        <div class="form-check"><input asp-for="ApoyoTios" class="form-check-input" /> <label class="form-check-label">Tíos</label></div>
+                        <div class="form-check"><input asp-for="ApoyoAbuelos" class="form-check-input" /> <label class="form-check-label">Abuelos</label></div>
+                        <div class="form-check"><input asp-for="ApoyoSolo" class="form-check-input" /> <label class="form-check-label">Solo</label></div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <!-- III. LABORAL -->
-        <div class="tab-pane fade" id="laboral">
-            <label>Situación económica familiar</label>
-            <textarea asp-for="VidaDiaria" class="form-control"></textarea>
+        <div class="mt-4 text-end">
+            <button type="submit" class="btn btn-primary btn-lg px-5 shadow"><i class="fas fa-save me-2"></i>Guardar Ficha Completa</button>
         </div>
+    </form>
+</div>
 
-        <!-- IV. VIVIENDA -->
-        <div class="tab-pane fade" id="vivienda">
-            <label>Condiciones de vivienda</label>
-            <textarea asp-for="Barreras" class="form-control"></textarea>
-        </div>
+@section Scripts {
+    <script>
+        let index = 1;
+        function addFila() {
+            const tbody = document.getElementById("tbodyRedFamiliar");
+            const tr = document.createElement("tr");
+            tr.id = `fila-${index}`;
+            tr.className = "align-middle animate__animated animate__fadeIn";
 
-        <!-- V. SALUD -->
-        <div class="tab-pane fade" id="salud">
-            <label>Aspectos de salud</label>
-            <textarea asp-for="Apoyos" class="form-control"></textarea>
-        </div>
+            tr.innerHTML = `
+                <td><input name="RedFamiliar[${index}].NombreApellido" class="form-control" /></td>
+                <td><input name="RedFamiliar[${index}].Parentesco" class="form-control" /></td>
+                <td><input name="RedFamiliar[${index}].Edad" type="number" class="form-control" /></td>
+                <td><input name="RedFamiliar[${index}].GradoInstruccion" class="form-control" /></td>
+                <td><input name="RedFamiliar[${index}].Ocupacion" class="form-control" /></td>
+                <td><input name="RedFamiliar[${index}].Telefono" class="form-control" /></td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger shadow-sm btn-delete" onclick="eliminarFila(${index})" title="Eliminar familiar">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>`;
 
-        <!-- VII. ACADÉMICO -->
-        <div class="tab-pane fade" id="academico">
-            <label>Comunicación</label>
-            <textarea asp-for="Comunicacion" class="form-control"></textarea>
+            tbody.appendChild(tr);
+            index++;
+        }
 
-            <label class="mt-3">Matemática</label>
-            <textarea asp-for="Matematica" class="form-control"></textarea>
-        </div>
+        function eliminarFila(idx) {
+            const fila = document.getElementById(`fila-${idx}`);
+            if (fila) fila.remove();
+        }
+    </script>
 
-        <!-- VIII. EMOCIONAL -->
-        <div class="tab-pane fade" id="emocional">
-            <label>Conclusiones emocionales</label>
-            <textarea asp-for="Conclusiones" class="form-control"></textarea>
-        </div>
+    <style>
+        .btn-delete {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
 
-        <!-- IX. SOCIAL -->
-        <div class="tab-pane fade" id="social">
-            <label>Interacción social</label>
-            <textarea asp-for="Expresion" class="form-control"></textarea>
-        </div>
+            .btn-delete:hover {
+                transform: scale(1.1);
+            }
 
-        <!-- X. RECURSOS -->
-        <div class="tab-pane fade" id="recursos">
-            <label>Motivación personal</label>
-            <textarea asp-for="Motivacion" class="form-control"></textarea>
-
-            <label class="mt-3">Responsable</label>
-            <input asp-for="Responsable" class="form-control" />
-        </div>
-
-    </div>
-
-    <button type="submit" class="btn btn-success mt-4">
-        Guardar Ficha
-    </button>
-</form>
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    </style>
+}

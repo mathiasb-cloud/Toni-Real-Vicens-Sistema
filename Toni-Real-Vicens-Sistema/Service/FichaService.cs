@@ -14,6 +14,13 @@ namespace Toni_Real_Vicens_Sistema.Service
                 .PostAsync(ficha);
         }
 
+        public async Task AddSeguimientoAsync(FichaSeguimiento ficha)
+        {
+            await _firebase
+                .Child("FichasSeguimiento") 
+                .PostAsync(ficha);
+        }
+
         public async Task<List<FichaDiagnostica>> GetByAlumnoAsync(string alumnoId)
         {
             var data = await _firebase

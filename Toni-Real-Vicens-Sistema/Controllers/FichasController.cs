@@ -26,8 +26,21 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             if (cita == null) return NotFound();
 
             var alumno = await _alumnoService.GetByIdAsync(cita.AlumnoId);
-
             CargarDatosAlumnoEnVista(alumno, cita);
+
+            
+            if (cita.Tipo == "Seguimiento")
+            {
+                var fichaSeg = new FichaSeguimiento
+                {
+                    AlumnoId = cita.AlumnoId,
+                    CitaId = cita.Id,
+                    Fecha = DateTime.Now
+                };
+                return View("CreateSeguimiento", fichaSeg);
+            }
+
+            
 
             var ficha = new FichaDiagnostica
             {
@@ -35,34 +48,40 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 CitaId = cita.Id,
                 Fecha = DateTime.Now
             };
-
             return View(ficha);
         }
+
+
+
 
         // ======================
         // POST
         // ======================
+
         [HttpPost]
         public async Task<IActionResult> Create(FichaDiagnostica ficha)
         {
-            Console.WriteLine("ModelState válido: " + ModelState.IsValid);
-
+           
             if (!ModelState.IsValid)
             {
+               
                 var cita = await _citaService.GetByIdAsync(ficha.CitaId);
                 var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
-
                 CargarDatosAlumnoEnVista(alumno, cita);
-
                 return View(ficha);
             }
 
+            
             await _fichaService.AddAsync(ficha);
 
-            Console.WriteLine("Ficha guardada correctamente");
+            
+            await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
 
             return RedirectToAction("Index", "Alumnos");
         }
+
+
+
 
         // ======================
         // MÉTODO AUXILIAR
@@ -74,6 +93,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             ViewBag.Grado = alumno.Grado + " - " + alumno.Nivel;
             ViewBag.FechaCita = cita.FechaHora?.ToString("dd/MM/yyyy HH:mm");
             ViewBag.Tipo = cita.Tipo;
+            ViewBag.Psicologo = cita.Psicologo;
 
             var edad = DateTime.Now.Year - alumno.FechaNacimiento.Year;
             ViewBag.Edad = edad;

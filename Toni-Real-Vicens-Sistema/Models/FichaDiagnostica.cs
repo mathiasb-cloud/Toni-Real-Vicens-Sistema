@@ -7,54 +7,52 @@ namespace Toni_Real_Vicens_Sistema.Models
         public string Id { get; set; }
         public string AlumnoId { get; set; }
         public string CitaId { get; set; }
+        public DateTime Fecha { get; set; }
 
-        public DateTime Fecha { get; set; } = DateTime.Now;
+        // --- II. ASPECTO FAMILIAR (Psicólogo) ---
 
-        // II. Aspecto Familiar
-        public string ConQuienVive { get; set; }
-        public string RelacionFamiliar { get; set; }
-        public string ProblemasHogar { get; set; }
-        public string ComunicacionHogar { get; set; }
-        public string ApoyoTareas { get; set; }
+        // 2.1 Red familiar (Tabla)
+        public List<RedFamiliar> RedFamiliar { get; set; } = new();
 
-        // III. Aspecto Laboral
-        public bool PapaTrabaja { get; set; }
-        public string TrabajoPapa { get; set; }
-        public bool MamaTrabaja { get; set; }
-        public string TrabajoMama { get; set; }
-        public string IngresoMensual { get; set; }
+        // 2.2 ¿Con quién vive el estudiante?
+        public bool ViveAmbosPadres { get; set; }
+        public bool ViveSoloMadre { get; set; }
+        public bool ViveSoloPadre { get; set; }
+        public bool ViveSolo { get; set; }
+        public bool ViveHermanos { get; set; }
+        public int? NumeroHermanos { get; set; }
+        public bool ViveOtros { get; set; }
+        public string? DetalleOtrosVive { get; set; }
 
-        // IV. Vivienda
-        public string TipoVivienda { get; set; }
-        public string MaterialVivienda { get; set; }
-        public string PisoVivienda { get; set; }
-        public string Servicios { get; set; }
+        // 2.3 Relación con familiares
+        public string? RelacionFamiliar { get; set; } 
 
-        // V. Salud
-        public string DificultadFisica { get; set; }
-        public string DificultadMental { get; set; }
-        public bool TieneSeguro { get; set; }
-        public string Enfermedad { get; set; }
+        // 2.4 Problemas en el hogar
+        public bool ProblemaViolencia { get; set; }
+        public bool ProblemaComunicacion { get; set; }
+        public bool ProblemaEconomico { get; set; }
+        public bool ProblemaSalud { get; set; }
+        public string? ProblemaOtros { get; set; }
 
-        // VI. Alimentación
-        public string AlimentacionDiaria { get; set; }
+        // 2.5 Influencia en la comunicación (Dificultades)
+        public bool InfluenciaFaltaTiempo { get; set; }
+        public bool InfluenciaDesinteres { get; set; }
+        public bool InfluenciaFaltaComprension { get; set; }
+        public bool InfluenciaTemor { get; set; }
+        public bool InfluenciaNinguna { get; set; }
 
-        // VII. Académico
-        public bool RepitioAnio { get; set; }
-        public string CursosFaciles { get; set; }
-        public string CursosDificiles { get; set; }
+        // 2.6 Apoyo en tareas escolares
+        public bool ApoyoMama { get; set; }
+        public bool ApoyoPapa { get; set; }
+        public bool ApoyoHermanos { get; set; }
+        public bool ApoyoTios { get; set; }
+        public bool ApoyoAbuelos { get; set; }
+        public bool ApoyoSolo { get; set; }
 
-        // VIII. Emocional
-        public bool EsTimido { get; set; }
-        public bool SeSienteTriste { get; set; }
 
-        // IX. Social
-        public bool PrefiereAmigosQueColegio { get; set; }
 
-        // X. Recursos personales
-        public string Motivacion { get; set; }
-        public string PorqueAsiste { get; set; }
-        public string ActividadesDisfruta { get; set; }
-        public string Habilidades { get; set; }
+
+
+
     }
 }
