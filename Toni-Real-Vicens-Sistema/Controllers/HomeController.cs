@@ -15,7 +15,13 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
         public IActionResult Index()
         {
+            
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("UsuarioNombre")))
+            {
+                return RedirectToAction("Login", "Account");
+            }
             return View();
+            
         }
 
         public IActionResult Privacy()

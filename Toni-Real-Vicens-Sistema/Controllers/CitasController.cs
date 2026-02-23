@@ -18,6 +18,11 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         public async Task<IActionResult> Index()
         {
             var citas = await _citaService.GetAllAsync();
+            var alumnos = await _alumnoService.GetAllAsync();
+
+            
+            ViewBag.NombresAlumnos = alumnos.ToDictionary(a => a.Id, a => a.Nombres + " " + a.Apellidos);
+
             return View(citas);
         }
 
@@ -72,5 +77,41 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             await _citaService.UpdateEstadoAsync(id, "Atendida");
             return RedirectToAction("Create", "Fichas", new { citaId = id });
         }
+
+
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Json(new { success = false, message = "El ID de la cita no es válido." });
+                }
+
+                
+                bool eliminado = await _citaService.DeleteCitaCompletaAsync(id);
+
+                if (eliminado)
+                {
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "No se pudo eliminar el registro de Firebase." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error de servidor: " + ex.Message });
+            }
+        }
+
+
+
+
     }
 }

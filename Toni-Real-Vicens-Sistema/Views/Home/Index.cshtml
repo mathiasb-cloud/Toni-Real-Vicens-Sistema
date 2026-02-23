@@ -1,8 +1,96 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
+    var nombre = Context.Session.GetString("UsuarioNombre") ?? "Usuario";
+    var cargo = Context.Session.GetString("Cargo") ?? "Personal";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4">
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="p-5 text-white shadow-lg d-flex align-items-center justify-content-between"
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 25px;">
+                <div>
+                    <h1 class="fw-bold mb-1">¡Hola, @nombre!</h1> 
+                    <p class="opacity-75 mb-0">Bienvenido al Sistema Psicopedagógico Institucional.</p>
+                    <span class="badge bg-white text-primary mt-2 px-3 py-2 rounded-pill">@cargo</span>
+                </div>
+                <div class="d-none d-md-block">
+                    <i class="bi bi- stars fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-6 col-md-3">
+            <a asp-controller="Usuarios" asp-action="Index" class="text-decoration-none">
+                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
+                    <div class="icon-box mx-auto mb-3 bg-soft-purple" style="background: #f0f4ff;">
+                        <i class="bi bi-people-fill fs-2" style="color: #667eea;"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Personal</h6>
+                    <small class="text-muted">Gestión de Accesos</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <a asp-controller="Alumnos" asp-action="Index" class="text-decoration-none">
+                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
+                    <div class="icon-box mx-auto mb-3" style="background: #e6fffa;">
+                        <i class="bi bi-person-badge-fill fs-2" style="color: #38b2ac;"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Alumnos</h6>
+                    <small class="text-muted">Base de datos</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <a asp-controller="Citas" asp-action="Index" class="text-decoration-none">
+                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
+                    <div class="icon-box mx-auto mb-3" style="background: #fffaf0;">
+                        <i class="bi bi-calendar-check-fill fs-2" style="color: #ed8936;"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Citas</h6>
+                    <small class="text-muted">Agenda Diaria</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <a asp-controller="Fichas" asp-action="Index" class="text-decoration-none">
+                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
+                    <div class="icon-box mx-auto mb-3" style="background: #ebf8ff;">
+                        <i class="bi bi-file-earmark-medical-fill fs-2" style="color: #4299e1;"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Fichas</h6>
+                    <small class="text-muted">Historiales</small>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
+
+<style>
+    
+    .hover-card {
+        transition: all 0.3s ease;
+        border: 1px solid transparent !important;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+            border-color: #764ba2 !important;
+        }
+    
+    .icon-box {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>

@@ -1,33 +1,146 @@
 ﻿@model List<Toni_Real_Vicens_Sistema.Models.Cita>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<h2>Listado de Citas</h2>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-calendar-check"></i> Listado de Citas</h2>
+        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva Cita</a>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Tipo</th>
-            <th>Psicólogo</th>
-            <th>Estado</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var cita in Model)
-        {
+    <table class="table table-striped border shadow-sm">
+        <thead class="table-dark">
             <tr>
-                <td>@cita.FechaHora</td>
-                <td>@cita.Tipo</td>
-                <td>@cita.Psicologo</td>
-                <td>@cita.Estado</td>
-                <td>
-                    <a asp-action="Atender"
-                       asp-route-id="@cita.Id"
-                       class="btn btn-success btn-sm">
-                        Atender
-                    </a>
-                </td>
+                <th>Fecha y Hora</th>
+                <th>Estudiante</th>
+                <th>Tipo</th>
+                <th>Psicólogo</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acciones</th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach (var cita in Model)
+            {
+                var nombreAlumno = ViewBag.NombresAlumnos.ContainsKey(cita.AlumnoId)
+                ? ViewBag.NombresAlumnos[cita.AlumnoId]
+                : "Desconocido";
+                <tr>
+                    <td>@cita.FechaHora?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td><strong>@nombreAlumno</strong></td>
+                    <td>@cita.Tipo</td>
+                    <td>@cita.Psicologo</td>
+                    <td class="text-center">
+                        @if (cita.Estado == "Pendiente")
+                        {
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        }
+                        else if (cita.Estado == "Atendida")
+                        {
+                            <span class="badge bg-success">Finalizada</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info">@cita.Estado</span>
+                        }
+                    </td>
+                    <td class="text-center align-middle">
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+
+                            @if (cita.Estado == "Pendiente")
+                            {
+                                <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
+                                   class="btn btn-success btn-sm d-flex align-items-center shadow-sm px-3">
+                                    <i class="bi bi-play-fill me-1"></i> Atender
+                                </a>
+                            }
+                            else if (cita.Estado == "Atendida")
+                            {
+                                <button class="btn btn-secondary btn-sm d-flex align-items-center shadow-sm px-3" disabled>
+                                    <i class="bi bi-check-circle me-1"></i> Finalizada
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
+                                   class="btn btn-info btn-sm d-flex align-items-center shadow-sm text-white px-3">
+                                    <i class="bi bi-pencil-square me-1"></i> Continuar
+                                </a>
+                            }
+
+                            <button type="button"
+                                    class="btn btn-danger btn-sm shadow-sm d-flex align-items-center justify-content-center"
+                                    style="width: 35px; height: 31px;"
+                                    onclick="confirmarEliminacion('@cita.Id', '@nombreAlumno')">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmarEliminacion(id, nombre) {
+            
+            Swal.fire({
+                title: '¿Eliminar cita?',
+                text: "Se borrará la cita de " + nombre + ". ¿Deseas continuar?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, borrar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    Swal.fire({
+                        title: '¿Seguro que desea eliminar la cita?',
+                        text: "Esta acción es irreversible y eliminará el registro de la ficha permanentemente.",
+                        icon: 'error',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: '¡SÍ, ELIMINAR DEFINITIVAMENTE!',
+                        cancelButtonText: 'Me arrepentí'
+                    }).then((finalResult) => {
+                        if (finalResult.isConfirmed) {
+                            ejecutarEliminacion(id);
+                        }
+                    });
+                }
+            });
         }
-    </tbody>
-</table>
+
+        function ejecutarEliminacion(id) {
+            $.ajax({
+                url: '@Url.Action("Delete", "Citas")', 
+                type: 'POST',
+                data: { id: id },
+                success: function (response) {
+                    Swal.fire('Eliminado', 'La cita ha sido removida.', 'success')
+                    .then(() => location.reload());
+                },
+                error: function () {
+                    Swal.fire('Error', 'No se pudo eliminar la cita.', 'error');
+                }
+            });
+        }
+    </script>
+
+
+    <style>
+        
+        .table .btn-sm {
+            min-width: 35px; 
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+}

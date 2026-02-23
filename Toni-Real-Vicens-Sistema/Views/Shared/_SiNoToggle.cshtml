@@ -1,0 +1,11 @@
+﻿@model string
+@{
+    var propertyName = Model;
+}
+<div class="btn-group btn-group-sm">
+    <input type="radio" name="@propertyName" id="@(propertyName)_S" value="true" class="btn-check" />
+    <label class="btn btn-outline-success px-3" for="@(propertyName)_S">SÍ</label>
+
+    <input type="radio" name="@propertyName" id="@(propertyName)_N" value="false" class="btn-check" />
+    <label class="btn btn-outline-danger px-3" for="@(propertyName)_N">NO</label>
+</div>

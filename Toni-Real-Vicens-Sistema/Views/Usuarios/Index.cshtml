@@ -1,0 +1,58 @@
+﻿@model IEnumerable<Toni_Real_Vicens_Sistema.Models.Usuario>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="color: #4a5568;">Gestión de Personal</h2>
+        <a asp-action="Create" class="btn text-white px-4 py-2 shadow-sm" style="background: #667eea; border-radius: 10px;">
+            <i class="bi bi-plus-lg me-2"></i> Nuevo Usuario
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0 text-secondary small">USUARIO</th>
+                        <th class="py-3 border-0 text-secondary small">CARGO</th>
+                        <th class="py-3 border-0 text-secondary small">CORREO</th>
+                        <th class="py-3 border-0 text-secondary small text-center">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-soft-purple text-primary d-flex align-items-center justify-content-center me-3"
+                                         style="width: 40px; height: 40px; background: #e0e7ff; color: #667eea !important;">
+                                        @item.Nombre[0]@item.Apellido[0]
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold d-block text-dark">@item.Nombre @item.Apellido</span>
+                                        <small class="text-muted">ID: @item.Id.Substring(0, 5)...</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-2" style="background: #f3f4f6; color: #4b5563;">
+                                    @item.Cargo
+                                </span>
+                            </td>
+                            <td class="text-secondary">@item.Correo</td>
+                            <td class="text-center">
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm me-1" title="Editar">
+                                    <i class="bi bi-pencil text-primary"></i>
+                                </button>
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm" title="Eliminar">
+                                    <i class="bi bi-trash text-danger"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -15,6 +15,33 @@ namespace Toni_Real_Vicens_Sistema.Service
         }
 
 
+
+
+        public async Task<bool> DeleteCitaCompletaAsync(string id)
+        {
+            try
+            {
+                
+                await _firebase
+                    .Child("Citas")
+                    .Child(id)
+                    .DeleteAsync();
+
+               
+                await _firebase
+                    .Child("FichasPsicopedagogicas")
+                    .Child(id)
+                    .DeleteAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
         public async Task<List<Cita>> GetAllAsync()
         {
             var data = await _firebase

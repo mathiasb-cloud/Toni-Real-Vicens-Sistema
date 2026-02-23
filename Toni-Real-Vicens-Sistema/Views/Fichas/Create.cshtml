@@ -1,6 +1,8 @@
 ﻿@model Toni_Real_Vicens_Sistema.Models.FichaDiagnostica
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container mt-4">
     <div class="card mb-4 border-info shadow-sm">
@@ -21,7 +23,28 @@
             <button class="nav-link active fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspecto-familiar">II. ASPECTO FAMILIAR</button>
         </li>
         <li class="nav-item">
-            <button class="nav-link disabled" id="tab-economico" data-bs-toggle="tab" data-bs-target="#aspecto-economico">III. ASPECTO ECONÓMICO</button>
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspecto-economico">III. ASPECTO LABORAL Y ECONÓMICO</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspectos-vivienda">IV. ASPECTOS DE VIVIENDA</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspectos-salud">V. ASPECTOS DE SALUD</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspectos-alimentacion">VI. ASPECTOS DE ALIMENTACIÓN</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspecto-academico">VII. ASPECTO ACADÉMICO</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspecto-emocional">VIII. ASPECTO EMOCIONAL</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#aspecto-social">IX. ASPECTO SOCIAL</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold text-uppercase" data-bs-toggle="tab" data-bs-target="#recursos-personales">X. RECURSOS PERSONALES</button>
         </li>
     </ul>
 
@@ -29,11 +52,13 @@
         @* Datos de vinculación ocultos *@
         <input type="hidden" asp-for="AlumnoId" />
         <input type="hidden" asp-for="CitaId" />
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="EsFinalizada" id="inputEsFinalizada" />
         <input type="hidden" name="PsicologoNombre" value="@ViewBag.PsicologoNombre" />
 
         <div class="tab-content border p-4 bg-white shadow-sm rounded">
 
-            <div class="tab-pane fade show active" id="aspecto-familiar">
+            <<div class="tab-pane fade show active" id="aspecto-familiar">
 
                 <div class="mb-5">
                     <h6 class="text-primary fw-bold text-uppercase"><i class="fas fa-users me-2"></i>2.1 Red familiar del estudiante:</h6>
@@ -47,21 +72,48 @@
                                     <th>Grado Instrucción</th>
                                     <th>Ocupación</th>
                                     <th>Teléfono</th>
-                                    <th style="width: 80px; justify-items: center;">Acción</th>
+                                    <th style="width: 80px;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyRedFamiliar">
-                                <tr id="fila-0">
-                                    <td><input name="RedFamiliar[0].NombreApellido" class="form-control" placeholder="Ej: Juan Pérez" /></td>
-                                    <td><input name="RedFamiliar[0].Parentesco" class="form-control" placeholder="Ej: Padre" /></td>
-                                    <td><input name="RedFamiliar[0].Edad" type="number" class="form-control" /></td>
-                                    <td><input name="RedFamiliar[0].GradoInstruccion" class="form-control" /></td>
-                                    <td><input name="RedFamiliar[0].Ocupacion" class="form-control" /></td>
-                                    <td><input name="RedFamiliar[0].Telefono" class="form-control" /></td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-outline-secondary" disabled title="Fila obligatoria"><i class="fas fa-lock"></i></button>
-                                    </td>
-                                </tr>
+                                @if (Model.RedFamiliar != null && Model.RedFamiliar.Count > 0)
+                                {
+                                    for (int i = 0; i < Model.RedFamiliar.Count; i++)
+                                    {
+                                        <tr id="fila-@i">
+                                            <td><input asp-for="RedFamiliar[i].NombreApellido" class="form-control" /></td>
+                                            <td><input asp-for="RedFamiliar[i].Parentesco" class="form-control" /></td>
+                                            <td><input asp-for="RedFamiliar[i].Edad" type="number" class="form-control" /></td>
+                                            <td><input asp-for="RedFamiliar[i].GradoInstruccion" class="form-control" /></td>
+                                            <td><input asp-for="RedFamiliar[i].Ocupacion" class="form-control" /></td>
+                                            <td><input asp-for="RedFamiliar[i].Telefono" class="form-control" /></td>
+                                            <td class="text-center">
+                                                @if (i == 0)
+                                                {
+                                                    <button type="button" class="btn btn-outline-secondary" disabled><i class="fas fa-lock"></i></button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(@i)"><i class="fas fa-trash"></i></button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr id="fila-0">
+                                        <td><input name="RedFamiliar[0].NombreApellido" class="form-control" placeholder="Ej: Juan Pérez" /></td>
+                                        <td><input name="RedFamiliar[0].Parentesco" class="form-control" placeholder="Ej: Padre" /></td>
+                                        <td><input name="RedFamiliar[0].Edad" type="number" class="form-control" /></td>
+                                        <td><input name="RedFamiliar[0].GradoInstruccion" class="form-control" /></td>
+                                        <td><input name="RedFamiliar[0].Ocupacion" class="form-control" /></td>
+                                        <td><input name="RedFamiliar[0].Telefono" class="form-control" /></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-outline-secondary" disabled><i class="fas fa-lock"></i></button>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -73,12 +125,12 @@
                 <div class="mb-5">
                     <h6 class="text-primary fw-bold text-uppercase">2.2 ¿Con quién vive actualmente el estudiante?</h6>
                     <div class="row mt-3 g-3 ms-1">
-                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ViveCon" value="AmbosPadres" class="form-check-input" /> <label class="form-check-label">Ambos padres</label></div></div>
-                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ViveCon" value="SoloMadre" class="form-check-input" /> <label class="form-check-label">Solo madre</label></div></div>
-                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ViveCon" value="SoloPadre" class="form-check-input" /> <label class="form-check-label">Solo padre</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="checkbox" asp-for="ViveAmbosPadres" class="form-check-input" /> <label class="form-check-label">Ambos padres</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="checkbox" asp-for="ViveSoloMadre" class="form-check-input" /> <label class="form-check-label">Solo madre</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="checkbox" asp-for="ViveSoloPadre" class="form-check-input" /> <label class="form-check-label">Solo padre</label></div></div>
                         <div class="col-md-3">
                             <div class="form-check d-flex align-items-center">
-                                <input type="radio" name="ViveCon" value="Hermanos" class="form-check-input me-2" />
+                                <input type="checkbox" asp-for="ViveHermanos" class="form-check-input me-2" />
                                 <label class="me-2">Hermanos (N°):</label>
                                 <input asp-for="NumeroHermanos" class="form-control form-control-sm d-inline-block w-25" />
                             </div>
@@ -109,10 +161,10 @@
                 <div class="mb-5">
                     <h6 class="text-primary fw-bold text-uppercase">2.5 Generalmente, la comunicación en el hogar se ve influenciada por:</h6>
                     <div class="row mt-3 ms-1 g-3">
-                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="FaltaTiempo" class="form-check-input" /> <label class="form-check-label">Falta de tiempo de padres</label></div></div>
-                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="Desinteres" class="form-check-input" /> <label class="form-check-label">Desinterés / Indiferencia</label></div></div>
-                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="FaltaComprension" class="form-check-input" /> <label class="form-check-label">Falta de comprensión</label></div></div>
-                        <div class="col-md-3"><div class="form-check"><input type="radio" name="ComunicacionInfluencia" value="Temor" class="form-check-input" /> <label class="form-check-label">Temor / Miedo</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="checkbox" asp-for="InfluenciaFaltaTiempo" class="form-check-input" /> <label class="form-check-label">Falta de tiempo de padres</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="checkbox" asp-for="InfluenciaDesinteres" class="form-check-input" /> <label class="form-check-label">Desinterés / Indiferencia</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="checkbox" asp-for="InfluenciaFaltaComprension" class="form-check-input" /> <label class="form-check-label">Falta de comprensión</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input type="checkbox" asp-for="InfluenciaTemor" class="form-check-input" /> <label class="form-check-label">Temor / Miedo</label></div></div>
                     </div>
                 </div>
 
@@ -130,12 +182,719 @@
 
             </div>
 
+
+
+
+
+
+            <div class="tab-pane fade" id="aspecto-economico">
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase">3.1 ¿El padre del estudiante trabaja?</h6>
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input type="radio" asp-for="PadreTrabaja" value="true" class="form-check-input radio-toggle" data-target="grupo-padre" />
+                                    <label class="form-check-label">SÍ</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" asp-for="PadreTrabaja" value="false" class="form-check-input radio-toggle" data-target="grupo-padre" />
+                                    <label class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <input asp-for="PadreDondeTrabaja" class="form-control form-control-sm grupo-padre" placeholder="¿Dónde trabaja?" />
+                        </div>
+                        <div class="col-md-5">
+                            <input asp-for="PadreQueTrabaja" class="form-control form-control-sm grupo-padre" placeholder="¿En qué trabaja?" />
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase">3.2 ¿La madre del estudiante trabaja?</h6>
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input type="radio" asp-for="MadreTrabaja" value="true" class="form-check-input radio-toggle" data-target="grupo-madre" />
+                                    <label class="form-check-label">SÍ</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" asp-for="MadreTrabaja" value="false" class="form-check-input radio-toggle" data-target="grupo-madre" />
+                                    <label class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <input asp-for="MadreDondeTrabaja" class="form-control form-control-sm grupo-madre" placeholder="¿Dónde trabaja?" />
+                        </div>
+                        <div class="col-md-5">
+                            <input asp-for="MadreQueTrabaja" class="form-control form-control-sm grupo-madre" placeholder="¿En qué trabaja?" />
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase">3.3 Ingreso familiar mensual:</h6>
+                    <div class="d-flex flex-wrap gap-4 mt-2 ms-2">
+                        <div class="form-check"><input type="radio" asp-for="IngresoFamiliarMensual" value="Menos de 200" class="form-check-input" /> <label class="form-check-label text-secondary">Menos de S/ 200.00</label></div>
+                        <div class="form-check"><input type="radio" asp-for="IngresoFamiliarMensual" value="200 a 500" class="form-check-input" /> <label class="form-check-label text-secondary">De S/ 200 a 500</label></div>
+                        <div class="form-check"><input type="radio" asp-for="IngresoFamiliarMensual" value="500 a 1000" class="form-check-input" /> <label class="form-check-label text-secondary">De S/ 500 a 1000</label></div>
+                        <div class="form-check"><input type="radio" asp-for="IngresoFamiliarMensual" value="Mas de 1000" class="form-check-input" /> <label class="form-check-label text-secondary">Más de 1000</label></div>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <h6 class="text-primary fw-bold text-uppercase">3.4 ¿En qué gastos priorizan los padres del estudiante?</h6>
+                    <div class="row mt-2 g-3 ms-1">
+                        <div class="col-md-2"><div class="form-check"><input asp-for="GastoAlimentos" class="form-check-input" /> <label class="form-check-label small">Alimentos</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="GastoEducacion" class="form-check-input" /> <label class="form-check-label small">Educación</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="GastoRopa" class="form-check-input" /> <label class="form-check-label small">Ropa</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="GastoArtefactos" class="form-check-input" /> <label class="form-check-label small">Artefactos</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="GastoServicios" class="form-check-input" /> <label class="form-check-label small">Servicios</label></div></div>
+                        <div class="col-md-2"><input asp-for="GastoOtros" class="form-control form-control-sm" placeholder="Otros..." /></div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase">3.5 ¿El estudiante trabaja?</h6>
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input type="radio" asp-for="EstudianteTrabaja" value="true" class="form-check-input radio-toggle" data-target="grupo-estudiante" />
+                                    <label class="form-check-label">SÍ</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" asp-for="EstudianteTrabaja" value="false" class="form-check-input radio-toggle" data-target="grupo-estudiante" />
+                                    <label class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <input asp-for="EstudianteDondeTrabaja" class="form-control form-control-sm grupo-estudiante" placeholder="¿Dónde trabaja?" />
+                        </div>
+                        <div class="col-md-5">
+                            <input asp-for="EstudianteQueTrabaja" class="form-control form-control-sm grupo-estudiante" placeholder="¿En qué trabaja?" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-3 border-start border-4 border-info bg-light rounded">
+                    <h6 class="text-primary fw-bold text-uppercase">3.6 ¿Qué hace el estudiante con lo que gana?</h6>
+                    <div class="d-flex flex-wrap gap-4 mt-2 ms-2">
+                        <div class="form-check">
+                            <input asp-for="DestinoDoyPadres" class="form-check-input grupo-estudiante" />
+                            <label class="form-check-label small">Lo doy a mis padres</label>
+                        </div>
+                        <div class="form-check">
+                            <input asp-for="DestinoEducacion" class="form-check-input grupo-estudiante" />
+                            <label class="form-check-label small">Educación</label>
+                        </div>
+                        <div class="form-check">
+                            <input asp-for="DestinoRopa" class="form-check-input grupo-estudiante" />
+                            <label class="form-check-label small">Ropa</label>
+                        </div>
+                        <div class="form-check">
+                            <input asp-for="DestinoInternet" class="form-check-input grupo-estudiante" />
+                            <label class="form-check-label small">Internet</label>
+                        </div>
+                        <div class="col-md-3">
+                            <input asp-for="DestinoOtros" class="form-control form-control-sm grupo-estudiante" placeholder="Otros..." />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="tab-pane fade" id="aspectos-vivienda">
+                <div class="row g-3">
+                    <div class="col-md-4 border-end">
+                        <h6 class="text-primary fw-bold text-uppercase small">4.1 Tu vivienda es:</h6>
+                        <select asp-for="TipoVivienda" class="form-select form-select-sm">
+                            <option value="">Seleccione...</option>
+                            <option value="Propia">PROPIA</option>
+                            <option value="Alquilada">ALQUILADA</option>
+                            <option value="Otros">OTROS</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 border-end">
+                        <h6 class="text-primary fw-bold text-uppercase small">4.2 Material de vivienda:</h6>
+                        <select asp-for="MaterialVivienda" class="form-select form-select-sm">
+                            <option value="">Seleccione...</option>
+                            <option value="Noble">NOBLE</option>
+                            <option value="Adobe">ADOBE</option>
+                            <option value="Madera">MADERA</option>
+                            <option value="Otros">OTROS</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-primary fw-bold text-uppercase small">4.3 El piso es de:</h6>
+                        <select asp-for="TipoPiso" class="form-select form-select-sm">
+                            <option value="">Seleccione...</option>
+                            <option value="Cerámica">CERÁMICA</option>
+                            <option value="Cemento">CEMENTO</option>
+                            <option value="Tierra">TIERRA</option>
+                        </select>
+                    </div>
+
+                    <hr />
+
+                    <h6 class="text-primary fw-bold text-uppercase small">4.4 Tu vivienda cuenta con: (colocar cantidades)</h6>
+                    <div class="row g-2 text-center">
+                        <div class="col"><label class="small">Cocina</label><input asp-for="CantCocina" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                        <div class="col"><label class="small">Dormitorios</label><input asp-for="CantDormitorios" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                        <div class="col"><label class="small">Comedor</label><input asp-for="CantComedor" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                        <div class="col"><label class="small">Sala</label><input asp-for="CantSala" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                        <div class="col"><label class="small">Baño</label><input asp-for="CantBano" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                    </div>
+
+                    <hr />
+
+                    <div class="col-md-6 border-end">
+                        <h6 class="text-primary fw-bold text-uppercase small">4.5 Cuenta con los servicios de:</h6>
+                        <div class="row g-2">
+                            <div class="col-4"><div class="form-check"><input asp-for="ServicioAgua" class="form-check-input" /> <label class="form-check-label small">Agua</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="ServicioLuz" class="form-check-input" /> <label class="form-check-label small">Luz</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="ServicioDesague" class="form-check-input" /> <label class="form-check-label small">Desagüe</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="ServicioCable" class="form-check-input" /> <label class="form-check-label small">Cable</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="ServicioInternet" class="form-check-input" /> <label class="form-check-label small">Internet</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="ServicioPlataformas" class="form-check-input" /> <label class="form-check-label small">Plataformas</label></div></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="text-primary fw-bold text-uppercase small">4.6 En tu casa cuentan con:</h6>
+                        <div class="row g-2">
+                            <div class="col-4"><div class="form-check"><input asp-for="TieneTelevisor" class="form-check-input" /> <label class="form-check-label small">Televisor</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="TieneComputadora" class="form-check-input" /> <label class="form-check-label small">Computadora</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="TieneEquipoSonido" class="form-check-input" /> <label class="form-check-label small">Eq. Sonido</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="TieneCocinaEquip" class="form-check-input" /> <label class="form-check-label small">Cocina</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="TieneLavadora" class="form-check-input" /> <label class="form-check-label small">Lavadora</label></div></div>
+                            <div class="col-4"><div class="form-check"><input asp-for="TieneRefrigeradora" class="form-check-input" /> <label class="form-check-label small">Refrigeradora</label></div></div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="col-12">
+                        <h6 class="text-primary fw-bold text-uppercase small">4.7 ¿Cómo te trasladas a la Institución Educativa?</h6>
+                        <div class="d-flex flex-wrap gap-4 mt-2">
+                            <div class="form-check"><input type="radio" asp-for="MedioTraslado" value="Taxi" class="form-check-input" /> <label class="form-check-label small text-uppercase">Taxi</label></div>
+                            <div class="form-check"><input type="radio" asp-for="MedioTraslado" value="Micro" class="form-check-input" /> <label class="form-check-label small text-uppercase">Micro</label></div>
+                            <div class="form-check"><input type="radio" asp-for="MedioTraslado" value="Mototaxi" class="form-check-input" /> <label class="form-check-label small text-uppercase">Mototaxi</label></div>
+                            <div class="form-check"><input type="radio" asp-for="MedioTraslado" value="Bicicleta" class="form-check-input" /> <label class="form-check-label small text-uppercase">Bicicleta</label></div>
+                            <div class="form-check"><input type="radio" asp-for="MedioTraslado" value="Caminando" class="form-check-input" /> <label class="form-check-label small text-uppercase">Caminando</label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+            <div class="tab-pane fade" id="aspectos-salud">
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase small">5.1 ¿Presentas alguna dificultad física?</h6>
+                    <div class="row mt-2 g-3 ms-1">
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludDificultadVisual" class="form-check-input" /> <label class="form-check-label small">VISUAL</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludDificultadAuditiva" class="form-check-input" /> <label class="form-check-label small">AUDITIVA</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludDificultadMotriz" class="form-check-input" /> <label class="form-check-label small">MOTRIZ</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludDificultadOral" class="form-check-input" /> <label class="form-check-label small">ORAL / LENGUAJE</label></div></div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase small">5.2 ¿Presentas alguna dificultad intelectual y/o mental?</h6>
+                    <div class="row mt-2 g-3 ms-1">
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludProblemaAprendizaje" class="form-check-input" /> <label class="form-check-label small">PROBLEMAS DE APRENDIZAJE</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludProblemaNeurodesarrollo" class="form-check-input" /> <label class="form-check-label small">PROBLEMAS NEURODESARROLLO</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludProblemaConducta" class="form-check-input" /> <label class="form-check-label small">PROBLEMAS DE CONDUCTA</label></div></div>
+                        <div class="col-md-3"><div class="form-check"><input asp-for="SaludProblemaAfectivo" class="form-check-input" /> <label class="form-check-label small">PROBLEMAS AFECTIVOS</label></div></div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase small">5.3 ¿Cuentas con seguro de salud?</h6>
+                    <div class="row align-items-center mt-2">
+                        <div class="col-md-2">
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input type="radio" asp-for="TieneSeguroSalud" value="true" class="form-check-input radio-toggle" data-target="grupo-seguro" />
+                                    <label class="form-check-label fw-bold">SÍ</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" asp-for="TieneSeguroSalud" value="false" class="form-check-input radio-toggle" data-target="grupo-seguro" />
+                                    <label class="form-check-label fw-bold">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="d-flex gap-4">
+                                <div class="form-check"><input type="radio" asp-for="TipoSeguro" value="SIS" class="form-check-input grupo-seguro" /> <label class="form-check-label small">SIS</label></div>
+                                <div class="form-check"><input type="radio" asp-for="TipoSeguro" value="ESSALUD" class="form-check-input grupo-seguro" /> <label class="form-check-label small">ESSALUD</label></div>
+                                <div class="form-check"><input type="radio" asp-for="TipoSeguro" value="OTRO" class="form-check-input grupo-seguro" /> <label class="form-check-label small">OTRO</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row">
+                    <div class="col-md-6 border-end">
+                        <h6 class="text-primary fw-bold text-uppercase small">5.4 ¿Sufres de alguna enfermedad?</h6>
+                        <div class="d-flex gap-3 mb-2">
+                            <div class="form-check"><input type="radio" asp-for="SufreEnfermedad" value="true" class="form-check-input radio-toggle" data-target="grupo-enfermedad" /> <label class="form-check-label fw-bold">SÍ</label></div>
+                            <div class="form-check"><input type="radio" asp-for="SufreEnfermedad" value="false" class="form-check-input radio-toggle" data-target="grupo-enfermedad" /> <label class="form-check-label fw-bold">NO</label></div>
+                        </div>
+                        <input asp-for="EspecificarEnfermedad" class="form-control form-control-sm grupo-enfermedad" placeholder="ESPECIFICA QUÉ ENFERMEDAD..." />
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="text-primary fw-bold text-uppercase small">5.5 ¿Recibes tratamiento por alguna enfermedad?</h6>
+                        <div class="d-flex gap-3 mb-2">
+                            <div class="form-check"><input type="radio" asp-for="RecibeTratamiento" value="true" class="form-check-input radio-toggle" data-target="grupo-tratamiento" /> <label class="form-check-label fw-bold">SÍ</label></div>
+                            <div class="form-check"><input type="radio" asp-for="RecibeTratamiento" value="false" class="form-check-input radio-toggle" data-target="grupo-tratamiento" /> <label class="form-check-label fw-bold">NO</label></div>
+                        </div>
+                        <input asp-for="EspecificarTratamiento" class="form-control form-control-sm grupo-tratamiento" placeholder="ESPECIFICA EL TRATAMIENTO..." />
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+            <div class="tab-pane fade" id="aspectos-alimentacion">
+
+                <div class="row mb-4">
+                    <div class="col-md-6 border-end">
+                        <h6 class="text-primary fw-bold text-uppercase small">6.1 Alimentos que consumes al día:</h6>
+                        <div class="d-flex flex-wrap gap-3 mt-2">
+                            <div class="form-check"><input asp-for="AlimentoDiaDesayuno" class="form-check-input" /> <label class="form-check-label small">DESAYUNO</label></div>
+                            <div class="form-check"><input asp-for="AlimentoDiaRefrigerio" class="form-check-input" /> <label class="form-check-label small">REFRIGERIO</label></div>
+                            <div class="form-check"><input asp-for="AlimentoDiaAlmuerzo" class="form-check-input" /> <label class="form-check-label small">ALMUERZO</label></div>
+                            <div class="form-check"><input asp-for="AlimentoDiaCena" class="form-check-input" /> <label class="form-check-label small">CENA</label></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary fw-bold text-uppercase small">6.2 ¿Qué alimentos consumes en tu casa?</h6>
+                        <div class="d-flex flex-wrap gap-3 mt-2">
+                            <div class="form-check"><input asp-for="AlimentoCasaDesayuno" class="form-check-input" /> <label class="form-check-label small">DESAYUNO</label></div>
+                            <div class="form-check"><input asp-for="AlimentoCasaRefrigerio" class="form-check-input" /> <label class="form-check-label small">REFRIGERIO</label></div>
+                            <div class="form-check"><input asp-for="AlimentoCasaAlmuerzo" class="form-check-input" /> <label class="form-check-label small">ALMUERZO</label></div>
+                            <div class="form-check"><input asp-for="AlimentoCasaCena" class="form-check-input" /> <label class="form-check-label small">CENA</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase small">6.3 ¿Llevas dinero a la Institución educativa para tu refrigerio?</h6>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input type="radio" asp-for="LlevaDineroRefrigerio" value="true" class="form-check-input radio-toggle" data-target="grupo-dinero-ref" />
+                            <label class="form-check-label fw-bold">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" asp-for="LlevaDineroRefrigerio" value="false" class="form-check-input radio-toggle" data-target="grupo-dinero-ref" />
+                            <label class="form-check-label fw-bold">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <h6 class="text-primary fw-bold text-uppercase small">6.4 ¿Qué compras con el dinero que llevas a la Institución Educativa?</h6>
+                    <div class="row mt-2 g-3 ms-1">
+                        <div class="col-md-2"><div class="form-check"><input asp-for="CompraGalletas" class="form-check-input grupo-dinero-ref" /> <label class="form-check-label small">GALLETAS</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="CompraManzana" class="form-check-input grupo-dinero-ref" /> <label class="form-check-label small">MANZANA</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="CompraPan" class="form-check-input grupo-dinero-ref" /> <label class="form-check-label small">PAN</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="CompraMarciano" class="form-check-input grupo-dinero-ref" /> <label class="form-check-label small">MARCIANO</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="CompraEmpanadas" class="form-check-input grupo-dinero-ref" /> <label class="form-check-label small">EMPANADAS</label></div></div>
+                        <div class="col-md-2"><input asp-for="CompraOtros" class="form-control form-control-sm grupo-dinero-ref" placeholder="OTROS" /></div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase small">6.5 ¿En tu casa qué alimentos consumen más?</h6>
+                    <div class="row mt-2 g-3 ms-1">
+                        <div class="col-md-2"><div class="form-check"><input asp-for="ConsumeMasArroz" class="form-check-input" /> <label class="form-check-label small">ARROZ</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="ConsumeMasMenestra" class="form-check-input" /> <label class="form-check-label small">MENESTRA</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="ConsumeMasAvena" class="form-check-input" /> <label class="form-check-label small">AVENA</label></div></div>
+                        <div class="col-md-2"><div class="form-check"><input asp-for="ConsumeMasCarne" class="form-check-input" /> <label class="form-check-label small">CARNE</label></div></div>
+                        <div class="col-md-3"><input asp-for="ConsumeMasOtros" class="form-control form-control-sm" placeholder="OTROS" /></div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="tab-pane fade" id="aspecto-academico">
+
+                <div class="mb-4">
+                    <h6 class="text-primary fw-bold text-uppercase small">7.1 ¿Repetiste algún año?</h6>
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input type="radio" asp-for="RepitioAnio" value="true" class="form-check-input radio-toggle" data-target="grupo-repitencia" />
+                                    <label class="form-check-label">SÍ</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" asp-for="RepitioAnio" value="false" class="form-check-input radio-toggle" data-target="grupo-repitencia" />
+                                    <label class="form-check-label">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <input asp-for="CualAnioRepitio" class="form-control form-control-sm grupo-repitencia" placeholder="¿CUÁL (ES)?" />
+                                </div>
+                                <div class="col-md-8">
+                                    <input asp-for="MotivoRepitencia" class="form-control form-control-sm grupo-repitencia" placeholder="MOTIVO (S)" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-4">
+                    <div class="col-md-4 border-end">
+                        <h6 class="text-primary fw-bold text-uppercase small">7.2 ¿Cuentas con horario de estudio?</h6>
+                        <div class="d-flex gap-3 mt-2">
+                            <div class="form-check"><input type="radio" asp-for="TieneHorarioEstudio" value="true" class="form-check-input" /> <label class="form-check-label">SÍ</label></div>
+                            <div class="form-check"><input type="radio" asp-for="TieneHorarioEstudio" value="false" class="form-check-input" /> <label class="form-check-label">NO</label></div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h6 class="text-primary fw-bold text-uppercase small">7.3 Horas al día asignadas para:</h6>
+                        <div class="row g-2 text-center mt-1">
+                            <div class="col"><label class="small fw-bold">TAREAS</label><input asp-for="HorasTareas" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                            <div class="col"><label class="small fw-bold">LECTURA</label><input asp-for="HorasLectura" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                            <div class="col"><label class="small fw-bold">TV</label><input asp-for="HorasTV" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                            <div class="col"><label class="small fw-bold">JUEGO</label><input asp-for="HorasJuego" type="number" class="form-control form-control-sm text-center" min="0" /></div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row g-4">
+                    <div class="col-md-4 border-end">
+                        <h7 class="fw-bold text-primary text-uppercase small border-bottom d-block mb-3">🏠 En Casa</h7>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.4 ¿Espacio adecuado para actividades?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="EspacioAdecuadoCasa" value="true" class="btn-check" id="casa1s"><label class="btn btn-outline-primary" for="casa1s">SÍ</label>
+                                <input type="radio" asp-for="EspacioAdecuadoCasa" value="false" class="btn-check" id="casa1n"><label class="btn btn-outline-primary" for="casa1n">NO</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.5 ¿Fácil iniciar tareas/estudio?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="FacilIniciarTareas" value="true" class="btn-check" id="casa2s"><label class="btn btn-outline-primary" for="casa2s">SÍ</label>
+                                <input type="radio" asp-for="FacilIniciarTareas" value="false" class="btn-check" id="casa2n"><label class="btn btn-outline-primary" for="casa2n">NO</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.6 ¿Terminas antes de levantarte?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="NoSeLevantaHastaTerminar" value="true" class="btn-check" id="casa3s"><label class="btn btn-outline-primary" for="casa3s">SÍ</label>
+                                <input type="radio" asp-for="NoSeLevantaHastaTerminar" value="false" class="btn-check" id="casa3n"><label class="btn btn-outline-primary" for="casa3n">NO</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 border-end">
+                        <h7 class="fw-bold text-success text-uppercase small border-bottom d-block mb-3">🏫 En el Colegio</h7>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.7 ¿Fácil comprender a docentes?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="FacilComprenderDocentes" value="true" class="btn-check" id="col1s"><label class="btn btn-outline-success" for="col1s">SÍ</label>
+                                <input type="radio" asp-for="FacilComprenderDocentes" value="false" class="btn-check" id="col1n"><label class="btn btn-outline-success" for="col1n">NO</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.8 ¿Aula adecuada para clases?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="AulaAdecuada" value="true" class="btn-check" id="col2s"><label class="btn btn-outline-success" for="col2s">SÍ</label>
+                                <input type="radio" asp-for="AulaAdecuada" value="false" class="btn-check" id="col2n"><label class="btn btn-outline-success" for="col2n">NO</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.9 ¿Fácil expresarte/exponer?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="FacilExpresarOpiniones" value="true" class="btn-check" id="col3s"><label class="btn btn-outline-success" for="col3s">SÍ</label>
+                                <input type="radio" asp-for="FacilExpresarOpiniones" value="false" class="btn-check" id="col3n"><label class="btn btn-outline-success" for="col3n">NO</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h7 class="fw-bold text-info text-uppercase small border-bottom d-block mb-3">👤 En lo Personal</h7>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.10 ¿Comprendes lo que lees?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="ComprendeLoQueLee" value="true" class="btn-check" id="per1s"><label class="btn btn-outline-info" for="per1s">SÍ</label>
+                                <input type="radio" asp-for="ComprendeLoQueLee" value="false" class="btn-check" id="per1n"><label class="btn btn-outline-info" for="per1n">NO</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.11 ¿Fácil retener información?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="FacilRetenerInformacion" value="true" class="btn-check" id="per2s"><label class="btn btn-outline-info" for="per2s">SÍ</label>
+                                <input type="radio" asp-for="FacilRetenerInformacion" value="false" class="btn-check" id="per2n"><label class="btn btn-outline-info" for="per2n">NO</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small d-block mb-1">7.12 ¿Logras concentrarte?</label>
+                            <div class="btn-group btn-group-sm w-100">
+                                <input type="radio" asp-for="LograConcentrarse" value="true" class="btn-check" id="per3s"><label class="btn btn-outline-info" for="per3s">SÍ</label>
+                                <input type="radio" asp-for="LograConcentrarse" value="false" class="btn-check" id="per3n"><label class="btn btn-outline-info" for="per3n">NO</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row">
+                    <div class="col-md-6 border-end">
+                        <h6 class="text-primary fw-bold text-uppercase small">7.13 Curso(s) más fáciles:</h6>
+                        <textarea asp-for="CursosFaciles" class="form-control form-control-sm" rows="2" placeholder="Escribe aquí..."></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary fw-bold text-uppercase small">7.14 Curso(s) más difíciles:</h6>
+                        <textarea asp-for="CursosDificiles" class="form-control form-control-sm" rows="2" placeholder="Escribe aquí..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <div class="tab-pane fade" id="aspecto-emocional">
+                <h6 class="text-danger fw-bold text-uppercase mb-3">VIII. ASPECTO EMOCIONAL</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Pregunta</th>
+                                <th class="text-center" style="width: 150px;">Respuesta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>8.1. ¿Te consideras tímido/a?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoTimidez)' /></td></tr>
+                            <tr><td>8.2. ¿Te pones nervioso/a en exámenes?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoNerviosismo)' /></td></tr>
+                            <tr><td>8.3. ¿Cumples las normas de convivencia?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoCumpleNormas)' /></td></tr>
+                            <tr><td>8.4. ¿Te es fácil hablar con tus compañeros?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoHablaCompaneros)' /></td></tr>
+                            <tr><td>8.5. ¿Tienes algún temor constante?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoTieneTemor)' /></td></tr>
+                            <tr><td>8.6. ¿Problemas con algún compañero?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoProblemaCompanero)' /></td></tr>
+                            <tr><td>8.7. ¿Te han agredido en el aula?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoAgredidoAula)' /></td></tr>
+                            <tr><td>8.8. ¿Consumes alguna sustancia tóxica?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoConsumeSustancias)' /></td></tr>
+                            <tr><td>8.9. ¿Controlas tus impulsos?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoControlaImpulsos)' /></td></tr>
+                            <tr><td>8.10. ¿Te sientes triste seguido?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoSienteTristeza)' /></td></tr>
+                            <tr><td>8.11. ¿Influyen los problemas familiares?</td><td><partial name="_SiNoToggle" model='nameof(Model.EmoInfluyeFamilia)' /></td></tr>
+                            <tr class="table-warning">
+                                <td class="fw-bold text-danger">8.12. ¿Pensaste en quitarte la vida?</td>
+                                <td><partial name="_SiNoToggle" model='nameof(Model.EmoPensamientoSuicida)' /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="tab-pane fade" id="aspecto-social">
+                <h6 class="text-primary fw-bold text-uppercase mb-3 border-bottom pb-2">IX. ASPECTO SOCIAL</h6>
+
+                <div class="table-responsive shadow-sm rounded">
+                    <table class="table table-hover align-middle border mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Indicadores de Interacción Social</th>
+                                <th class="text-center" style="width: 180px;">Respuesta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-3">9.1. ¿Prefieres estar con tus amigos que acudir al colegio?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocPrefiereAmigos)' /></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">9.2. ¿Tus amigos/as son mayores que tú?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocAmigosMayores)' /></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">9.3. ¿Tus amigos/as son menores que tú?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocAmigosMenores)' /></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">9.4. ¿Tus amigos/as consumen alguna sustancia tóxica?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocAmigosConsumen)' /></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">9.5. ¿Asistes a eventos o bailes sociales?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocAsisteEventos)' /></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">9.6. ¿Sientes que tus amigos/as te presionan para hacer cosas que no te agradan?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocPresionAmigos)' /></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">9.7. ¿Asistes a eventos de tu iglesia?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocAsisteIglesia)' /></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">9.8. ¿Asistes a talleres extra escolares?</td>
+                                <td class="text-center"><partial name="_SiNoToggle" model='nameof(Model.SocAsisteTalleres)' /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="tab-pane fade" id="recursos-personales">
+                <h6 class="text-primary fw-bold text-uppercase mb-4 border-bottom pb-2">X. RECURSOS PERSONALES</h6>
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="card border-0 bg-light shadow-sm">
+                            <div class="card-body">
+                                <label class="form-label fw-bold text-secondary small">10.1. ¿Cuál es tu motivación personal en la vida?</label>
+                                <textarea asp-for="RecPersMotivacion" class="form-control border-0 shadow-none" rows="3" placeholder="Describe qué te impulsa cada día..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card border-0 bg-light shadow-sm">
+                            <div class="card-body">
+                                <label class="form-label fw-bold text-secondary small">10.2. ¿Por qué asistes al colegio?</label>
+                                <textarea asp-for="RecPersPorqueColegio" class="form-control border-0 shadow-none" rows="3" placeholder="Tu razón fundamental para estudiar..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card border-0 bg-light shadow-sm">
+                            <div class="card-body">
+                                <label class="form-label fw-bold text-secondary small">10.3. ¿Qué actividades disfrutas realizar?</label>
+                                <textarea asp-for="RecPersActividadesDisfruta" class="form-control border-0 shadow-none" rows="3" placeholder="Hobbies, talentos, pasatiempos..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card border-0 bg-light shadow-sm">
+                            <div class="card-body">
+                                <label class="form-label fw-bold text-secondary small">10.4. ¿Cuáles son tus cualidades y/o habilidades personales?</label>
+                                <textarea asp-for="RecPersCualidadesHabilidades" class="form-control border-0 shadow-none" rows="3" placeholder="Menciona tus fortalezas y talentos..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
 
-        <div class="mt-4 text-end">
-            <button type="submit" class="btn btn-primary btn-lg px-5 shadow"><i class="fas fa-save me-2"></i>Guardar Ficha Completa</button>
+        <div class="mt-5 p-4 bg-light border rounded text-center">
+            <div class="d-flex justify-content-center gap-3">
+
+                <button type="submit" name="accion" value="guardar" class="btn btn-primary btn-lg px-4 shadow">
+                    <i class="bi bi-save me-2"></i> GUARDAR AVANCE
+                </button>
+
+                <button type="button" onclick="confirmarFinalizacion()" class="btn btn-danger btn-lg px-4 shadow">
+                    <i class="bi bi-check-circle-fill me-2"></i> FINALIZAR FICHA
+                </button>
+
+            </div>
+            <p class="text-muted small mt-3">
+                * "Guardar avance" permite seguir editando después. <br />
+                * "Finalizar" bloquea la ficha para siempre.
+            </p>
         </div>
+
+        <input type="hidden" asp-for="EsFinalizada" id="inputEsFinalizada" />
     </form>
+
+
+
 </div>
 
 @section Scripts {
@@ -168,6 +927,92 @@
             const fila = document.getElementById(`fila-${idx}`);
             if (fila) fila.remove();
         }
+
+        function toggleInputs(grupo, habilitar) {
+            
+            const elementos = document.querySelectorAll(`.grupo-${grupo}`);
+
+            elementos.forEach(el => {
+                el.disabled = !habilitar;
+
+                if (!habilitar) {
+                    
+                    if (el.type === "text" || el.type === "number") {
+                        el.value = "";
+                    }
+                    
+                    if (el.type === "checkbox") {
+                        el.checked = false;
+                    }
+                }
+            });
+        }
+
+
+
+
+
+                
+
+
+
+
+        @if (Model.EsFinalizada)
+        {
+                <text>
+                $(document).ready(function() {
+                    $("input, select, textarea, button").prop("disabled", true);
+                    $(".btn-danger, .btn-primary").hide(); 
+                });
+                </text>
+        }
+
+
+
+
+
+
+
+
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var mensaje = "@TempData["Mensaje"]";
+            if (mensaje === "creado" || mensaje === "actualizado") {
+                Swal.fire({
+                    title: '¡Buen trabajo!',
+                    text: 'El avance de la ficha se ha guardado correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Continuar'
+                });
+            }
+
+            var error = "@TempData["Error"]";
+            if (error) {
+                Swal.fire('Error', error, 'error');
+            }
+        });
+
+        
+        function confirmarFinalizacion() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "No podrás editar esta ficha después de finalizarla.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, finalizar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById("inputEsFinalizada").value = "true";
+                    document.getElementById("inputEsFinalizada").closest('form').submit();
+                }
+            });
+        }
+
     </script>
 
     <style>

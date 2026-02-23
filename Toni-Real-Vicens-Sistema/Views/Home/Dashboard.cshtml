@@ -1,0 +1,38 @@
+﻿<div class="container mt-4">
+    <h2 class="mb-4">Bienvenido, @Context.Session.GetString("UsuarioNombre")</h2>
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-primary text-white h-100 p-3">
+                <i class="bi bi-people fs-1 mb-2"></i>
+                <h5>Usuarios</h5>
+                <p class="small">Gestión de personal</p>
+                <a asp-controller="Usuarios" asp-action="Index" class="btn btn-light btn-sm mt-auto">Entrar</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-success text-white h-100 p-3">
+                <i class="bi bi-person-badge fs-1 mb-2"></i>
+                <h5>Alumnos</h5>
+                <p class="small">Listado y edición</p>
+                <a asp-controller="Alumnos" asp-action="Index" class="btn btn-light btn-sm mt-auto">Entrar</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark h-100 p-3">
+                <i class="bi bi-calendar-event fs-1 mb-2"></i>
+                <h5>Citas</h5>
+                <p class="small">Agenda diaria</p>
+                <a asp-controller="Citas" asp-action="Index" class="btn btn-dark btn-sm mt-auto">Entrar</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-info text-white h-100 p-3">
+                <i class="bi bi-file-earmark-medical fs-1 mb-2"></i>
+                <h5>Fichas</h5>
+                <p class="small">Historiales psicopedagógicos</p>
+                <a asp-controller="Fichas" asp-action="Index" class="btn btn-light btn-sm mt-auto">Entrar</a>
+            </div>
+        </div>
+    </div>
+</div>

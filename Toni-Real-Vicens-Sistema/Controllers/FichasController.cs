@@ -29,19 +29,16 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             CargarDatosAlumnoEnVista(alumno, cita);
 
             
-            if (cita.Tipo == "Seguimiento")
+            var fichasExistentes = await _fichaService.GetByAlumnoAsync(cita.AlumnoId);
+            var fichaPrevia = fichasExistentes.FirstOrDefault(f => f.CitaId == citaId);
+
+            if (fichaPrevia != null)
             {
-                var fichaSeg = new FichaSeguimiento
-                {
-                    AlumnoId = cita.AlumnoId,
-                    CitaId = cita.Id,
-                    Fecha = DateTime.Now
-                };
-                return View("CreateSeguimiento", fichaSeg);
+                
+                return View(fichaPrevia);
             }
 
             
-
             var ficha = new FichaDiagnostica
             {
                 AlumnoId = cita.AlumnoId,
@@ -61,23 +58,38 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(FichaDiagnostica ficha)
         {
-           
-            if (!ModelState.IsValid)
+            try
             {
-               
+                if (string.IsNullOrEmpty(ficha.Id))
+                {
+                    ficha.Id = await _fichaService.AddAsync(ficha);
+                    TempData["Mensaje"] = "creado";
+                }
+                else
+                {
+                    await _fichaService.UpdateAsync(ficha);
+                    TempData["Mensaje"] = "actualizado";
+                }
+
+                if (ficha.EsFinalizada)
+                {
+                    await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
+                    return RedirectToAction("Index", "Citas");
+                }
+
+                
                 var cita = await _citaService.GetByIdAsync(ficha.CitaId);
                 var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
                 CargarDatosAlumnoEnVista(alumno, cita);
+
+                
                 return View(ficha);
             }
-
-            
-            await _fichaService.AddAsync(ficha);
-
-            
-            await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
-
-            return RedirectToAction("Index", "Alumnos");
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error: " + ex.Message;
+                return View(ficha);
+            }
         }
 
 

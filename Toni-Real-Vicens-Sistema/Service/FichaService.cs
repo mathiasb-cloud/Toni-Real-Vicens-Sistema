@@ -7,17 +7,29 @@ namespace Toni_Real_Vicens_Sistema.Service
     {
         public FichaService(IConfiguration config) : base(config) { }
 
-        public async Task AddAsync(FichaDiagnostica ficha)
+        
+        public async Task<string> AddAsync(FichaDiagnostica ficha)
+        {
+            var result = await _firebase
+                .Child("Fichas")
+                .PostAsync(ficha);
+
+            return result.Key; 
+        }
+
+        
+        public async Task UpdateAsync(FichaDiagnostica ficha)
         {
             await _firebase
                 .Child("Fichas")
-                .PostAsync(ficha);
+                .Child(ficha.Id) 
+                .PutAsync(ficha);
         }
 
         public async Task AddSeguimientoAsync(FichaSeguimiento ficha)
         {
             await _firebase
-                .Child("FichasSeguimiento") 
+                .Child("FichasSeguimiento")
                 .PostAsync(ficha);
         }
 
