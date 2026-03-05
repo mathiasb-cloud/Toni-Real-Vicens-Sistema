@@ -1,146 +1,250 @@
 ﻿@model List<Toni_Real_Vicens_Sistema.Models.Cita>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2><i class="bi bi-calendar-check"></i> Listado de Citas</h2>
-        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva Cita</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #4a5568;">
+                <i class="bi bi-calendar2-check-fill me-2" style="color: #764ba2;"></i> Gestión de Citas
+            </h2>
+            <p class="text-muted small mb-0">Monitoreo de sesiones y estados de atención psicopedagógica.</p>
+        </div>
+        <a asp-action="Create" class="btn text-white px-4 py-2 shadow-sm"
+           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+            <i class="bi bi-plus-lg me-2"></i> Nueva Cita
+        </a>
     </div>
 
-    <table class="table table-striped border shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Fecha y Hora</th>
-                <th>Estudiante</th>
-                <th>Tipo</th>
-                <th>Psicólogo</th>
-                <th class="text-center">Estado</th>
-                <th class="text-center">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var cita in Model)
-            {
-                var nombreAlumno = ViewBag.NombresAlumnos.ContainsKey(cita.AlumnoId)
-                ? ViewBag.NombresAlumnos[cita.AlumnoId]
-                : "Desconocido";
-                <tr>
-                    <td>@cita.FechaHora?.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td><strong>@nombreAlumno</strong></td>
-                    <td>@cita.Tipo</td>
-                    <td>@cita.Psicologo</td>
-                    <td class="text-center">
-                        @if (cita.Estado == "Pendiente")
-                        {
-                            <span class="badge bg-warning text-dark">Pendiente</span>
-                        }
-                        else if (cita.Estado == "Atendida")
-                        {
-                            <span class="badge bg-success">Finalizada</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-info">@cita.Estado</span>
-                        }
-                    </td>
-                    <td class="text-center align-middle">
-                        <div class="d-flex justify-content-center align-items-center gap-2">
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="card-body p-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="searchInput" class="form-control border-0 shadow-none" placeholder="Buscar alumno...">
+                    </div>
+                </div>
 
-                            @if (cita.Estado == "Pendiente")
-                            {
-                                <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
-                                   class="btn btn-success btn-sm d-flex align-items-center shadow-sm px-3">
-                                    <i class="bi bi-play-fill me-1"></i> Atender
-                                </a>
-                            }
-                            else if (cita.Estado == "Atendida")
-                            {
-                                <button class="btn btn-secondary btn-sm d-flex align-items-center shadow-sm px-3" disabled>
-                                    <i class="bi bi-check-circle me-1"></i> Finalizada
-                                </button>
-                            }
-                            else
-                            {
-                                <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
-                                   class="btn btn-info btn-sm d-flex align-items-center shadow-sm text-white px-3">
-                                    <i class="bi bi-pencil-square me-1"></i> Continuar
-                                </a>
-                            }
+                <div class="col-md-2">
+                    <select id="filterTipo" class="form-select border-0 bg-light small fw-bold" style="border-radius: 8px;">
+                        <option value="todos">Todos los Tipos</option>
+                        <option value="Evaluación">Diagnóstica</option>
+                        <option value="Seguimiento">Seguimiento</option>
+                    </select>
+                </div>
 
-                            <button type="button"
-                                    class="btn btn-danger btn-sm shadow-sm d-flex align-items-center justify-content-center"
-                                    style="width: 35px; height: 31px;"
-                                    onclick="confirmarEliminacion('@cita.Id', '@nombreAlumno')">
-                                <i class="bi bi-trash3"></i>
-                            </button>
+                <div class="col-md-2">
+                    <select id="filterEstado" class="form-select border-0 bg-light small fw-bold" style="border-radius: 8px;">
+                        <option value="todos">Todos los Estados</option>
+                        <option value="Programada">📅 Programadas</option>
+                        <option value="Pendiente">⏳ En Proceso</option>
+                        <option value="Atendida">✅ Finalizadas</option>
+                    </select>
+                </div>
 
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                <div class="col-md-5 text-end">
+                    <span class="small text-muted me-2">Ordenar por fecha:</span>
+                    <select id="sortOrder" class="btn btn-sm btn-light border shadow-none fw-bold" style="border-radius: 8px;">
+                        <option value="desc">Más recientes</option>
+                        <option value="asc">Más antiguos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="citasTable">
+                <thead style="background-color: #f8faff;">
+                    <tr>
+                        <th class="ps-4 py-3 text-secondary small border-0">FECHA Y HORA</th>
+                        <th class="py-3 text-secondary small border-0">ESTUDIANTE</th>
+                        <th class="py-3 text-secondary small border-0">TIPO</th>
+                        <th class="py-3 text-secondary small border-0">PSICÓLOGO</th>
+                        <th class="py-3 text-secondary small border-0 text-center">ESTADO</th>
+                        <th class="py-3 text-secondary small border-0 text-center">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cita in Model)
+                    {
+                        var nombreAlumno = ViewBag.NombresAlumnos.ContainsKey(cita.AlumnoId)
+                        ? ViewBag.NombresAlumnos[cita.AlumnoId]
+                        : "Desconocido";
+
+                        <tr data-estado="@cita.Estado" data-tipo="@cita.Tipo" data-ticks="@(cita.FechaHora?.Ticks ?? 0)">
+                            <td class="ps-4 text-dark fw-medium">
+                                @cita.FechaHora?.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                            <td><strong class="text-dark">@nombreAlumno</strong></td>
+                            <td>
+                                @if (cita.Tipo == "Evaluación")
+                                {
+                                    <span class="text-primary small fw-bold"><i class="bi bi-clipboard2-pulse me-1"></i>Diagnóstica</span>
+                                }
+                                else
+                                {
+                                    <span class="text-info small fw-bold"><i class="bi bi-arrow-repeat me-1"></i>Seguimiento</span>
+                                }
+                            </td>
+                            <td><i class="bi bi-person-badge me-1"></i> @cita.Psicologo</td>
+                            <td class="text-center">
+                                @if (cita.Estado == "Programada")
+                                {
+                                    <span class="badge px-3 py-2" style="background: #fff9db; color: #f08c00; border-radius: 8px;">Programada</span>
+                                }
+                                else if (cita.Estado == "Pendiente")
+                                {
+                                    <span class="badge px-3 py-2" style="background: #e1f5fe; color: #0288d1; border-radius: 8px;">En Proceso</span>
+                                }
+                                else if (cita.Estado == "Atendida")
+                                {
+                                    <span class="badge px-3 py-2" style="background: #ebfbee; color: #2b8a3e; border-radius: 8px;">Finalizada</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <button class="btn btn-sm btn-light border shadow-sm rounded-pill px-2"
+                                            onclick="verDetalleCita('@nombreAlumno', '@cita.FechaHora', '@cita.Tipo', '@cita.Psicologo', '@cita.Estado')">
+                                        <i class="bi bi-eye-fill text-primary"></i>
+                                    </button>
+
+                                    @if (cita.Estado == "Programada")
+                                    {
+                                        <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
+                                           class="btn btn-sm text-white px-3 shadow-sm" style="background: #38b2ac; border-radius: 8px;">
+                                            <i class="bi bi-play-fill me-1"></i>Atender
+                                        </a>
+                                    }
+                                    else if (cita.Estado == "Pendiente")
+                                    {
+                                        <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
+                                           class="btn btn-sm text-white px-3 shadow-sm" style="background: #4299e1; border-radius: 8px;">
+                                            <i class="bi bi-pencil-square me-1"></i>Continuar
+                                        </a>
+                                    }
+
+                                    <button type="button" class="btn btn-outline-danger btn-sm border-0 rounded-circle"
+                                            style="width: 32px; height: 32px; background: #fff5f5;"
+                                            onclick="confirmarEliminacion('@cita.Id', '@nombreAlumno')">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function confirmarEliminacion(id, nombre) {
+        $(document).ready(function(){
+            
+            $("#searchInput, #filterEstado, #filterTipo").on("keyup change", function() {
+                var search = $("#searchInput").val().toLowerCase();
+                var estado = $("#filterEstado").val();
+                var tipo = $("#filterTipo").val();
+
+                $("#citasTable tbody tr").each(function() {
+                    var row = $(this);
+                    var text = row.text().toLowerCase();
+                    var rowEstado = row.data("estado");
+                    var rowTipo = row.data("tipo");
+
+                    var matchSearch = text.indexOf(search) > -1;
+                    var matchEstado = (estado === "todos" || rowEstado === estado);
+                    var matchTipo = (tipo === "todos" || rowTipo === tipo);
+
+                    
+                    row.toggle(matchSearch && matchEstado && matchTipo);
+                });
+            });
+
+            
+            $("#sortOrder").on("change", function() {
+                var tbody = $("#citasTable tbody");
+                var rows = tbody.find("tr").get();
+                var order = $(this).val();
+
+                rows.sort(function(a, b) {
+                    var keyA = $(a).data("ticks");
+                    var keyB = $(b).data("ticks");
+                    return order === "asc" ? keyA - keyB : keyB - keyA;
+                });
+                $.each(rows, function(index, row) { tbody.append(row); });
+            });
+
+            
+            $("#sortOrder").trigger("change");
+        });
+
+        function verDetalleCita(alumno, fecha, tipo, psicologo, estado) {
+            Swal.fire({
+                title: 'Detalle de la Cita',
+                html: `
+                    <div class="text-start p-2" style="font-size: 0.95rem;">
+                        <p class="mb-1"><strong><i class="bi bi-person me-2"></i>Alumno:</strong> ${alumno}</p>
+                        <p class="mb-1"><strong><i class="bi bi-calendar-event me-2"></i>Fecha:</strong> ${fecha}</p>
+                        <p class="mb-1"><strong><i class="bi bi-tags me-2"></i>Tipo:</strong> ${tipo}</p>
+                        <p class="mb-1"><strong><i class="bi bi-person-badge me-2"></i>Psicólogo:</strong> ${psicologo}</p>
+                        <p class="mb-0"><strong><i class="bi bi-info-circle me-2"></i>Estado:</strong> ${estado}</p>
+                    </div>`,
+                icon: 'info',
+                confirmButtonColor: '#764ba2',
+                borderRadius: '15px'
+            });
+        }
+
+                function confirmarEliminacion(id, nombre) {
             
             Swal.fire({
                 title: '¿Eliminar cita?',
-                text: "Se borrará la cita de " + nombre + ". ¿Deseas continuar?",
+                text: "Esta acción iniciará el proceso de borrado para el alumno: " + nombre,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, borrar',
-                cancelButtonText: 'Cancelar'
+                confirmButtonColor: '#764ba2', 
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar',
+                borderRadius: '15px'
             }).then((result) => {
                 if (result.isConfirmed) {
+
                     
                     Swal.fire({
-                        title: '¿Seguro que desea eliminar la cita?',
-                        text: "Esta acción es irreversible y eliminará el registro de la ficha permanentemente.",
+                        title: '¿ESTÁS COMPLETAMENTE SEGURO?',
+                        text: "Se eliminará la cita Y TODA LA FICHA diagnóstica/seguimiento asociada. Esta acción NO se puede deshacer.",
                         icon: 'error',
                         showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: '¡SÍ, ELIMINAR DEFINITIVAMENTE!',
-                        cancelButtonText: 'Me arrepentí'
+                        confirmButtonColor: '#d33', 
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'SÍ, ELIMINAR TODO',
+                        cancelButtonText: 'Me arrepentí',
+                        borderRadius: '15px'
                     }).then((finalResult) => {
                         if (finalResult.isConfirmed) {
-                            ejecutarEliminacion(id);
+                            
+                            $.post('@Url.Action("Delete", "Citas")', { id: id }, function(res) {
+                                if(res.success) {
+                                    Swal.fire({
+                                        title: 'Eliminado',
+                                        text: 'El registro ha sido removido de Base de Datos correctamente.',
+                                        icon: 'success',
+                                        borderRadius: '15px'
+                                    }).then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', res.message || 'No se pudo eliminar.', 'error');
+                                }
+                            }).fail(function() {
+                                Swal.fire('Error', 'Hubo un fallo en la conexión con el servidor.', 'error');
+                            });
                         }
                     });
                 }
             });
         }
-
-        function ejecutarEliminacion(id) {
-            $.ajax({
-                url: '@Url.Action("Delete", "Citas")', 
-                type: 'POST',
-                data: { id: id },
-                success: function (response) {
-                    Swal.fire('Eliminado', 'La cita ha sido removida.', 'success')
-                    .then(() => location.reload());
-                },
-                error: function () {
-                    Swal.fire('Error', 'No se pudo eliminar la cita.', 'error');
-                }
-            });
-        }
     </script>
-
-
-    <style>
-        
-        .table .btn-sm {
-            min-width: 35px; 
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
 }

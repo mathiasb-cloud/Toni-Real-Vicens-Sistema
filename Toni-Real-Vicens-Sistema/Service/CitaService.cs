@@ -7,11 +7,13 @@ namespace Toni_Real_Vicens_Sistema.Service
     {
         public CitaService(IConfiguration config) : base(config) { }
 
-        public async Task AddAsync(Cita cita)
+        public async Task<string> AddAsync(Cita cita)
         {
-            await _firebase
+            var resultado = await _firebase
                 .Child("Citas")
                 .PostAsync(cita);
+
+            return resultado.Key;
         }
 
 

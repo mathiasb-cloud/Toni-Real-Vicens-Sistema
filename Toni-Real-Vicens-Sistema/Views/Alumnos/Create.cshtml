@@ -1,109 +1,265 @@
 ﻿@model Toni_Real_Vicens_Sistema.Models.Alumno
 
-@{
-    ViewData["Title"] = "Registrar Alumno";
-}
-
-<h2>Registrar Alumno</h2>
-
-<div asp-validation-summary="All" class="text-danger"></div>
-<form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label class="form-label">Nombres</label>
-        <input asp-for="Nombres" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Apellidos</label>
-        <input asp-for="Apellidos" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">DNI</label>
-        <input asp-for="DNI" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Sexo</label>
-        <select asp-for="Sexo" class="form-select">
-            <option value="">-- Seleccione --</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="No especifica">No especifica</option>
-        </select>
-
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Fecha de nacimiento</label>
-        <input asp-for="FechaNacimiento" type="date" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Lugar de nacimiento</label>
-        <input asp-for="LugarNacimiento" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Sección</label>
-        <input asp-for="Seccion" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Teléfono del alumno</label>
-        <input asp-for="TelefonoAlumno" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Teléfono de emergencia</label>
-        <input asp-for="TelefonoEmergencia" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Tutor</label>
-        <input asp-for="Tutor" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Teléfono tutor</label>
-        <input asp-for="TutorTelefono" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Nivel</label>
-        <select asp-for="Nivel" class="form-select">
-            <option value="">-- Seleccione --</option>
-            <option value="Inicial">Inicial</option>
-            <option value="Primaria">Primaria</option>
-            <option value="Secundaria">Secundaria</option>
-        </select>
-
-
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Dirección</label>
-        <input asp-for="Direccion" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Grado</label>
-        <input asp-for="Grado" class="form-control" />
-    </div>
-
-
-    <div class="form-check mb-3">
-        <input asp-for="TieneConadis" class="form-check-input" />
-        <label class="form-check-label">Cuenta con carnet CONADIS</label>
-    </div>
-
+<style>
     
+    .form-control-minimal {
+        border: none;
+        border-bottom: 2px solid #e2e8f0;
+        border-radius: 0;
+        padding: 0.75rem 0.5rem;
+        background-color: transparent;
+        transition: border-color 0.3s ease;
+    }
 
-    <button type="submit" class="btn btn-primary">
-        Guardar
-    </button>
+        .form-control-minimal:focus {
+            box-shadow: none;
+            border-bottom-color: #667eea;
+            background-color: #f8faff;
+        }
 
-    <a asp-action="Index" class="btn btn-secondary">
-        Volver
-    </a>
-</form>
+    .card-custom {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #a0aec0;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #edf2f7;
+        padding-bottom: 5px;
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-custom">
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="d-flex align-items-center mb-5">
+                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-person-plus fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0">Nuevo Estudiante</h3>
+                            <p class="text-muted small mb-0">Los campos con asterisco (*) son obligatorios.</p>
+                        </div>
+                    </div>
+
+                    <form asp-action="Create" method="post" id="formAlumno">
+
+                        <div class="section-title">1. Identidad del Alumno</div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Nombres *</label>
+                                <input asp-for="Nombres" class="form-control form-control-minimal" placeholder="Nombre completo" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Apellidos *</label>
+                                <input asp-for="Apellidos" class="form-control form-control-minimal" placeholder="Apellidos completos" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">DNI *</label>
+                                <input asp-for="DNI" class="form-control form-control-minimal" placeholder="8 dígitos" maxlength="8" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Fecha de Nacimiento *</label>
+                                <input asp-for="FechaNacimiento" type="date" class="form-control form-control-minimal" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Sexo *</label>
+                                <select asp-for="Sexo" class="form-select form-control-minimal" required>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">¿Partida Registrada? *</label>
+                                <select asp-for="NacimientoRegistrado" class="form-select form-control-minimal" required>
+                                    <option value="Sí">Sí</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="section-title">2. Ubicación Escolar</div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Nivel *</label>
+                                <select asp-for="Nivel" id="selectNivel" class="form-select form-control-minimal" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    <option value="Inicial">Inicial</option>
+                                    <option value="Primaria">Primaria</option>
+                                    <option value="Secundaria">Secundaria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Grado *</label>
+                                <select asp-for="Grado" id="selectGrado" class="form-select form-control-minimal" required>
+                                    <option value="">-- Elija Nivel --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted">Sección (Opcional)</label>
+                                <input asp-for="Seccion" class="form-control form-control-minimal" placeholder="Ej: A" />
+                            </div>
+                        </div>
+
+                        <div class="section-title">3. Necesidades Especiales</div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4">
+                                <label class="small fw-bold">¿Discapacidad? *</label>
+                                <select asp-for="Discapacidad" id="selectDiscapacidad" class="form-select form-control-minimal" required>
+                                    <option value="No">No</option>
+                                    <option value="Sí">Sí</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" id="divTipoD" style="display:none;">
+                                <label class="small fw-bold text-primary">Tipo de Discapacidad *</label>
+                                <select asp-for="TipoDiscapacidad" id="selectTipoD" class="form-select form-control-minimal">
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="Inteligencia DI">Inteligencia DI</option>
+                                    <option value="Sordera">Sordera</option>
+                                    <option value="Visual">Visual</option>
+                                    <option value="Motora">Motora</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" id="divOtroD" style="display:none;">
+                                <label class="small fw-bold text-primary">Especifique *</label>
+                                <input asp-for="OtraDiscapacidad" class="form-control form-control-minimal" />
+                            </div>
+                        </div>
+
+                        <div class="section-title">4. Familia y Contacto</div>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Nombre del Tutor *</label>
+                                <input asp-for="Tutor" class="form-control form-control-minimal" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Dirección *</label>
+                                <input asp-for="Direccion" class="form-control form-control-minimal" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted">Teléfono Tutor (Opcional)</label>
+                                <input asp-for="TutorTelefono" class="form-control form-control-minimal" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted">Teléfono Alumno (Opcional)</label>
+                                <input asp-for="TelefonoAlumno" class="form-control form-control-minimal" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted">Emergencias (Opcional)</label>
+                                <input asp-for="TelefonoEmergencia" class="form-control form-control-minimal" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="text-muted text-decoration-none small"><i class="bi bi-chevron-left"></i> Cancelar y volver</a>
+                            <button type="submit" class="btn btn-dark px-5 py-2 shadow" style="border-radius: 10px;">
+                                Registrar Alumno
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            // Función para cargar grados (Extraída para poder usarla al cargar la página)
+            function cargarGrados(nivelSeleccionado, gradoActual = "") {
+                var $grado = $('#selectGrado');
+                $grado.empty();
+
+                var grados = {
+                    'Inicial': ['3 años', '4 años', '5 años'],
+                    'Primaria': ['1ro', '2do', '3ro', '4to', '5to', '6to'],
+                    'Secundaria': ['1ro', '2do', '3ro', '4to', '5to']
+                };
+
+                if (nivelSeleccionado && grados[nivelSeleccionado]) {
+                    $grado.append('<option value="">-- Seleccione Grado --</option>');
+                    $.each(grados[nivelSeleccionado], function (i, v) {
+                        var selected = (v === gradoActual) ? "selected" : "";
+                        $grado.append(`<option value="${v}" ${selected}>${v}</option>`);
+                    });
+                } else {
+                    $grado.append('<option value="">-- Elija Nivel --</option>');
+                }
+            }
+
+            // 1. LÓGICA AL CARGAR LA PÁGINA (Para cuando el registro falla y regresa)
+            var nivelAlCargar = $('#selectNivel').val();
+            var gradoAlCargar = '@Model?.Grado'; // Captura el grado que venía del modelo
+            if (nivelAlCargar) {
+                cargarGrados(nivelAlCargar, gradoAlCargar);
+            }
+
+            // Manejo de visibilidad de discapacidad al cargar
+            if ($('#selectDiscapacidad').val() === 'Sí') {
+                $('#divTipoD').show();
+                if ($('#selectTipoD').val() === 'Otro') {
+                    $('#divOtroD').show();
+                }
+            }
+
+            // 2. EVENTOS DE CAMBIO (Interacción del usuario)
+            $('#selectNivel').change(function () {
+                cargarGrados($(this).val());
+            });
+
+            $('#selectDiscapacidad').change(function () {
+                if ($(this).val() === 'Sí') {
+                    $('#divTipoD').fadeIn();
+                    $('#selectTipoD').attr('required', true);
+                } else {
+                    $('#divTipoD').hide();
+                    $('#divOtroD').hide();
+                    $('#selectTipoD').removeAttr('required').val('');
+                    $('#OtraDiscapacidad').val('');
+                }
+            });
+
+            $('#selectTipoD').change(function() {
+                if($(this).val() === 'Otro') {
+                    $('#divOtroD').fadeIn();
+                    $('#OtraDiscapacidad').attr('required', true);
+                } else {
+                    $('#divOtroD').hide();
+                    $('#OtraDiscapacidad').removeAttr('required').val('');
+                }
+            });
+
+            // 3. VALIDACIÓN FINAL ANTES DE ENVIAR
+            $('#formAlumno').on('submit', function(e) {
+                // Validación manual de campos dinámicos
+                var nivel = $('#selectNivel').val();
+                var grado = $('#selectGrado').val();
+
+                if (!this.checkValidity() || !nivel || !grado) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    Swal.fire({
+                        title: 'Faltan datos',
+                        text: 'Por favor, asegúrese de completar todos los campos obligatorios (*), incluyendo Nivel y Grado.',
+                        icon: 'warning',
+                        confirmButtonColor: '#667eea',
+                        borderRadius: '15px'
+                    });
+                }
+                $(this).addClass('was-validated');
+            });
+        });
+    </script>
+}

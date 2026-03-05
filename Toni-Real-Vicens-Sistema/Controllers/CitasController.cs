@@ -33,35 +33,43 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Cita cita)
+        public async Task<IActionResult> Create(Cita cita, string accion)
         {
-            Console.WriteLine("AlumnoId: " + cita.AlumnoId);
-            Console.WriteLine("FechaHora: " + cita.FechaHora);
-            Console.WriteLine("Tipo: " + cita.Tipo);
-            Console.WriteLine("Psicologo: " + cita.Psicologo);
-
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("MODEL STATE INVALIDO");
-                foreach (var error in ModelState)
-                {
-                    foreach (var e in error.Value.Errors)
-                    {
-                        Console.WriteLine($"Error en {error.Key}: {e.ErrorMessage}");
-                    }
-                }
                 ViewBag.Alumnos = await _alumnoService.GetAllAsync();
                 return View(cita);
             }
 
-            await _citaService.AddAsync(cita);
+            
+            cita.Estado = "Programada";
 
-            Console.WriteLine("GUARDADO OK");
+            
+            string citaId = await _citaService.AddAsync(cita);
 
+            
+            if (accion == "continuar")
+            {
+                
+                await _citaService.UpdateEstadoAsync(citaId, "Pendiente");
 
+                if (cita.Tipo == "Evaluación")
+                {
+                    return RedirectToAction("Create", "Fichas", new { citaId = citaId });
+                }
+                else if (cita.Tipo == "Seguimiento")
+                {
+                    return RedirectToAction("CreateSeguimiento", "Fichas", new { citaId = citaId });
+                }
+            }
 
             return RedirectToAction("Index");
         }
+
+
+
+
+
 
         public async Task<IActionResult> Atender(string id)
         {

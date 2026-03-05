@@ -1,39 +1,99 @@
 ﻿@model Toni_Real_Vicens_Sistema.Models.Cita
 
-<h2>Nueva Cita</h2>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="p-4 text-white text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+                    <i class="bi bi-calendar-plus fs-1"></i>
+                    <h2 class="fw-bold mt-2">Programar Cita</h2>
+                </div>
 
-<form asp-action="Create" method="post">
+                <div class="card-body p-5">
+                    <form asp-action="Create" method="post" id="formCita">
+                        <input type="hidden" name="accion" id="inputAccion" value="agendar" />
 
-    <div class="mb-3">
-        <label>Alumno</label>
-        <select asp-for="AlumnoId" class="form-select">
-            <option value="">-- Seleccione --</option>
-            @foreach (var a in ViewBag.Alumnos)
-            {
-                <option value="@a.Id">
-                    @a.Apellidos @a.Nombres - @a.DNI
-                </option>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">BUSCAR ALUMNO (DNI o Nombre)</label>
+                            <select asp-for="AlumnoId" class="form-select select-buscador" required>
+                                <option value="">Escriba para buscar...</option>
+                                @foreach (var a in ViewBag.Alumnos)
+                                {
+                                    <option value="@a.Id">@a.Apellidos @a.Nombres - @a.DNI</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold text-secondary">FECHA Y HORA</label>
+                                <input asp-for="FechaHora" type="datetime-local" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold text-secondary">TIPO DE CITA</label>
+                                <select asp-for="Tipo" class="form-select" id="selectTipo">
+                                    <option value="Evaluación">Diagnóstica / Evaluación</option>
+                                    <option value="Seguimiento">Seguimiento</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">PSICÓLOGO RESPONSABLE</label>
+                            <input asp-for="Psicologo" class="form-control" value="@Context.Session.GetString("UsuarioNombre")" required />
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <button type="submit" onclick="setAccion('agendar')" class="btn btn-outline-primary w-100 py-3 fw-bold">
+                                    <i class="bi bi-bookmark-plus me-1"></i> SÓLO AGENDAR
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" onclick="setAccion('continuar')" class="btn text-white w-100 py-3 fw-bold shadow" style="background: #38b2ac;">
+                                    <i class="bi bi-play-circle me-1"></i> CREAR Y ATENDER
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        
+        .select2-container--default .select2-selection--single {
+            height: 45px !important;
+            padding: 8px !important;
+            border-radius: 10px !important;
+            border: 1px solid #ced4da !important;
+        }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 42px !important;
             }
-        </select>
-    </div>
+    </style>
+}
 
-    <div class="mb-3">
-        <label>Fecha y Hora</label>
-        <input asp-for="FechaHora" type="datetime-local" class="form-control" />
-    </div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select-buscador').select2({
+                placeholder: "Escriba el nombre o DNI...",
+                allowClear: true,
+                width: '100%'
+            });
+        });
 
-    <div class="mb-3">
-        <label>Tipo</label>
-        <select asp-for="Tipo" class="form-select">
-            <option value="Evaluación">Evaluación</option>
-            <option value="Seguimiento">Seguimiento</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label>Psicólogo</label>
-        <input asp-for="Psicologo" class="form-control" />
-    </div>
-
-    <button class="btn btn-primary">Guardar</button>
-</form>
+        function setAccion(valor) {
+            document.getElementById('inputAccion').value = valor;
+        }
+    </script>
+}

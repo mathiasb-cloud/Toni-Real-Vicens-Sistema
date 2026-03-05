@@ -60,6 +60,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         {
             try
             {
+                
                 if (string.IsNullOrEmpty(ficha.Id))
                 {
                     ficha.Id = await _fichaService.AddAsync(ficha);
@@ -71,18 +72,21 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                     TempData["Mensaje"] = "actualizado";
                 }
 
+                
                 if (ficha.EsFinalizada)
                 {
                     await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
                     return RedirectToAction("Index", "Citas");
                 }
 
-                
+               
+                await _citaService.UpdateEstadoAsync(ficha.CitaId, "Pendiente");
+
+               
                 var cita = await _citaService.GetByIdAsync(ficha.CitaId);
                 var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
                 CargarDatosAlumnoEnVista(alumno, cita);
 
-                
                 return View(ficha);
             }
             catch (Exception ex)
@@ -94,21 +98,51 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
 
 
+        public async Task<IActionResult> CreateSeguimiento(string citaId)
+        {
+            
+            var cita = await _citaService.GetByIdAsync(citaId);
+            if (cita == null) return NotFound();
+
+            
+            ViewBag.CitaId = citaId;
+            ViewBag.AlumnoId = cita.AlumnoId;
+
+            return View();
+        }
+
+
+
 
         // ======================
         // MÉTODO AUXILIAR
         // ======================
         private void CargarDatosAlumnoEnVista(Alumno alumno, Cita cita)
         {
-            ViewBag.AlumnoNombre = alumno.Nombres + " " + alumno.Apellidos;
+            ViewBag.AlumnoNombre = $"{alumno.Nombres} {alumno.Apellidos}";
             ViewBag.DNI = alumno.DNI;
-            ViewBag.Grado = alumno.Grado + " - " + alumno.Nivel;
-            ViewBag.FechaCita = cita.FechaHora?.ToString("dd/MM/yyyy HH:mm");
+            ViewBag.Grado = $"{alumno.Grado} - {alumno.Nivel}";
+            ViewBag.FechaCita = cita.FechaHora?.ToString("dd/MM/yyyy HH:mm") ?? "No programada";
             ViewBag.Tipo = cita.Tipo;
             ViewBag.Psicologo = cita.Psicologo;
 
-            var edad = DateTime.Now.Year - alumno.FechaNacimiento.Year;
-            ViewBag.Edad = edad;
+            // Manejo seguro de DateTime? para la edad
+            int edad = 0;
+            if (alumno.FechaNacimiento.HasValue) // Verificamos si tiene fecha
+            {
+                var hoy = DateTime.Today;
+                var fechaNac = alumno.FechaNacimiento.Value; // Extraemos el valor real
+
+                edad = hoy.Year - fechaNac.Year;
+
+                // Ajuste por si aún no llega su día de cumpleaños
+                if (fechaNac.Date > hoy.AddYears(-edad))
+                {
+                    edad--;
+                }
+            }
+
+            ViewBag.Edad = alumno.FechaNacimiento.HasValue ? edad.ToString() : "N/E";
         }
     }
 }
