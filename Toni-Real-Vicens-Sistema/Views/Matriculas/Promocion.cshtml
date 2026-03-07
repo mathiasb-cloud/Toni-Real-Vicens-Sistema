@@ -1,0 +1,232 @@
+﻿@model List<Toni_Real_Vicens_Sistema.Models.Alumno>
+
+<div class="container-fluid mt-4">
+    <h2><i class="bi bi-rocket-takeoff-fill text-success"></i> Gestión de Promoción Anual</h2>
+    <p class="text-muted">Mueve grupos de alumnos al siguiente grado académico para el periodo 2027.</p>
+    <hr />
+
+    <div class="card shadow-sm mb-4 border-0" style="background-color: #f8f9fa;">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Nivel Actual</label>
+                    <select id="nivelFiltro" class="form-select shadow-sm">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Inicial">Inicial</option>
+                        <option value="Primaria">Primaria</option>
+                        <option value="Secundaria">Secundaria</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Grado Actual</label>
+                    <select id="gradoFiltro" class="form-select shadow-sm">
+                        <option value="">-- Primero elija Nivel --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-success">Promover a (Grado Destino)</label>
+                    <select id="gradoDestino" class="form-select border-success shadow-sm">
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100 shadow-sm" onclick="buscarAlumnosParaPromover()">
+                        <i class="bi bi-search"></i> Filtrar Alumnos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0">Lista de Estudiantes: <span class="badge bg-dark" id="selectedCount">0</span></h5>
+            <button class="btn btn-success px-4 shadow-sm" onclick="confirmarPromocion()">
+                <i class="bi bi-check-circle"></i> Ejecutar Promoción Masiva
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th width="50"><input type="checkbox" id="selectAll" class="form-check-input"></th>
+                        <th>Apellidos y Nombres</th>
+                        <th>DNI</th>
+                        <th>Grado Actual</th>
+                        <th>Sección</th>
+                    </tr>
+                </thead>
+                <tbody id="contenedorTablaAlumnos">
+                    <tr>
+                        <td colspan="5" class="text-center p-5 text-muted">
+                            <i class="bi bi-filter-circle fs-1"></i><br />
+                            Usa los filtros superiores para listar a los alumnos que deseas promover.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // 1. Estructura de grados para los filtros
+        const estructuraGrados = {
+            'Inicial': ['3 años', '4 años', '5 años'],
+            'Primaria': ['1ro', '2do', '3ro', '4to', '5to', '6to'],
+            'Secundaria': ['1ro', '2do', '3ro', '4to', '5to']
+        };
+
+        // 2. Línea de tiempo escolar para saltos de nivel automáticos
+        const ordenEscolar = [
+            { nivel: 'Inicial', grado: '3 años' },
+            { nivel: 'Inicial', grado: '4 años' },
+            { nivel: 'Inicial', grado: '5 años' },
+            { nivel: 'Primaria', grado: '1ro' },
+            { nivel: 'Primaria', grado: '2do' },
+            { nivel: 'Primaria', grado: '3ro' },
+            { nivel: 'Primaria', grado: '4to' },
+            { nivel: 'Primaria', grado: '5to' },
+            { nivel: 'Primaria', grado: '6to' },
+            { nivel: 'Secundaria', grado: '1ro' },
+            { nivel: 'Secundaria', grado: '2do' },
+            { nivel: 'Secundaria', grado: '3ro' },
+            { nivel: 'Secundaria', grado: '4to' },
+            { nivel: 'Secundaria', grado: '5to' }
+        ];
+
+        $(document).ready(function () {
+            // Evento al cambiar Nivel
+            $('#nivelFiltro').change(function () {
+                const nivel = $(this).val();
+                const $gradoFiltro = $('#gradoFiltro');
+                $gradoFiltro.empty().append('<option value="">-- Todos los grados --</option>');
+
+                if (nivel && estructuraGrados[nivel]) {
+                    estructuraGrados[nivel].forEach(g => {
+                        $gradoFiltro.append(`<option value="${g}">${g}</option>`);
+                    });
+                }
+                // Limpiar destino hasta que elijan un grado
+                $('#gradoDestino').empty().append('<option value="">-- Seleccione Grado Actual --</option>');
+            });
+
+            // Evento al cambiar Grado (Cálculo del Destino)
+            $('#gradoFiltro').change(function () {
+                const nivelActual = $('#nivelFiltro').val();
+                const gradoActual = $(this).val();
+                const $gradoDestino = $('#gradoDestino');
+
+                $gradoDestino.empty();
+
+                if (!gradoActual) {
+                    $gradoDestino.append('<option value="">-- Seleccione Grado Actual --</option>');
+                    return;
+                }
+
+                const indexActual = ordenEscolar.findIndex(item => item.nivel === nivelActual && item.grado === gradoActual);
+
+                if (indexActual !== -1) {
+                    if (indexActual < ordenEscolar.length - 1) {
+                        const siguiente = ordenEscolar[indexActual + 1];
+                        // IMPORTANTE: Guardamos el nivel en el atributo data-nivel
+                        $gradoDestino.append(`<option value="${siguiente.grado}" data-nivel="${siguiente.nivel}" selected>
+                            Promover a ${siguiente.grado} de ${siguiente.nivel}
+                        </option>`);
+
+                        if (gradoActual === '6to' || (gradoActual === '5to' && nivelActual === 'Secundaria')) {
+                             $gradoDestino.append('<option value="Egresado" data-nivel="Egresado">Egresado / Graduado</option>');
+                        }
+                    } else {
+                        $gradoDestino.append('<option value="Egresado" data-nivel="Egresado" selected>Egresado (Fin de etapa)</option>');
+                    }
+                }
+            });
+        });
+
+        function buscarAlumnosParaPromover() {
+            const nivel = $("#nivelFiltro").val();
+            const grado = $("#gradoFiltro").val();
+
+            if(!nivel) {
+                Swal.fire("Aviso", "Por favor seleccione un Nivel", "info");
+                return;
+            }
+
+            $("#contenedorTablaAlumnos").html('<tr><td colspan="5" class="text-center p-4"><div class="spinner-border text-primary"></div> Buscando en Firebase...</td></tr>');
+
+            $.get("/Alumnos/GetFiltradosParaPromocion", { nivel: nivel, grado: grado })
+            .done(function (data) {
+                $("#contenedorTablaAlumnos").html(data);
+                actualizarContador();
+            })
+            .fail(function (error) {
+                $("#contenedorTablaAlumnos").html('<tr><td colspan="5" class="text-center text-danger">Error al cargar datos.</td></tr>');
+            });
+        }
+
+        function confirmarPromocion() {
+            let ids = [];
+            $(".alumno-check:checked").each(function() {
+                ids.push($(this).val());
+            });
+
+            const $opcionSeleccionada = $("#gradoDestino option:selected");
+            const gradoDest = $opcionSeleccionada.val();
+            const nivelDest = $opcionSeleccionada.data("nivel"); // Capturamos el nivel (Primaria, Secundaria, etc.)
+
+            if(ids.length === 0) {
+                Swal.fire("Aviso", "Selecciona al menos un alumno", "warning");
+                return;
+            }
+
+            Swal.fire({
+                title: '¿Confirmar Promoción?',
+                html: `Promoverás <b>${ids.length}</b> alumnos a <b>${gradoDest} de ${nivelDest}</b>.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Sí, procesar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Procesando...', didOpen: () => { Swal.showLoading(); } });
+
+                    $.ajax({
+                        url: "/Alumnos/ProcesarPromocionMasiva",
+                        type: "POST",
+                        data: {
+                            alumnosIds: ids,
+                            nuevoGrado: gradoDest,
+                            nuevoNivel: nivelDest, // Enviamos el nivel calculado
+                            nuevoAnio: 2027
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                Swal.fire('¡Éxito!', res.message, 'success').then(() => {
+                                    buscarAlumnosParaPromover();
+                                });
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        $(document).on("change", "#selectAll", function() {
+            $(".alumno-check").prop("checked", $(this).prop("checked"));
+            actualizarContador();
+        });
+
+        $(document).on("change", ".alumno-check", function() {
+            actualizarContador();
+        });
+
+        function actualizarContador() {
+            $("#selectedCount").text($(".alumno-check:checked").length);
+        }
+    </script>
+}

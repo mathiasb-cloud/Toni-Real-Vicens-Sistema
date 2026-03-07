@@ -1,0 +1,167 @@
+﻿@model IEnumerable<Toni_Real_Vicens_Sistema.Models.Alumno>
+
+@{
+    ViewData["Title"] = "Gestión de Fichas Estudiantiles";
+}
+
+<div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+    <div class="row mb-4">
+        <div class="col-12 text-center text-md-start">
+            <h2 class="fw-bold text-dark"><i class="bi bi-folder2-open text-primary me-2"></i>Expedientes Académicos</h2>
+            <p class="text-muted">Visualización detallada de fichas diagnósticas y de seguimiento.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="card-body p-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group input-group-merge border rounded-pill px-3 py-1">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="smartSearch" class="form-control border-0 bg-transparent" placeholder="Buscar por DNI, Nombre o Apellido...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select border-0 bg-light rounded-pill" id="filterNivel">
+                        <option value="">Todos los Niveles</option>
+                        <option value="Inicial">Inicial</option>
+                        <option value="Primaria">Primaria</option>
+                        <option value="Secundaria">Secundaria</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select border-0 bg-light rounded-pill" id="filterGrado">
+                        <option value="">Todos los Grados</option>
+                    </select>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <span class="badge bg-primary-soft text-primary p-2 px-3 rounded-pill">
+                        Total Alumnos: <span id="totalCount">@(Model?.Count() ?? 0)</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="contenedorFichas">
+        @foreach (var alumno in Model)
+        {
+            <div class="col ficha-item"
+                 data-nombre="@alumno.Nombres @alumno.Apellidos"
+                 data-dni="@alumno.DNI"
+                 data-nivel="@alumno.Nivel"
+                 data-grado="@alumno.Grado">
+
+                <div class="card h-100 border-0 shadow-sm hover-elevate" style="border-radius: 20px; transition: transform 0.3s ease;">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar-circle me-3">
+                                @alumno.Nombres.Substring(0, 1)@alumno.Apellidos.Substring(0, 1)
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0 fw-bold">@alumno.Apellidos, @alumno.Nombres</h5>
+                                <small class="text-muted"><i class="bi bi-card-text me-1"></i>DNI: @alumno.DNI</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mb-3">
+                            <span class="badge rounded-pill bg-info text-dark">@alumno.Nivel</span>
+                            <span class="badge rounded-pill bg-secondary">@alumno.Grado</span>
+                        </div>
+
+                        <hr class="text-muted opacity-25">
+
+                        <div class="fichas-lista">
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded-3">
+                                <span class="small fw-bold"><i class="bi bi-file-earmark-medical text-primary me-2"></i>Fichas Diagnósticas</span>
+                                <span class="badge rounded-pill bg-primary">@alumno.TotalFichasDiagnosticas</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded-3 opacity-75">
+                                <span class="small fw-bold"><i class="bi bi-graph-up text-warning me-2"></i>Seguimiento</span>
+                                <span class="badge rounded-pill bg-secondary">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3">
+                        <a asp-action="Detalle" asp-route-id="@alumno.Id" class="btn btn-primary w-100 rounded-pill shadow-sm fw-bold">
+                            Ir al Expediente <i class="bi bi-arrow-right-short"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .hover-elevate:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+    }
+
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+
+    .form-control:focus, .form-select:focus {
+        box-shadow: none;
+        border-color: #0d6efd;
+    }
+
+    .input-group-merge {
+        background-color: #fff;
+        transition: all 0.2s;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#smartSearch").on("keyup", function () {
+                ejecutarFiltroCombinado();
+            });
+
+            $("#filterNivel").on("change", function () {
+                ejecutarFiltroCombinado();
+            });
+
+            function ejecutarFiltroCombinado() {
+                var searchVal = $("#smartSearch").val().toLowerCase();
+                var nivelVal = $("#filterNivel").val().toLowerCase();
+                var visibles = 0;
+
+                $(".ficha-item").each(function () {
+                    var nombre = $(this).data("nombre").toLowerCase();
+                    var dni = $(this).data("dni").toString();
+                    var nivel = $(this).data("nivel").toLowerCase();
+
+                    var matchesSearch = nombre.includes(searchVal) || dni.includes(searchVal);
+                    var matchesNivel = nivelVal === "" || nivel === nivelVal;
+
+                    if (matchesSearch && matchesNivel) {
+                        $(this).fadeIn(200);
+                        visibles++;
+                    } else {
+                        $(this).fadeOut(200);
+                    }
+                });
+
+                $("#totalCount").text(visibles);
+            }
+        });
+    </script>
+}

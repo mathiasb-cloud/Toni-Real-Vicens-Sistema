@@ -1,0 +1,23 @@
+﻿@model List<Toni_Real_Vicens_Sistema.Models.Alumno>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <input type="checkbox" class="form-check-input alumno-check" value="@item.Id">
+            </td>
+            <td>@item.Apellidos, @item.Nombres</td>
+            <td>@item.DNI</td>
+            <td>@item.Grado</td>
+            <td>@item.Seccion</td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="5" class="text-center text-muted">No se encontraron alumnos con esos filtros.</td>
+    </tr>
+}

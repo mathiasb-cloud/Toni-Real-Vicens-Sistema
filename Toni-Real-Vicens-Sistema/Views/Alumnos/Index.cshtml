@@ -30,13 +30,24 @@
                     <tr>
                         <th class="ps-4 py-3 text-secondary small border-0">DNI</th>
                         <th class="py-3 text-secondary small border-0">APELLIDOS Y NOMBRES</th>
+                        <th class="py-3 text-secondary small border-0 text-center">EDAD</th>
                         <th class="py-3 text-secondary small border-0 text-center">GRADO / SECCIÓN</th>
+                        <th class="py-3 text-secondary small border-0 text-center">ESTADO</th>
                         <th class="py-3 text-secondary small border-0 text-center">ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var alumno in Model)
                     {
+                        // Cálculo de edad para mostrar
+                        int edad = 0;
+                        if (alumno.FechaNacimiento.HasValue)
+                        {
+                            var hoy = DateTime.Today;
+                            edad = hoy.Year - alumno.FechaNacimiento.Value.Year;
+                            if (alumno.FechaNacimiento.Value.Date > hoy.AddYears(-edad)) edad--;
+                        }
+
                         <tr>
                             <td class="ps-4 fw-bold text-dark">@alumno.DNI</td>
                             <td>
@@ -46,9 +57,12 @@
                                     </div>
                                     <div>
                                         <div class="fw-bold">@alumno.Apellidos, @alumno.Nombres</div>
-                                        <div class="text-muted small">Dni: @alumno.DNI</div>
+                                        <div class="text-muted small">Nivel: @alumno.Nivel</div>
                                     </div>
                                 </div>
+                            </td>
+                            <td class="text-center fw-bold">
+                                @(edad > 0 ? edad + " años" : "N/E")
                             </td>
                             <td class="text-center">
                                 <span class="badge bg-light text-dark border px-3 py-2" style="border-radius: 8px;">
@@ -56,13 +70,21 @@
                                 </span>
                             </td>
                             <td class="text-center">
+                                @{
+                                    var colorBadge = alumno.Estado == "Retirado" ? "bg-danger" : (alumno.Estado == "Egresado" ? "bg-success" : "bg-primary");
+                                }
+                                <span class="badge @colorBadge px-3 py-2" style="border-radius: 8px;">
+                                    @(alumno.Estado ?? "Estudiante")
+                                </span>
+                            </td>
+                            <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
+                                    <a asp-action="Details" asp-route-id="@alumno.Id" class="btn btn-sm btn-outline-info border-0 rounded-circle" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
                                     <a asp-action="Edit" asp-route-id="@alumno.Id" class="btn btn-sm btn-outline-primary border-0 rounded-circle" style="width: 35px; height: 35px;">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <button onclick="confirmarEliminarAlumno('@alumno.Id', '@alumno.Nombres')" class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 35px; height: 35px;">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -76,8 +98,6 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // 1. ALERTA DE ÉXITO AL REGISTRAR/EDITAR
-            // Captura el mensaje enviado desde el controlador mediante TempData
             var successMessage = '@TempData["SuccessMessage"]';
             if (successMessage) {
                 Swal.fire({
@@ -89,7 +109,6 @@
                 });
             }
 
-            // 2. BUSCADOR EN TIEMPO REAL
             $("#alumnoSearch").on("keyup", function() {
                 var value = $(this).val().toLowerCase();
                 $("#alumnosTable tbody tr").filter(function() {
@@ -97,50 +116,5 @@
                 });
             });
         });
-
-        // 3. ELIMINACIÓN CON DOBLE CONFIRMACIÓN (Seguridad Reforzada)
-        function confirmarEliminarAlumno(id, nombre) {
-            // Primera Advertencia
-            Swal.fire({
-                title: '¿Eliminar Alumno?',
-                text: "Estás por iniciar el proceso para borrar a: " + nombre,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#764ba2', // Color morado consistente
-                confirmButtonText: 'Sí, continuar',
-                cancelButtonText: 'Cancelar',
-                borderRadius: '15px'
-            }).then((result) => {
-                if (result.isConfirmed) {
-
-                    // Segunda Advertencia (Zona de Peligro)
-                    Swal.fire({
-                        title: '¡DETENTE Y CONFIRMA!',
-                        text: "Si eliminas a este alumno, también se perderá su historial y datos vinculados. Esta acción es IRREVERSIBLE.",
-                        icon: 'error',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33', // Rojo de alerta crítica
-                        confirmButtonText: 'SÍ, ELIMINAR PERMANENTEMENTE',
-                        cancelButtonText: 'No, mantener registro',
-                        borderRadius: '15px'
-                    }).then((finalResult) => {
-                        if (finalResult.isConfirmed) {
-                            // Ejecución del borrado
-                            $.post('@Url.Action("Delete", "Alumnos")', { id: id }, function(res) {
-                                // Asumiendo que tu controlador devuelve un JSON de éxito
-                                Swal.fire({
-                                    title: 'Eliminado',
-                                    text: 'El alumno ha sido removido del sistema.',
-                                    icon: 'success',
-                                    borderRadius: '15px'
-                                }).then(() => location.reload());
-                            }).fail(function() {
-                                Swal.fire('Error', 'No se pudo completar la operación. Intente de nuevo.', 'error');
-                            });
-                        }
-                    });
-                }
-            });
-        }
     </script>
 }

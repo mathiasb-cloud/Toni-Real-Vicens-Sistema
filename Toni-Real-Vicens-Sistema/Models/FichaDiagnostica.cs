@@ -12,6 +12,13 @@ namespace Toni_Real_Vicens_Sistema.Models
         public DateTime Fecha { get; set; } = DateTime.Now;
         public bool EsFinalizada { get; set; } = false;
 
+
+        
+        public int AnioAcademico { get; set; } 
+        public string GradoAlMomento { get; set; } 
+        public string SeccionAlMomento { get; set; } 
+
+
         // --- II. ASPECTO FAMILIAR ---
 
         // 2.1 Red familiar (Tabla dinámica)

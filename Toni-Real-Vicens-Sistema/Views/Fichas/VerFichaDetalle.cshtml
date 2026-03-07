@@ -1,0 +1,210 @@
+﻿@model Toni_Real_Vicens_Sistema.Models.FichaDiagnostica
+
+@{
+    Layout = "_Layout"; // O null si quieres que sea totalmente independiente
+}
+
+<div class="container my-4 printable-area">
+    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+        <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 shadow">
+            <i class="bi bi-printer-fill me-2"></i> Guardar como PDF / Imprimir
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white border-bottom p-4">
+            <div class="row align-items-center">
+                <div class="col-8">
+                    <h3 class="fw-bold text-navy mb-0">FICHA DIAGNÓSTICA PSICOPEDAGÓGICA</h3>
+                    <p class="text-muted mb-0 small">Institución Educativa Toni Real Vicens</p>
+                </div>
+                <div class="col-4 text-end">
+                    <div class="p-2 border rounded bg-light d-inline-block">
+                        <small class="d-block text-uppercase fw-bold text-muted" style="font-size: 0.7rem;">Año Académico</small>
+                        <span class="h5 fw-bold mb-0">@Model.AnioAcademico</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4 p-lg-5">
+            <div class="row mb-4 pb-3 border-bottom bg-light-subtle rounded-3 p-3">
+                <div class="col-12"><h6 class="text-uppercase fw-bold text-secondary mb-3 small"><i class="bi bi-person-vcard me-2"></i>Datos del Estudiante</h6></div>
+                <div class="col-md-4">
+                    <small class="text-muted d-block">Estudiante:</small>
+                    <span class="fw-bold text-dark">@ViewBag.NombreAlumno</span>
+                </div>
+                <div class="col-md-4 text-md-center">
+                    <small class="text-muted d-block">Grado y Sección:</small>
+                    <span class="fw-bold">@Model.GradoAlMomento - @(Model.SeccionAlMomento ?? "U")</span>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <small class="text-muted d-block">Fecha de Evaluación:</small>
+                    <span class="fw-bold">@Model.Fecha.ToShortDateString()</span>
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-12">
+                    <h6 class="fw-bold text-primary border-bottom pb-1 mb-2">I. ASPECTO FAMILIAR</h6>
+                    <div class="row small">
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <strong>Convive con:</strong>
+                                @(Model.ViveAmbosPadres ? "Ambos padres, " : "") @(Model.ViveSoloMadre ? "Madre, " : "")
+                                @(Model.ViveSoloPadre ? "Padre, " : "") @(Model.ViveHermanos ? $"Hermanos ({Model.NumeroHermanos}), " : "")
+                                @Model.DetalleOtrosVive
+                            </p>
+                            <p class="mb-1"><strong>Relación familiar:</strong> @Model.RelacionFamiliar</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="mb-1">
+                                <strong>Apoyo en tareas:</strong>
+                                @(Model.ApoyoSolo ? "Estudia solo" : (Model.ApoyoMama ? "Mamá, " : "") + (Model.ApoyoPapa ? "Papá" : ""))
+                            </p>
+                            @if (Model.ProblemaViolencia || Model.ProblemaComunicacion)
+                            {
+                                <span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Riesgo detectado en hogar</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 bg-success-light rounded-3 border">
+                        <h6 class="fw-bold text-success small">II. SOCIOECONÓMICO</h6>
+                        <ul class="list-unstyled mb-0 small">
+                            <li><strong>Ingreso:</strong> @Model.IngresoFamiliarMensual</li>
+                            <li><strong>Situación laboral:</strong> @(Model.PadreTrabaja ? "Padre trabaja" : "Padre desempleado") / @(Model.MadreTrabaja ? "Madre trabaja" : "Madre desempleada")</li>
+                            <li><strong>Material vivienda:</strong> @Model.MaterialVivienda (@Model.TipoPiso)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 bg-danger-light rounded-3 border">
+                        <h6 class="fw-bold text-danger small">III. SALUD</h6>
+                        <ul class="list-unstyled mb-0 small">
+                            <li><strong>Seguro:</strong> @Model.TipoSeguro</li>
+                            <li class="@(Model.SaludDificultadVisual ? "text-danger fw-bold" : "")">Visual: @(Model.SaludDificultadVisual ? "Presenta dificultad" : "Normal")</li>
+                            @if (Model.SufreEnfermedad)
+                            {
+                                <li class="text-danger"><strong>Enf:</strong> @Model.EspecificarEnfermedad</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <h6 class="fw-bold text-info border-bottom pb-1 mb-2">IV. DESEMPEÑO ACADÉMICO</h6>
+                    <div class="row small">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>¿Repitió?:</strong> @(Model.RepitioAnio ? "SÍ (" + Model.CualAnioRepitio + ")" : "NO")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1 text-success"><strong>Fortalezas:</strong> @Model.CursosFaciles</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1 text-danger"><strong>Dificultades:</strong> @Model.CursosDificiles</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="p-3 border rounded-3 @(Model.EmoPensamientoSuicida ? "border-danger bg-danger-subtle" : "bg-light")">
+                        <h6 class="fw-bold text-secondary mb-2">V. OBSERVACIONES PSICOPEDAGÓGICAS</h6>
+                        <p class="small mb-2" style="text-align: justify;">@Model.ObservacionEmocional</p>
+                        <div class="row g-2 small">
+                            <div class="col-md-6"><strong>Motivación:</strong> @Model.RecPersMotivacion</div>
+                            <div class="col-md-6"><strong>Habilidades:</strong> @Model.RecPersCualidadesHabilidades</div>
+                        </div>
+
+                        @if (Model.EmoPensamientoSuicida)
+                        {
+                            <div class="mt-2 p-2 bg-white border border-danger text-danger fw-bold rounded text-center small">
+                                <i class="bi bi-radioactive"></i> ALERTA: SE DETECTÓ IDEACIÓN SUICIDA. SE REQUIERE DERIVACIÓN O INTERVENCIÓN INMEDIATA.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5 pt-4 d-none d-print-flex">
+                <div class="col-6 text-center">
+                    <div class="mx-auto border-top w-75 pt-2 small">Firma del Psicólogo/Evaluador<br>@Model.FuenteInformacion</div>
+                </div>
+                <div class="col-6 text-center">
+                    <div class="mx-auto border-top w-75 pt-2 small">Sello de la Institución<br>Toni Real Vicens</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos de visualización en pantalla */
+    .text-navy {
+        color: #002855;
+    }
+
+    .bg-success-light {
+        background-color: #f1fcf4;
+    }
+
+    .bg-danger-light {
+        background-color: #fff5f5;
+    }
+
+    .bg-info-light {
+        background-color: #f0faff;
+    }
+
+    @@media screen {
+        body {
+            background-color: #f8f9fa;
+        }
+    }
+
+    /* LÓGICA DE IMPRESIÓN (PDF) */
+    @@media print {
+        /* Oculta Navbar, Footers y Botones */
+        nav, footer, .navbar, .d-print-none, .btn {
+            display: none !important;
+        }
+        /* Ajusta el contenedor para usar toda la hoja */
+        .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        body {
+            background-color: white !important;
+            font-size: 11pt; /* Tamaño de letra óptimo para impresión */
+        }
+
+        .card-body {
+            padding: 10px !important;
+        }
+        /* Fuerza a que los colores de fondo se impriman */
+        .bg-light, .bg-light-subtle, .bg-success-light, .bg-danger-light {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        /* Evita que se corten los bloques a mitad de página */
+        .row, h6, .p-3 {
+            page-break-inside: avoid;
+        }
+    }
+</style>

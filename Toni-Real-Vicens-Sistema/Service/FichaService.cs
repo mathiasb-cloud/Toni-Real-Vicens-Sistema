@@ -7,22 +7,21 @@ namespace Toni_Real_Vicens_Sistema.Service
     {
         public FichaService(IConfiguration config) : base(config) { }
 
-        
         public async Task<string> AddAsync(FichaDiagnostica ficha)
         {
             var result = await _firebase
                 .Child("Fichas")
                 .PostAsync(ficha);
 
-            return result.Key; 
+            return result.Key;
         }
 
-        
         public async Task UpdateAsync(FichaDiagnostica ficha)
         {
+            // Importante: Usamos ficha.Id que es la Key de Firebase
             await _firebase
                 .Child("Fichas")
-                .Child(ficha.Id) 
+                .Child(ficha.Id)
                 .PutAsync(ficha);
         }
 
@@ -48,6 +47,21 @@ namespace Toni_Real_Vicens_Sistema.Service
                 .Where(f => f.AlumnoId == alumnoId)
                 .OrderByDescending(f => f.Fecha)
                 .ToList();
+        }
+
+
+        public async Task<FichaDiagnostica> GetByIdAsync(string id)
+        {
+            var result = await _firebase
+                .Child("Fichas")
+                .Child(id)
+                .OnceSingleAsync<FichaDiagnostica>();
+
+            if (result != null)
+            {
+                result.Id = id; 
+            }
+            return result;
         }
     }
 }
