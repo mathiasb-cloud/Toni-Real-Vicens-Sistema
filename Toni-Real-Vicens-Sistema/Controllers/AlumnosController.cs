@@ -181,6 +181,31 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         }
 
 
+        // ASEGÚRATE DE QUE SE LLAME "id" EN MINÚSCULAS
+        // Cambia tu método Details por este:
+        public async Task<IActionResult> Details(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            // Cambiamos _alumnoService por _service que es como lo declaraste arriba
+            var alumno = await _service.GetByIdAsync(id);
+
+            if (alumno == null)
+            {
+                return NotFound();
+            }
+
+            // IMPORTANTE: Si tu vista de detalles necesita ver las fichas, 
+            // agrega esta línea que ya usabas en el otro método:
+            ViewBag.FichasDiagnosticas = await _fichaService.GetByAlumnoAsync(id);
+
+            return View(alumno);
+        }
+
+
 
 
     }

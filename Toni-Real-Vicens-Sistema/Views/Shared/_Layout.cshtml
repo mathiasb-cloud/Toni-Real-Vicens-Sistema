@@ -14,8 +14,9 @@
 
     <style>
         :root {
-            --primary-color: #764ba2;
-            --secondary-color: #667eea;
+            /* Usando tu color principal solicitado */
+            --primary-color: #891c75;
+            --secondary-color: #4a0f3f;
             --bg-light: #f8f9fa;
         }
 
@@ -27,31 +28,55 @@
         .navbar {
             background: white !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Estilo para el logo en el nav */
+        .navbar-logo {
+            height: 40px;
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
         }
 
         .nav-link {
             font-weight: 500;
             color: #4a5568 !important;
-            transition: color 0.3s;
+            transition: all 0.3s;
         }
 
             .nav-link:hover {
                 color: var(--primary-color) !important;
+                transform: translateY(-1px);
             }
 
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-color) !important;
-            letter-spacing: -0.5px;
+        
+        @@media (max-width: 575px) {
+            .btn-logout {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            .navbar-brand {
+                font-size: 0.9rem; 
+            }
         }
 
-        /* Estilo para el botón de salir */
         .btn-logout {
             border-radius: 20px;
-            padding: 5px 20px;
-            font-size: 0.9rem;
+            padding: 5px 15px;
+            font-size: 0.85rem;
             border: 1px solid #ff4d4d;
             color: #ff4d4d !important;
+            font-weight: 600;
         }
 
             .btn-logout:hover {
@@ -62,18 +87,24 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light border-bottom mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light border-bottom mb-4">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-mortarboard-fill me-2"></i>TONI REAL VICENS
+                    <img src="~/img/logo-colegio.jpeg" alt="Logo" class="navbar-logo"
+                         onerror="this.style.display='none'">
+                    <span class="d-inline-block">TONI REAL VICENS</span>
                 </a>
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1 ms-4">
+
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav flex-grow-1 ms-lg-4">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i>Inicio
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
@@ -88,19 +119,21 @@
                             <a class="nav-link" asp-controller="Fichas" asp-action="Index">Fichas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Matriculas" asp-action="Promocion">
-                                <i class="bi bi-arrow-up-circle-fill me-1 text-success"></i>
-                                Promoción Masiva
+                            <a class="nav-link" asp-controller="Matriculas" asp-action="Promocion">
+                                <i class="bi bi-arrow-up-circle-fill me-1 text-success"></i>Promoción
                             </a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav align-items-center">
-                        <li class="nav-item">
-                            <span class="text-muted small me-3 d-none d-lg-inline">@Context.Session.GetString("UsuarioNombre")</span>
+
+                    <hr class="d-lg-none text-muted"> <ul class="navbar-nav align-items-center">
+                        <li class="nav-item d-none d-lg-inline">
+                            <span class="text-muted small me-3">
+                                <i class="bi bi-person-circle me-1"></i>@Context.Session.GetString("UsuarioNombre")
+                            </span>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item w-100">
                             <a class="nav-link btn-logout" asp-controller="Account" asp-action="Logout">
-                                <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                                <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesion
                             </a>
                         </li>
                     </ul>

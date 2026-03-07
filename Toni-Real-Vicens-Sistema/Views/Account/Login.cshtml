@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = null; 
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -12,32 +12,91 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #891c75 100%);
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .login-card {
             border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             overflow: hidden;
             width: 100%;
             max-width: 400px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .login-header {
             background-color: #ffffff;
-            padding: 30px;
+            padding: 60px 30px 20px 30px;
             text-align: center;
+            position: relative;
         }
 
-            .login-header i {
-                font-size: 50px;
-                color: #764ba2;
+        /* Contenedor del Logo */
+        .logo-container {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -50px auto 15px auto; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 5px solid #ffffff;
+            overflow: hidden;
+        }
+
+            .logo-container img {
+                max-width: 80%;
+                height: auto;
+                object-fit: contain;
             }
+
+        .login-header h4 {
+            color: #4e4e4e;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .input-group-text {
+            color: #891c75;
+            background-color: #f8f9fa !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #667eea, #891c75);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+                filter: brightness(1.1);
+            }
+
+        .form-control:focus {
+            border-color: #891c75;
+            box-shadow: 0 0 0 0.25rem rgba(118, 75, 162, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -45,42 +104,46 @@
     <div class="container">
         <div class="login-card mx-auto">
             <div class="login-header">
-                <i class="bi bi-person-circle"></i>
-                <h4 class="mt-2 fw-bold">BIENVENIDO</h4>
-                <p class="text-muted small">Ingresa tus credenciales para acceder</p>
+                <div class="logo-container">
+                    <img src="~/img/logo-colegio.jpeg" alt="Logo Colegio" onerror="this.parentElement.innerHTML='<i class=\'bi bi-person-circle\' style=\'font-size: 50px; color: #764ba2;\'></i>'">
+                </div>
+
+                <h4 class="fw-bold">BIENVENIDO</h4>
+                <p class="text-muted small">Toni Real Vicens - Gestión Escolar</p>
             </div>
-            <div class="card-body bg-white p-4">
+
+            <div class="card-body bg-white p-4 pt-0">
                 @if (ViewBag.Error != null)
                 {
-                    <div class="alert alert-danger py-2 small">
+                    <div class="alert alert-danger py-2 small border-0 shadow-sm">
                         <i class="bi bi-exclamation-triangle me-2"></i> @ViewBag.Error
                     </div>
                 }
 
                 <form asp-action="Login" method="post">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Correo Electrónico</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
-                            <input type="email" name="correo" class="form-control bg-light border-start-0" placeholder="ejemplo@correo.com" required />
+                        <label class="form-label small fw-bold text-secondary">Correo Electrónico</label>
+                        <div class="input-group border rounded-3 overflow-hidden">
+                            <span class="input-group-text border-0"><i class="bi bi-envelope"></i></span>
+                            <input type="email" name="correo" class="form-control border-0 bg-light" placeholder="ejemplo@correo.com" required />
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label small fw-bold">Contraseña</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
-                            <input type="password" name="pass" class="form-control bg-light border-start-0" placeholder="********" required />
+                        <label class="form-label small fw-bold text-secondary">Contraseña</label>
+                        <div class="input-group border rounded-3 overflow-hidden">
+                            <span class="input-group-text border-0"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="pass" class="form-control border-0 bg-light" placeholder="********" required />
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 rounded-3">
                         INICIAR SESIÓN
                     </button>
                 </form>
             </div>
             <div class="card-footer bg-light border-0 text-center py-3">
-                <small class="text-muted">&copy; 2026 - Sistema de Gestión Escolar</small>
+                <small class="text-muted">&copy; 2026 - I.E. Toni Real Vicens</small>
             </div>
         </div>
     </div>
