@@ -31,7 +31,7 @@
         </div>
 
         <div class="card-body p-4">
-            <form asp-action="CreateSeguimiento" id="msform" method="post">
+            <form asp-controller="Seguimiento" asp-action="Create" id="msform" method="post">
                 <input type="hidden" asp-for="AlumnoId" />
                 <input type="hidden" asp-for="CitaId" />
                 <input type="hidden" asp-for="Id" />
@@ -159,9 +159,16 @@
                     </div>
                 </section>
 
-                <div class="d-flex justify-content-between mt-5">
-                    <button type="button" class="btn btn-secondary px-4 d-none" id="prevBtn" onclick="nextPrev(-1)">Anterior</button>
-                    <button type="button" class="btn text-white px-4 ms-auto" style="background-color: #891c75;" id="nextBtn" onclick="nextPrev(1)">Siguiente</button>
+                <div class="d-flex justify-content-between align-items-center mt-5">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary px-4 d-none" id="prevBtn" onclick="nextPrev(-1)">Anterior</button>
+
+                        <button type="button" class="btn btn-outline-info px-4 rounded-pill" id="saveProgressBtn" onclick="guardarAvance()">
+                            <i class="bi bi-save me-2"></i>Guardar Avance
+                        </button>
+                    </div>
+
+                    <button type="button" class="btn text-white px-4" style="background-color: #891c75;" id="nextBtn" onclick="nextPrev(1)">Siguiente</button>
                 </div>
             </form>
         </div>
@@ -237,7 +244,7 @@
             var tabs = document.getElementsByClassName("step-section");
             tabs[n].classList.remove("d-none");
 
-            // Ajustar botones
+            
             if (n == 0) {
                 document.getElementById("prevBtn").classList.add("d-none");
             } else {
@@ -254,18 +261,68 @@
             updateStepper(n);
         }
 
-        function nextPrev(n) {
+                function nextPrev(n) {
             var tabs = document.getElementsByClassName("step-section");
+
+            
             if (n == 1 && !validateForm()) return false;
 
+                       // Dentro de tu función nextPrev(n) cuando llega al final:
+        if (currentTab + n >= tabs.length) {
+            const isFinalizada = document.getElementById("IsFinalizada").checked;
+
+            if (isFinalizada) {
+                // Confirmación estilo profesional
+                Swal.fire({
+                    title: '¿Finalizar Atención?',
+                    text: "Esta acción cerrará la ficha de seguimiento definitivamente.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745', 
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, finalizar',
+                    cancelButtonText: 'Cancelar',
+                    borderRadius: '15px'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Ficha Finalizada',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            document.getElementById("msform").submit();
+                        });
+                    }
+                });
+            } else {
+                
+                guardarAvance();
+            }
+            return false;
+        }
+
+            
             tabs[currentTab].classList.add("d-none");
             currentTab = currentTab + n;
-
-            if (currentTab >= tabs.length) {
-                document.getElementById("msform").submit();
-                return false;
-            }
             showTab(currentTab);
+        }
+
+        
+        function enviarFormularioConAnimacion(mensaje) {
+            Swal.fire({
+                title: mensaje,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            
+            setTimeout(() => {
+                document.getElementById("msform").submit();
+            }, 800);
         }
 
         function updateStepper(n) {
@@ -278,8 +335,43 @@
         }
 
         function validateForm() {
-            
+
             return true;
         }
+
+
+
+                        function guardarAvance() {
+            
+            Swal.fire({
+                title: 'Guardando cambios...',
+                text: 'Actualizando el progreso del seguimiento',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Progreso Guardado!',
+                    text: 'Los datos se han registrado correctamente.',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    borderRadius: '15px',
+                    confirmButtonColor: '#891c75'
+                }).then(() => {
+                    
+                    document.getElementById("msform").submit();
+                });
+            }, 1000);
+        }
+
+
+
     </script>
 }

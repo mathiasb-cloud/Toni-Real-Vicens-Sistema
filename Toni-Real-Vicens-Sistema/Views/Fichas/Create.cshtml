@@ -54,11 +54,11 @@
         <input type="hidden" asp-for="CitaId" />
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="EsFinalizada" id="inputEsFinalizada" />
-        <input type="hidden" name="PsicologoNombre" value="@ViewBag.PsicologoNombre" />
+        <input type="hidden" asp-for="FuenteInformacion" />
 
         <div class="tab-content border p-4 bg-white shadow-sm rounded">
 
-            <<div class="tab-pane fade show active" id="aspecto-familiar">
+            <div class="tab-pane fade show active" id="aspecto-familiar">
 
                 <div class="mb-5">
                     <h6 class="text-primary fw-bold text-uppercase"><i class="fas fa-users me-2"></i>2.1 Red familiar del estudiante:</h6>
@@ -875,7 +875,8 @@
         <div class="mt-5 p-4 bg-light border rounded text-center">
             <div class="d-flex justify-content-center gap-3">
 
-                <button type="submit" name="accion" value="guardar" class="btn btn-primary btn-lg px-4 shadow">
+                @* 1. AGREGAMOS UN ONCLICK PARA ASEGURAR QUE ES FALSE *@
+                <button type="submit" onclick="document.getElementById('inputEsFinalizada').value='false'" class="btn btn-primary btn-lg px-4 shadow">
                     <i class="bi bi-save me-2"></i> GUARDAR AVANCE
                 </button>
 
@@ -885,13 +886,16 @@
 
             </div>
             <p class="text-muted small mt-3">
-                * "Guardar avance" permite seguir editando después. <br />
-                * "Finalizar" bloquea la ficha para siempre.
+                * "Guardar avance" permite seguir editando después (Estado: En Proceso). <br />
+                * "Finalizar" bloquea la ficha (Estado: Atendida).
             </p>
         </div>
 
+        
         <input type="hidden" asp-for="EsFinalizada" id="inputEsFinalizada" />
     </form>
+
+   
 
 
 
@@ -922,6 +926,15 @@
             tbody.appendChild(tr);
             index++;
         }
+
+
+        function confirmarFinalizacion() {
+                if (confirm("¿Estás seguro de finalizar? Esto cambiará el estado a Atendida y no podrás editar más.")) {
+                    document.getElementById('inputEsFinalizada').value = 'true';
+                    // Enviamos el formulario manualmente
+                    document.querySelector('form').submit();
+                }
+            }
 
         function eliminarFila(idx) {
             const fila = document.getElementById(`fila-${idx}`);
@@ -1008,6 +1021,57 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById("inputEsFinalizada").value = "true";
+                    document.getElementById("inputEsFinalizada").closest('form').submit();
+                }
+            });
+        }
+
+
+
+
+
+
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            var mensaje = "@TempData["Mensaje"]";
+
+            
+            if (mensaje && mensaje.trim() !== "") {
+                Swal.fire({
+                    title: '¡Buen trabajo!',
+                    text: 'El avance de la ficha se ha guardado correctamente.',
+                    icon: 'success',
+                    timer: 2500, 
+                    showConfirmButton: false,
+                    borderRadius: '15px'
+                });
+            }
+
+            var error = "@TempData["Error"]";
+            if (error) {
+                Swal.fire('Error', error, 'error');
+            }
+        });
+
+        
+        function confirmarFinalizacion() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "No podrás editar esta ficha después de finalizarla.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, finalizar',
+                cancelButtonText: 'Cancelar',
+                borderRadius: '15px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    document.getElementById("inputEsFinalizada").value = "true";
+                    
                     document.getElementById("inputEsFinalizada").closest('form').submit();
                 }
             });

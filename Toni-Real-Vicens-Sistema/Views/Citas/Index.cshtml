@@ -93,7 +93,8 @@
                                 {
                                     <span class="badge px-3 py-2" style="background: #fff9db; color: #f08c00; border-radius: 8px;">Programada</span>
                                 }
-                                else if (cita.Estado == "Pendiente")
+                                @* Cambia la condición de Pendiente a En Proceso *@
+                                else if (cita.Estado == "En Proceso")
                                 {
                                     <span class="badge px-3 py-2" style="background: #e1f5fe; color: #0288d1; border-radius: 8px;">En Proceso</span>
                                 }
@@ -109,18 +110,22 @@
                                         <i class="bi bi-eye-fill text-primary"></i>
                                     </button>
 
-                                    @if (cita.Estado == "Programada")
+                                    @if (cita.Estado == "Programada" || cita.Estado == "En Proceso")
                                     {
-                                        <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
-                                           class="btn btn-sm text-white px-3 shadow-sm" style="background: #38b2ac; border-radius: 8px;">
-                                            <i class="bi bi-play-fill me-1"></i>Atender
-                                        </a>
-                                    }
-                                    else if (cita.Estado == "Pendiente")
-                                    {
-                                        <a asp-controller="Fichas" asp-action="Create" asp-route-citaId="@cita.Id"
-                                           class="btn btn-sm text-white px-3 shadow-sm" style="background: #4299e1; border-radius: 8px;">
-                                            <i class="bi bi-pencil-square me-1"></i>Continuar
+                                        string destinoController = (cita.Tipo == "Seguimiento") ? "Seguimiento" : "Fichas";
+
+                                        
+                                        bool esProceso = (cita.Estado == "En Proceso");
+                                        string colorBoton = esProceso ? "#4299e1" : "#38b2ac";
+                                        string textoBoton = esProceso ? "Continuar" : "Atender";
+                                        string iconoBoton = esProceso ? "bi-pencil-square" : "bi-play-fill";
+
+                                        <a asp-controller="@destinoController"
+                                           asp-action="Create"
+                                           asp-route-citaId="@cita.Id"
+                                           class="btn btn-sm text-white px-3 shadow-sm"
+                                           style="background: @colorBoton; border-radius: 8px;">
+                                            <i class="bi @iconoBoton me-1"></i> @textoBoton
                                         </a>
                                     }
 
@@ -131,6 +136,7 @@
                                     </button>
                                 </div>
                             </td>
+
                         </tr>
                     }
                 </tbody>

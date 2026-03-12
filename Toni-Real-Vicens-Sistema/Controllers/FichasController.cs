@@ -9,40 +9,61 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         private readonly FichaService _fichaService;
         private readonly CitaService _citaService;
         private readonly AlumnoService _alumnoService;
+        private readonly SeguimientoService _seguimientoService;
 
         public FichasController(IConfiguration config)
         {
             _fichaService = new FichaService(config);
             _citaService = new CitaService(config);
             _alumnoService = new AlumnoService(config);
+            _seguimientoService = new SeguimientoService(config);
         }
 
-        // 1. En el INDEX: Para que el contador sea real
         public async Task<IActionResult> Index()
         {
+            // 1. Obtenemos todos los alumnos
             var alumnos = await _alumnoService.GetAllAsync();
-            // Necesitamos cargar el conteo de fichas para cada alumno
+
+            // 2. Obtenemos todas las fichas para poder contar cuántas tiene cada alumno
+            // Nota: Esto es opcional, pero hará que los contadores de las "tarjetas" funcionen
             foreach (var alumno in alumnos)
             {
                 var fichas = await _fichaService.GetByAlumnoAsync(alumno.Id);
-                alumno.TotalFichasDiagnosticas = fichas.Count; // Asegúrate de tener esta propiedad en tu ViewModel o usa un ViewBag
+                var seguimientos = await _seguimientoService.GetByAlumnoAsync(alumno.Id);
+
+                // Asignamos los conteos (Asegúrate de que estas propiedades existan en tu modelo Alumno)
+                alumno.TotalFichasDiagnosticas = fichas.Count;
+                // Si no tienes una propiedad para seguimiento, puedes usar un ViewBag o una propiedad temporal
             }
-            return View(alumnos);
+
+            // 3. Devolvemos la lista de alumnos (ordenada por apellido)
+            return View(alumnos.OrderBy(a => a.Apellidos).ToList());
         }
 
-        // 2. En el DETALLE (Expediente): Para que se vean TODAS las fichas
+
+
         public async Task<IActionResult> Detalle(string id)
         {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            // 1. Obtener los datos del alumno
             var alumno = await _alumnoService.GetByIdAsync(id);
-            // Cargamos todas las fichas diagnósticas de este alumno
-            ViewBag.FichasDiagnosticas = await _fichaService.GetByAlumnoAsync(id);
+            if (alumno == null) return NotFound();
+
+            // 2. Obtener TODAS las fichas diagnósticas
+            var fichasDiagnosticas = await _fichaService.GetByAlumnoAsync(id);
+
+            
+            var seguimientos = await _seguimientoService.GetByAlumnoAsync(id);
+
+            // 4. Pasamos ambas listas a la vista mediante ViewBag
+            // Las listamos todas sin excepción
+            ViewBag.FichasDiagnosticas = fichasDiagnosticas ?? new List<FichaDiagnostica>();
+            ViewBag.FichasSeguimiento = seguimientos ?? new List<FichaSeguimiento>();
 
             return View(alumno);
         }
 
-        // ======================
-        // GET
-        // ======================
         public async Task<IActionResult> Create(string citaId)
         {
             var cita = await _citaService.GetByIdAsync(citaId);
@@ -56,74 +77,75 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
             if (fichaPrevia != null)
             {
+                
                 return View(fichaPrevia);
             }
 
-            // --- LÓGICA DE PROMOCIÓN APLICADA A LA FICHA ---
-            // Si la ficha es nueva, capturamos los datos académicos del alumno en este instante
             var ficha = new FichaDiagnostica
             {
                 AlumnoId = cita.AlumnoId,
                 CitaId = cita.Id,
                 Fecha = DateTime.Now,
-
-                // Usamos los nombres exactos de tu modelo de FichaDiagnostica:
                 AnioAcademico = DateTime.Now.Year,
                 GradoAlMomento = alumno.Grado,
-                SeccionAlMomento = alumno.Seccion
+                SeccionAlMomento = alumno.Seccion,
+                FuenteInformacion = cita.Psicologo
             };
 
             return View(ficha);
         }
 
-
-
-
-        // ======================
-        // POST
-        // ======================
-
         [HttpPost]
         public async Task<IActionResult> Create(FichaDiagnostica ficha)
         {
+            // Obtenemos los datos necesarios para recargar la vista SIEMPRE
+            var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
+            var citaActual = await _citaService.GetByIdAsync(ficha.CitaId);
+
             try
             {
-                
-                var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
-
-                
-                ficha.GradoAlMomento = alumno.Grado;
-                ficha.SeccionAlMomento = alumno.Seccion;
                 ficha.AnioAcademico = DateTime.Now.Year;
 
+                if (string.IsNullOrEmpty(ficha.FuenteInformacion))
+                {
+                    ficha.FuenteInformacion = HttpContext.Session.GetString("UsuarioNombre") ?? "Psicólogo";
+                }
+
+                // Guardar o Actualizar
                 if (string.IsNullOrEmpty(ficha.Id))
                 {
                     ficha.Id = await _fichaService.AddAsync(ficha);
-                    TempData["Mensaje"] = "creado";
                 }
                 else
                 {
                     await _fichaService.UpdateAsync(ficha);
-                    TempData["Mensaje"] = "actualizado";
                 }
 
-                
                 if (ficha.EsFinalizada)
                 {
                     await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
-                    return RedirectToAction("Index", "Citas");
+                    TempData["Mensaje"] = "Ficha finalizada correctamente";
+                    
+                    return RedirectToAction("Detalle", "Fichas", new { id = ficha.AlumnoId });
                 }
-
-                await _citaService.UpdateEstadoAsync(ficha.CitaId, "Pendiente");
-
                 
-                var cita = await _citaService.GetByIdAsync(ficha.CitaId);
-                CargarDatosAlumnoEnVista(alumno, cita);
+                else
+                {
+                    await _citaService.UpdateEstadoAsync(ficha.CitaId, "En Proceso");
 
-                return View(ficha);
+                    
+                    CargarDatosAlumnoEnVista(alumno, citaActual);
+
+                    
+                    TempData["Mensaje"] = "actualizado"; 
+
+                    return View(ficha);
+                }
             }
             catch (Exception ex)
             {
+                // En caso de error también recargamos el ViewBag para que no se vea feo
+                CargarDatosAlumnoEnVista(alumno, citaActual);
                 TempData["Error"] = "Error: " + ex.Message;
                 return View(ficha);
             }
@@ -131,25 +153,8 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
 
 
-        public async Task<IActionResult> CreateSeguimiento(string citaId)
-        {
-            
-            var cita = await _citaService.GetByIdAsync(citaId);
-            if (cita == null) return NotFound();
-
-            
-            ViewBag.CitaId = citaId;
-            ViewBag.AlumnoId = cita.AlumnoId;
-
-            return View();
-        }
 
 
-
-
-        // ======================
-        // MÉTODO AUXILIAR
-        // ======================
         private void CargarDatosAlumnoEnVista(Alumno alumno, Cita cita)
         {
             ViewBag.AlumnoNombre = $"{alumno.Nombres} {alumno.Apellidos}";
@@ -159,51 +164,27 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             ViewBag.Tipo = cita.Tipo;
             ViewBag.Psicologo = cita.Psicologo;
 
-            // Manejo seguro de DateTime? para la edad
             int edad = 0;
-            if (alumno.FechaNacimiento.HasValue) // Verificamos si tiene fecha
+            if (alumno.FechaNacimiento.HasValue)
             {
                 var hoy = DateTime.Today;
-                var fechaNac = alumno.FechaNacimiento.Value; // Extraemos el valor real
-
+                var fechaNac = alumno.FechaNacimiento.Value;
                 edad = hoy.Year - fechaNac.Year;
-
-                // Ajuste por si aún no llega su día de cumpleaños
-                if (fechaNac.Date > hoy.AddYears(-edad))
-                {
-                    edad--;
-                }
+                if (fechaNac.Date > hoy.AddYears(-edad)) edad--;
             }
-
             ViewBag.Edad = alumno.FechaNacimiento.HasValue ? edad.ToString() : "N/E";
         }
 
-
-
-
-
-
-
-
-        public async Task<IActionResult> VerFichaDetalle(string id) // Cambiado de alumnoId a id
+        public async Task<IActionResult> VerFichaDetalle(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
 
-            // 1. Buscamos la ficha específica directamente
             var ficha = await _fichaService.GetByIdAsync(id);
+            if (ficha == null) return NotFound();
 
-            if (ficha == null)
-            {
-                TempData["Error"] = "No se encontró la ficha diagnóstica seleccionada.";
-                return RedirectToAction("Index");
-            }
-
-            // 2. Cargamos los datos del alumno para que el encabezado formal que hicimos tenga nombre
+            
             var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
-            if (alumno != null)
-            {
-                ViewBag.NombreAlumno = $"{alumno.Apellidos}, {alumno.Nombres}";
-            }
+            ViewBag.NombreAlumno = alumno != null ? $"{alumno.Apellidos}, {alumno.Nombres}" : "Estudiante no encontrado";
 
             return View(ficha);
         }

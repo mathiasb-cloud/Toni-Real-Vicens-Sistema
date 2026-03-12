@@ -96,46 +96,133 @@
                         </div>
 
                         <div class="tab-pane fade" id="fichas-academicas">
-                            <div class="row mb-3 g-2">
+                            <div class="row mb-4 g-2">
                                 <div class="col-md-7">
-                                    <input type="text" id="searchPsicologo" class="form-control form-control-sm rounded-pill shadow-sm" placeholder="🔍 Buscar por Psicólogo (Fuente)...">
+                                    <div class="input-group input-group-sm shadow-sm rounded-pill overflow-hidden">
+                                        <span class="input-group-text border-0 bg-white"><i class="bi bi-search text-muted"></i></span>
+                                        <input type="text" id="searchPsicologo" class="form-control border-0" placeholder="Buscar por psicólogo o diagnóstico...">
+                                    </div>
                                 </div>
                                 <div class="col-md-5">
                                     <input type="date" id="filterFecha" class="form-control form-control-sm rounded-pill shadow-sm">
                                 </div>
                             </div>
 
-                            <div class="list-group list-group-flush" id="listaFichas">
-                                @if (ViewBag.FichasDiagnosticas != null && ((List<Toni_Real_Vicens_Sistema.Models.FichaDiagnostica>)ViewBag.FichasDiagnosticas).Any())
-                                {
-                                    foreach (var ficha in (List<Toni_Real_Vicens_Sistema.Models.FichaDiagnostica>)ViewBag.FichasDiagnosticas)
+                            <div class="mb-5">
+                                <h6 class="fw-bold mb-3 text-primary d-flex align-items-center">
+                                    <i class="bi bi-clipboard-check-fill me-2"></i> Evaluaciones Diagnósticas
+                                </h6>
+                                <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden border" id="listaFichas">
+                                    @if (ViewBag.FichasDiagnosticas != null && ((List<Toni_Real_Vicens_Sistema.Models.FichaDiagnostica>)ViewBag.FichasDiagnosticas).Any())
                                     {
-                                        <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-0 ficha-row"
-                                             data-psicologo="@(ficha.FuenteInformacion?.ToLower() ?? "no asignado")"
-                                             data-fecha="@ficha.Fecha.ToString("yyyy-MM-dd")">
-                                            <div class="d-flex align-items-center">
-                                                <div class="icon-box bg-success-soft text-success me-3">
-                                                    <i class="bi bi-journal-check"></i>
+                                        @foreach (var ficha in (List<Toni_Real_Vicens_Sistema.Models.FichaDiagnostica>)ViewBag.FichasDiagnosticas)
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 ficha-row"
+                                                 data-psicologo="@(ficha.FuenteInformacion?.ToLower() ?? "no asignado")"
+                                                 data-dx=""
+                                                 data-fecha="@ficha.Fecha.ToString("yyyy-MM-dd")">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-box bg-success-soft text-success me-3">
+                                                        <i class="bi bi-journal-medical"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold">Evaluación @ficha.AnioAcademico</h6>
+                                                        <div class="d-flex align-items-center">
+                                                            <small class="text-muted">
+                                                                @ficha.Fecha.ToShortDateString() • Psic: @(string.IsNullOrEmpty(ficha.FuenteInformacion) ? "No registrado" : ficha.FuenteInformacion)
+                                                            </small>
+
+                                                            @if (ficha.EsFinalizada)
+                                                            {
+                                                                <span class="badge bg-success ms-2 opacity-75" style="font-size: 0.65rem;">COMPLETADA</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem;">EN PROCESO</span>
+                                                            }
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h6 class="mb-0 fw-bold">Ficha Diagnóstica @ficha.AnioAcademico</h6>
-                                                    <small class="text-muted">Psic: @(ficha.FuenteInformacion ?? "No asignado") | @ficha.Fecha.ToShortDateString()</small>
-                                                </div>
+
+                                                @* BOTÓN ÚNICO: Siempre Ver, ya que la edición se hace en la lista de citas *@
+                                                <a asp-controller="Fichas" asp-action="VerFichaDetalle" asp-route-id="@ficha.Id" class="btn btn-sm btn-white border shadow-sm rounded-pill px-3">
+                                                    <i class="bi bi-eye-fill text-primary me-1"></i> Ver Ficha
+                                                </a>
                                             </div>
-                                            <a asp-controller="Fichas" asp-action="VerFichaDetalle" asp-route-id="@ficha.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                                <i class="bi bi-eye-fill me-1"></i> Ver Ficha
-                                            </a>
+                                        }
+
+
+
+
+                                    }
+                                    else
+                                    {
+                                        <div class="list-group-item text-center p-4 text-muted border-0">
+                                            <small><i class="bi bi-info-circle me-1"></i> No hay evaluaciones diagnósticas registradas.</small>
                                         </div>
                                     }
-                                }
-                                else
-                                {
-                                    <div class="text-center p-4">
-                                        <p class="text-muted">No se encontraron fichas registradas para este alumno.</p>
-                                    </div>
-                                }
+                                </div>
                             </div>
+
+
+
+
+                            <div>
+                                <h6 class="fw-bold mb-3 text-warning d-flex align-items-center">
+                                    <i class="bi bi-arrow-repeat me-2"></i> Seguimiento y Tratamiento
+                                </h6>
+                                <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden border" id="listaSeguimientos">
+                                    @* Cambio de ViewBag.Seguimientos a ViewBag.FichasSeguimiento *@
+                                    @if (ViewBag.FichasSeguimiento != null && ((List<Toni_Real_Vicens_Sistema.Models.FichaSeguimiento>)ViewBag.FichasSeguimiento).Any())
+                                    {
+                                        foreach (var seg in (List<Toni_Real_Vicens_Sistema.Models.FichaSeguimiento>)ViewBag.FichasSeguimiento)
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 ficha-row"
+                                                 data-psicologo="@(seg.Psicologo?.ToLower() ?? "no asignado")"
+                                                 data-dx="@(seg.DxNosologico?.ToLower() ?? "")"
+                                                 data-fecha="@seg.Fecha.ToString("yyyy-MM-dd")">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-box @(seg.IsFinalizada ? "bg-success-soft text-success" : "bg-warning-soft text-warning") me-3 border border-white">
+                                                        <i class="bi @(seg.IsFinalizada ? "bi-check-circle-fill" : "bi-clock-history")"></i>
+                                                    </div>
+                                                    <div>
+                                                        @* Mostramos el DxNosologico y el Psicólogo correctamente *@
+                                                        <h6 class="mb-0 fw-bold">Seg: @(seg.DxNosologico ?? "Sin Diagnóstico")</h6>
+                                                        <div class="d-flex align-items-center">
+                                                            <small class="text-muted">@seg.Fecha.ToShortDateString() • Psic: @(seg.Psicologo ?? "No asignado")</small>
+                                                            @if (seg.IsFinalizada)
+                                                            {
+                                                                <span class="badge bg-success ms-2" style="font-size: 0.65rem;">FINALIZADA</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem;">EN PROCESO</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <a asp-controller="Seguimiento" asp-action="Edit" asp-route-id="@seg.Id" class="btn btn-sm btn-white border shadow-sm rounded-pill px-3">
+                                                    <i class="bi bi-pencil-square text-primary"></i> Continuar
+                                                </a>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="list-group-item text-center p-4 text-muted border-0">
+                                            <small><i class="bi bi-info-circle me-1"></i> No hay seguimientos activos para este estudiante.</small>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+
+
+
                         </div>
+
+
+
 
                         <div class="tab-pane fade" id="historial">
                             <div class="p-5 text-center">
@@ -205,19 +292,51 @@
 
 @section Scripts {
     <script>
-        // Lógica de filtrado en tiempo real dentro de la lista
-        document.getElementById('searchPsicologo').addEventListener('input', filtrar);
-        document.getElementById('filterFecha').addEventListener('input', filtrar);
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputBusqueda = document.getElementById('searchPsicologo');
+            const inputFecha = document.getElementById('filterFecha');
 
-        function filtrar() {
-            const psi = document.getElementById('searchPsicologo').value.toLowerCase();
-            const fecha = document.getElementById('filterFecha').value;
+            function filtrar() {
+                const textoBusqueda = inputBusqueda.value.toLowerCase().trim();
+                const fechaSeleccionada = inputFecha.value; // Formato YYYY-MM-DD
 
-            document.querySelectorAll('.ficha-row').forEach(row => {
-                const matchPsi = row.dataset.psicologo.includes(psi);
-                const matchFecha = fecha === "" || row.dataset.fecha === fecha;
-                row.style.display = (matchPsi && matchFecha) ? "flex" : "none";
+                // Seleccionamos todas las filas de ambas listas (Diagnósticas y Seguimiento)
+                const filas = document.querySelectorAll('.ficha-row');
+
+                filas.forEach(row => {
+                    // Extraemos los datos de los data-attributes
+                    const psicologo = row.getAttribute('data-psicologo') || "";
+                    const diagnostico = row.getAttribute('data-dx') || ""; // Solo en seguimientos
+                    const fechaFicha = row.getAttribute('data-fecha') || "";
+
+                    // Lógica de coincidencia
+                    // 1. El texto coincide con psicólogo O con diagnóstico
+                    const coincideTexto = psicologo.includes(textoBusqueda) ||
+                                          diagnostico.includes(textoBusqueda);
+
+                    // 2. La fecha coincide o el filtro de fecha está vacío
+                    const coincideFecha = (fechaSeleccionada === "") || (fechaFicha === fechaSeleccionada);
+
+                    // Mostrar u ocultar con clases de Bootstrap para evitar conflictos de flex
+                    if (coincideTexto && coincideFecha) {
+                        row.classList.remove('d-none');
+                        row.classList.add('d-flex');
+                    } else {
+                        row.classList.remove('d-flex');
+                        row.classList.add('d-none');
+                    }
+                });
+            }
+
+            // Escuchar eventos
+            inputBusqueda.addEventListener('keyup', filtrar);
+            inputFecha.addEventListener('change', filtrar);
+
+            // Botón extra: Limpiar filtros (Opcional pero recomendado)
+            inputFecha.addEventListener('dblclick', function() {
+                this.value = "";
+                filtrar();
             });
-        }
+        });
     </script>
 }

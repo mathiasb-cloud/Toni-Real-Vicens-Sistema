@@ -8,12 +8,14 @@ namespace Toni_Real_Vicens_Sistema.Controllers
     {
         private readonly AlumnoService _service;
         private readonly FichaService _fichaService;
+        private readonly IConfiguration _config;
 
-        
+
         public AlumnosController(IConfiguration config)
         {
             _service = new AlumnoService(config);
-            _fichaService = new FichaService(config); 
+            _fichaService = new FichaService(config);
+            _config = config;
         }
 
         public async Task<IActionResult> Index()
@@ -185,22 +187,17 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         // Cambia tu método Details por este:
         public async Task<IActionResult> Details(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
+            if (string.IsNullOrEmpty(id)) return NotFound();
 
-            // Cambiamos _alumnoService por _service que es como lo declaraste arriba
             var alumno = await _service.GetByIdAsync(id);
+            if (alumno == null) return NotFound();
 
-            if (alumno == null)
-            {
-                return NotFound();
-            }
-
-            // IMPORTANTE: Si tu vista de detalles necesita ver las fichas, 
-            // agrega esta línea que ya usabas en el otro método:
+            // Fichas Diagnósticas (Lo que ya tenías)
             ViewBag.FichasDiagnosticas = await _fichaService.GetByAlumnoAsync(id);
+
+            // NUEVO: Fichas de Seguimiento
+            var _seguimientoService = new SeguimientoService(_config); // Asegúrate de tener _config disponible
+            ViewBag.Seguimientos = await _seguimientoService.GetByAlumnoAsync(id);
 
             return View(alumno);
         }

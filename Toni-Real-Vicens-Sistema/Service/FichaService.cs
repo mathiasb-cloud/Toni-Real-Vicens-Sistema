@@ -7,13 +7,12 @@ namespace Toni_Real_Vicens_Sistema.Service
     {
         public FichaService(IConfiguration config) : base(config) { }
 
-        public async Task<string> AddAsync(FichaDiagnostica ficha)
+        // DENTRO DE FichaService.cs
+        public async Task<string> AddAsync(FichaDiagnostica ficha) // <-- Cambiado de FichaSeguimiento a FichaDiagnostica
         {
-            var result = await _firebase
-                .Child("Fichas")
-                .PostAsync(ficha);
-
-            return result.Key;
+            // Este método debe guardar en "Fichas" (que son las diagnósticas)
+            var resultado = await _firebase.Child("Fichas").PostAsync(ficha);
+            return resultado.Key;
         }
 
         public async Task UpdateAsync(FichaDiagnostica ficha)
@@ -35,16 +34,19 @@ namespace Toni_Real_Vicens_Sistema.Service
         public async Task<List<FichaDiagnostica>> GetByAlumnoAsync(string alumnoId)
         {
             var data = await _firebase
-                .Child("Fichas")
+                .Child("Fichas") 
+                .OrderBy("AlumnoId")
+                .EqualTo(alumnoId)
                 .OnceAsync<FichaDiagnostica>();
 
+            Console.WriteLine($"Fichas encontradas para {alumnoId}: {data.Count}");
+
             return data
-                .Select(x =>
-                {
-                    x.Object.Id = x.Key;
-                    return x.Object;
+                .Select(x => {
+                    var ficha = x.Object;
+                    ficha.Id = x.Key; 
+                    return ficha;
                 })
-                .Where(f => f.AlumnoId == alumnoId)
                 .OrderByDescending(f => f.Fecha)
                 .ToList();
         }

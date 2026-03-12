@@ -8,11 +8,15 @@ namespace Toni_Real_Vicens_Sistema.Controllers
     {
         private readonly CitaService _citaService;
         private readonly AlumnoService _alumnoService;
+        private readonly FichaService _fichaService; // Agregado
+        private readonly SeguimientoService _seguimientoService; // Agregado
 
         public CitasController(IConfiguration config)
         {
             _citaService = new CitaService(config);
             _alumnoService = new AlumnoService(config);
+            _fichaService = new FichaService(config); // Inicializado
+            _seguimientoService = new SeguimientoService(config); // Inicializado
         }
 
         public async Task<IActionResult> Index()
@@ -20,17 +24,47 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             var citas = await _citaService.GetAllAsync();
             var alumnos = await _alumnoService.GetAllAsync();
 
-            
             ViewBag.NombresAlumnos = alumnos.ToDictionary(a => a.Id, a => a.Nombres + " " + a.Apellidos);
 
-            return View(citas);
+            foreach (var cita in citas)
+            {
+                // 1. Lógica para Seguimiento
+                if (cita.Tipo == "Seguimiento")
+                {
+                    
+                    List<FichaSeguimiento> seguimientos = await _seguimientoService.GetByAlumnoAsync(cita.AlumnoId);
+                    var seg = seguimientos.FirstOrDefault(s => s.CitaId == cita.Id);
+                    if (seg != null)
+                    {
+                        cita.Estado = seg.IsFinalizada ? "Atendida" : "En Proceso";
+                    }
+                }
+               
+                else if (cita.Tipo == "Evaluación")
+                {
+                    
+                    List<FichaDiagnostica> fichas = await _fichaService.GetByAlumnoAsync(cita.AlumnoId);
+                    var ficha = fichas.FirstOrDefault(f => f.CitaId == cita.Id);
+                    if (ficha != null)
+                    {
+                        cita.Estado = ficha.EsFinalizada ? "Atendida" : "En Proceso";
+                    }
+                }
+            }
+
+            return View(citas.OrderByDescending(c => c.FechaHora).ToList());
         }
 
+
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
+            // Necesitamos cargar la lista de alumnos para que el dropdown del HTML funcione
             ViewBag.Alumnos = await _alumnoService.GetAllAsync();
             return View();
         }
+
+
 
         [HttpPost]
         public async Task<IActionResult> Create(Cita cita, string accion)
@@ -41,85 +75,30 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 return View(cita);
             }
 
-            
             cita.Estado = "Programada";
-
-            
             string citaId = await _citaService.AddAsync(cita);
 
-            
             if (accion == "continuar")
             {
-                
-                await _citaService.UpdateEstadoAsync(citaId, "Pendiente");
-
-                if (cita.Tipo == "Evaluación")
-                {
-                    return RedirectToAction("Create", "Fichas", new { citaId = citaId });
-                }
-                else if (cita.Tipo == "Seguimiento")
-                {
-                    return RedirectToAction("CreateSeguimiento", "Fichas", new { citaId = citaId });
-                }
+                await _citaService.UpdateEstadoAsync(citaId, "En Proceso");
+                return (cita.Tipo == "Evaluación")
+                    ? RedirectToAction("Create", "Fichas", new { citaId = citaId })
+                    : RedirectToAction("Create", "Seguimiento", new { citaId = citaId });
             }
 
             return RedirectToAction("Index");
         }
-
-
-
-
-
-
-        public async Task<IActionResult> Atender(string id)
-        {
-            var cita = await _citaService.GetByIdAsync(id);
-            if (cita == null) return NotFound();
-
-            return View(cita);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> IniciarAtencion(string id)
-        {
-            await _citaService.UpdateEstadoAsync(id, "Atendida");
-            return RedirectToAction("Create", "Fichas", new { citaId = id });
-        }
-
-
-
-
 
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
             try
             {
-                if (string.IsNullOrEmpty(id))
-                {
-                    return Json(new { success = false, message = "El ID de la cita no es válido." });
-                }
-
-                
+                if (string.IsNullOrEmpty(id)) return Json(new { success = false, message = "ID no válido" });
                 bool eliminado = await _citaService.DeleteCitaCompletaAsync(id);
-
-                if (eliminado)
-                {
-                    return Json(new { success = true });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "No se pudo eliminar el registro de Firebase." });
-                }
+                return Json(new { success = eliminado });
             }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error de servidor: " + ex.Message });
-            }
+            catch (Exception ex) { return Json(new { success = false, message = ex.Message }); }
         }
-
-
-
-
     }
 }
