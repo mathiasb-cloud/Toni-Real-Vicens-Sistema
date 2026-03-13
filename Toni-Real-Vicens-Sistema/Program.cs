@@ -1,13 +1,18 @@
+using Toni_Real_Vicens_Sistema.Service;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. CONFIGURACIÓN DE SERVICIOS ---
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<AlumnoService>();
+builder.Services.AddScoped<CitaService>();
+builder.Services.AddScoped<FichaService>();
+
 // Añadir soporte para Sesiones
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); 
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

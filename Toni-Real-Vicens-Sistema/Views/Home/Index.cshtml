@@ -4,106 +4,230 @@
     var cargo = Context.Session.GetString("Cargo") ?? "Personal";
 }
 
-<div class="container mt-4">
-    <div class="row mb-5">
+<div class="container mt-4 pb-5">
+    <div class="row mb-4">
         <div class="col-12">
-            
-            <div class="p-5 text-white shadow-lg d-flex align-items-center justify-content-between"
-                 style="background: linear-gradient(135deg, #667eea 0%, #891c75 100%); border-radius: 25px;">
+            <div class="p-4 p-md-5 text-white shadow-lg welcome-banner d-flex align-items-center justify-content-between">
                 <div>
-                    <h1 class="fw-bold mb-1">¡Hola, @nombre!</h1> 
-                    <p class="opacity-75 mb-0">Bienvenido al Sistema Psicopedagógico Institucional.</p>
-                    <span class="badge bg-white text-primary mt-2 px-3 py-2 rounded-pill">@cargo</span>
+                    <span class="badge bg-white text-primary mb-2 px-3 py-2 rounded-pill shadow-sm">@cargo</span>
+                    <h1 class="fw-bold mb-1">¡Qué bueno verte, @nombre!</h1>
+                    <p class="opacity-75 mb-0">Aquí tienes el resumen psicopedagógico de hoy.</p>
                 </div>
-                <div class="d-none d-md-block">
-                    <i class="bi bi- stars fs-1 opacity-50"></i>
+                <div class="d-none d-lg-block">
+                    <div class="glass-clock text-center p-3">
+                        <h4 class="mb-0 fw-bold" id="liveTime">00:00</h4>
+                        <small class="opacity-75">@DateTime.Now.ToString("dd MMMM, yyyy")</small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4 justify-content-center">
+    <div class="row g-3 mb-5">
         <div class="col-6 col-md-3">
-            <a asp-controller="Usuarios" asp-action="Index" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
-                    <div class="icon-box mx-auto mb-3 bg-soft-purple" style="background: #f0f4ff;">
-                        <i class="bi bi-people-fill fs-2" style="color: #667eea;"></i>
+            <div class="stat-card p-3 shadow-sm border-0 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-sm rounded-circle bg-soft-primary me-3 text-primary"><i class="bi bi-people"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">@ViewBag.TotalAlumnos</h3>
+                        <small class="text-muted">Alumnos</small>
                     </div>
-                    <h6 class="fw-bold text-dark">Personal</h6>
-                    <small class="text-muted">Gestión de Accesos</small>
                 </div>
-            </a>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card p-3 shadow-sm border-0 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-sm rounded-circle bg-soft-success me-3 text-success"><i class="bi bi-calendar-check"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">@ViewBag.CitasHoy</h3>
+                        <small class="text-muted">Citas hoy</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card p-3 shadow-sm border-0 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-sm rounded-circle bg-soft-warning me-3 text-warning"><i class="bi bi-file-earmark-text"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">@ViewBag.TotalFichas</h3>
+                        <small class="text-muted">Expedientes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card p-3 shadow-sm border-0 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-sm rounded-circle bg-soft-danger me-3 text-danger"><i class="bi bi-palette"></i></div>
+                    <div>
+                        <h3 class="fw-bold mb-0">@ViewBag.TotalTalleres</h3>
+                        <small class="text-muted">En Talleres</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 20px;">
+                <h5 class="fw-bold mb-4 text-dark">Distribución por Niveles (Inicial, Primaria, Secundaria)</h5>
+                <canvas id="activityChart" style="max-height: 300px;"></canvas>
+            </div>
         </div>
 
-        <div class="col-6 col-md-3">
-            <a asp-controller="Alumnos" asp-action="Index" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
-                    <div class="icon-box mx-auto mb-3" style="background: #e6fffa;">
-                        <i class="bi bi-person-badge-fill fs-2" style="color: #38b2ac;"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark">Alumnos</h6>
-                    <small class="text-muted">Base de datos</small>
+        <div class="col-lg-4">
+            <h5 class="fw-bold mb-3">Accesos Directos</h5>
+            <div class="row g-3">
+                <div class="col-6 col-lg-12">
+                    <a asp-controller="Alumnos" asp-action="Index" class="text-decoration-none">
+                        <div class="quick-access-item p-3 d-flex align-items-center bg-white shadow-sm rounded-4 border-start border-4 border-info">
+                            <i class="bi bi-person-badge-fill fs-4 text-info me-3"></i>
+                            <span class="fw-bold text-dark">Alumnos</span>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <a asp-controller="Citas" asp-action="Index" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
-                    <div class="icon-box mx-auto mb-3" style="background: #fffaf0;">
-                        <i class="bi bi-calendar-check-fill fs-2" style="color: #ed8936;"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark">Citas</h6>
-                    <small class="text-muted">Agenda Diaria</small>
+                <div class="col-6 col-lg-12">
+                    <a asp-controller="Citas" asp-action="Index" class="text-decoration-none">
+                        <div class="quick-access-item p-3 d-flex align-items-center bg-white shadow-sm rounded-4 border-start border-4 border-warning">
+                            <i class="bi bi-calendar-check-fill fs-4 text-warning me-3"></i>
+                            <span class="fw-bold text-dark">Citas</span>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <a asp-controller="Fichas" asp-action="Index" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
-                    <div class="icon-box mx-auto mb-3" style="background: #ebf8ff;">
-                        <i class="bi bi-file-earmark-medical-fill fs-2" style="color: #4299e1;"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark">Expedientes</h6>
-                    <small class="text-muted">Documentos por alumno</small>
+                <div class="col-6 col-lg-12">
+                    <a asp-controller="Fichas" asp-action="Index" class="text-decoration-none">
+                        <div class="quick-access-item p-3 d-flex align-items-center bg-white shadow-sm rounded-4 border-start border-4 border-primary">
+                            <i class="bi bi-file-earmark-medical-fill fs-4 text-primary me-3"></i>
+                            <span class="fw-bold text-dark">Expedientes</span>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <a asp-controller="Fichas" asp-action="List" class="text-decoration-none">
-                <div class="card h-100 border-0 shadow-sm hover-card text-center p-4" style="border-radius: 20px;">
-                    <div class="icon-box mx-auto mb-3" style="background: #ebf8ff;">
-                        <i class="bi bi-file-earmark-medical-fill fs-2" style="color: #4299e1;"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark">Fichas</h6>
-                    <small class="text-muted">Historiales</small>
+                <div class="col-6 col-lg-12">
+                    <a asp-controller="Usuarios" asp-action="Index" class="text-decoration-none">
+                        <div class="quick-access-item p-3 d-flex align-items-center bg-white shadow-sm rounded-4 border-start border-4 border-dark">
+                            <i class="bi bi-people-fill fs-4 text-dark me-3"></i>
+                            <span class="fw-bold text-dark">Personal</span>
+                        </div>
+                    </a>
                 </div>
-            </a>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    
-    .hover-card {
-        transition: all 0.3s ease;
-        border: 1px solid transparent !important;
+    body {
+        background-color: #f7f9fc;
     }
 
-        .hover-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
-            border-color: #764ba2 !important;
+    .welcome-banner {
+        background: linear-gradient(135deg, #891c75 0%, #667eea 100%);
+        border-radius: 30px;
+    }
+
+    .glass-clock {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        min-width: 150px;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .stat-card {
+        border-radius: 20px;
+        transition: transform 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
-    
-    .icon-box {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
+
+    .icon-sm {
+        width: 45px;
+        height: 45px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .bg-soft-primary {
+        background-color: #eef2ff;
+    }
+
+    .bg-soft-success {
+        background-color: #ecfdf5;
+    }
+
+    .bg-soft-warning {
+        background-color: #fffbeb;
+    }
+
+    .bg-soft-danger {
+        background-color: #fef2f2;
+    }
+
+    .quick-access-item {
+        transition: all 0.2s ease;
+    }
+
+        .quick-access-item:hover {
+            background-color: #f1f5f9 !important;
+            transform: translateX(5px);
+        }
+
+    canvas {
+        width: 100% !important;
     }
 </style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('liveTime').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Recuperar datos reales del ViewBag
+        const datosNiveles = @Html.Raw(Json.Serialize(ViewBag.DataNiveles));
+
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line', // Restaurado a LINEA como el diseño original
+            data: {
+                labels: ['Inicial', 'Primaria', 'Secundaria'],
+                datasets: [{
+                    label: 'Alumnos por Nivel',
+                    data: datosNiveles,
+                    borderColor: '#891c75',
+                    backgroundColor: 'rgba(137, 28, 117, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#891c75',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 },
+                        grid: { color: '#f0f0f0' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+}
