@@ -32,7 +32,7 @@
                             <div class="col-md-6 mb-4">
                                 <label class="form-label fw-bold text-secondary">TIPO DE CITA</label>
                                 <select asp-for="Tipo" class="form-select" id="selectTipo">
-                                    <option value="Evaluación">Diagnóstica / Evaluación</option>
+                                    <option value="Evaluación">Diagnóstica</option>
                                     <option value="Seguimiento">Seguimiento</option>
                                 </select>
                             </div>
@@ -83,6 +83,8 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+
     <script>
         $(document).ready(function() {
             $('.select-buscador').select2({
@@ -90,6 +92,18 @@
                 allowClear: true,
                 width: '100%'
             });
+
+            
+            var error = "@TempData["Error"]";
+            if (error) {
+                Swal.fire({
+                    title: 'Cita Duplicada',
+                    text: error,
+                    icon: 'error',
+                    confirmButtonColor: '#764ba2',
+                    borderRadius: '15px'
+                });
+            }
         });
 
         function setAccion(valor) {

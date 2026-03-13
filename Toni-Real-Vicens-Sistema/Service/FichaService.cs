@@ -65,5 +65,21 @@ namespace Toni_Real_Vicens_Sistema.Service
             }
             return result;
         }
+
+        public async Task<List<FichaDiagnostica>> GetAllAsync()
+        {
+            
+            var data = await _firebase.Child("Fichas").OnceAsync<FichaDiagnostica>();
+
+            return data.Select(item => {
+                var ficha = item.Object;
+                ficha.Id = item.Key;
+                return ficha;
+            }).ToList();
+        }
+
+
+
+
     }
 }

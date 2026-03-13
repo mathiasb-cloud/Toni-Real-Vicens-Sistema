@@ -45,18 +45,18 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(FichaSeguimiento ficha) // <-- AQUÍ estaba el error, antes decía FichaDiagnostica
+        public async Task<IActionResult> Create(FichaSeguimiento ficha)
         {
             try
             {
                 if (string.IsNullOrEmpty(ficha.Psicologo))
                     ficha.Psicologo = HttpContext.Session.GetString("UsuarioNombre") ?? "Sistema";
 
-                // Guardar o Actualizar usando el servicio de SEGUIMIENTO
+                
                 if (string.IsNullOrEmpty(ficha.Id))
                 {
                     ficha.Fecha = DateTime.Now;
-                    // El servicio debe recibir FichaSeguimiento
+                    
                     ficha.Id = await _seguimientoService.AddAsync(ficha);
                 }
                 else
@@ -64,7 +64,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                     await _seguimientoService.UpdateAsync(ficha.Id, ficha);
                 }
 
-                // Manejo de estados (Recuerda que en Seguimiento es IsFinalizada con 'I')
+                
                 if (ficha.IsFinalizada)
                 {
                     await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
@@ -88,6 +88,57 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 return View(ficha);
             }
         }
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            var seguimiento = await _seguimientoService.GetByIdAsync(id);
+            if (seguimiento == null) return NotFound();
+
+            var alumno = await _alumnoService.GetByIdAsync(seguimiento.AlumnoId);
+            ViewBag.AlumnoNombre = alumno != null ? $"{alumno.Nombres} {alumno.Apellidos}" : "Estudiante";
+
+            
+            return View(seguimiento);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(FichaSeguimiento seguimiento)
+        {
+            try
+            {
+                
+                await _seguimientoService.UpdateAsync(seguimiento.Id, seguimiento);
+
+                if (seguimiento.IsFinalizada)
+                {
+                    await _citaService.UpdateEstadoAsync(seguimiento.CitaId, "Atendida");
+                }
+
+                TempData["Mensaje"] = "Seguimiento actualizado con éxito";
+                
+                return RedirectToAction("List", "Fichas", new { id = seguimiento.AlumnoId });
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+
+                
+                var alumno = await _alumnoService.GetByIdAsync(seguimiento.AlumnoId);
+                ViewBag.AlumnoNombre = alumno != null ? $"{alumno.Nombres} {alumno.Apellidos}" : "Alumno";
+
+                return View(seguimiento);
+            }
+        }
+
+
+        
+        
 
 
 

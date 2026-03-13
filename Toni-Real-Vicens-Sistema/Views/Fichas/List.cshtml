@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Fichas";
+}
+
+<div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="fw-bold text-dark"><i class="bi bi-journal-text text-primary me-2"></i>Historial Clínico General</h2>
+            <p class="text-muted small">Consulta y gestiona diagnósticos y seguimientos de todos los alumnos.</p>
+        </div>
+        <div class="col-auto">
+            <div class="bg-white p-2 rounded-pill shadow-sm border px-3">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 active" onclick="filtrar('Todas')">Todas</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 mx-1" onclick="filtrar('Diagnóstica')">Diagnósticas</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="filtrar('Seguimiento')">Seguimientos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaHistorial">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 border-0 text-muted small">FECHA</th>
+                            <th class="py-3 border-0 text-muted small">ALUMNO</th>
+                            <th class="py-3 border-0 text-muted small">TIPO</th>
+                            <th class="py-3 border-0 text-muted small">ESPECIALISTA</th>
+                            <th class="py-3 border-0 text-center text-muted small">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.Historial)
+                        {
+                            <tr class="fila-ficha" data-tipo="@item.Tipo">
+                                <td class="ps-4">
+                                    <span class="fw-bold text-dark">@item.Fecha.ToString("dd/MM/yyyy")</span>
+                                    <div class="text-muted small">@item.Fecha.ToString("HH:mm")</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.Alumno</div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2" style="background: @item.BadgeColor; color: @item.TextColor;">
+                                        <i class="bi @(item.Tipo == "Diagnóstica" ? "bi-clipboard-heart" : "bi-arrow-repeat") me-1"></i>
+                                        @item.Tipo
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="small text-muted"><i class="bi bi-person-badge me-1"></i>@item.Psicologo</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="@Url.Action(item.Tipo == "Diagnóstica" ? "VerFichaDetalle" : "VerSeguimientoDetalle", "Fichas", new { id = item.Id })"
+                                           class="btn btn-sm btn-light border rounded-pill shadow-sm" title="Ver Detalle">
+                                            <i class="bi bi-eye-fill text-primary"></i>
+                                        </a>
+
+                                        <a href="@Url.Action(item.Tipo == "Diagnóstica" ? "Edit" : "Edit", "Seguimiento", new { id = item.Id })"
+                                           class="btn btn-sm btn-light border rounded-pill shadow-sm" title="Editar">
+                                            <i class="bi bi-pencil-square text-success"></i>
+                                        </a>
+
+                                        <button class="btn btn-sm btn-light border rounded-pill shadow-sm"
+                                                onclick="eliminarFicha('@item.Id', '@item.Tipo')" title="Eliminar">
+                                            <i class="bi bi-trash3-fill text-danger"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-light:hover {
+        background: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    .fila-ficha {
+        transition: all 0.2s;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            const navegacionAtras = window.performance.getEntriesByType("navigation")[0].type === 'back_forward';
+
+            
+            if (!navegacionAtras) {
+                var mensajeExito = '@(TempData["Mensaje"] != null ? TempData["Mensaje"].ToString() : "")';
+
+                if (mensajeExito !== "" && mensajeExito !== "null") {
+                    Swal.fire({
+                        title: '¡Buen trabajo!',
+                        text: mensajeExito,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        borderRadius: '15px'
+                    });
+                }
+            }
+
+            
+            @{
+                TempData["Mensaje"] = null;
+            }
+        });
+
+        function filtrar(tipo) {
+            $('.btn-group .btn').removeClass('active');
+            $(event.target).addClass('active');
+            if (tipo === 'Todas') {
+                $('.fila-ficha').fadeIn(200);
+            } else {
+                $('.fila-ficha').hide();
+                $(`.fila-ficha[data-tipo="${tipo}"]`).fadeIn(200);
+            }
+        }
+
+        function eliminarFicha(id, tipo) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `Se eliminará la ficha ${tipo} permanentemente.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                borderRadius: '15px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    console.log("Eliminando " + id);
+                }
+            });
+        }
+    </script>
+}

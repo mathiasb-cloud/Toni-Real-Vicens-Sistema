@@ -94,5 +94,19 @@ namespace Toni_Real_Vicens_Sistema.Service
                 .Child(id)
                 .PatchAsync(new { Estado = estado });
         }
+
+
+
+
+        public async Task UpdateAsync(Cita cita)
+        {
+            await _firebase
+                .Child("Citas")
+                .Child(cita.Id)
+                .PutAsync(cita); 
+        }
+
+
+
     }
 }

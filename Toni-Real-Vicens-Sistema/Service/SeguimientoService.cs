@@ -46,5 +46,21 @@ namespace Toni_Real_Vicens_Sistema.Service
         {
             await _firebase.Child("FichasSeguimiento").Child(id).PutAsync(ficha);
         }
+
+
+
+        public async Task<List<FichaSeguimiento>> GetAllAsync()
+        {
+            
+            var data = await _firebase.Child("FichasSeguimiento").OnceAsync<FichaSeguimiento>();
+
+            return data.Select(item => {
+                var seguimiento = item.Object;
+                seguimiento.Id = item.Key; 
+                return seguimiento;
+            }).ToList();
+        }
+
+
     }
 }

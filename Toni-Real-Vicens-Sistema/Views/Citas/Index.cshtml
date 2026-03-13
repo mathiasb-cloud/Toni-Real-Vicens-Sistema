@@ -88,21 +88,36 @@
                                 }
                             </td>
                             <td><i class="bi bi-person-badge me-1"></i> @cita.Psicologo</td>
+
                             <td class="text-center">
-                                @if (cita.Estado == "Programada")
+                                @if (cita.Estado == "Atendida")
                                 {
-                                    <span class="badge px-3 py-2" style="background: #fff9db; color: #f08c00; border-radius: 8px;">Programada</span>
+                                    <span class="badge px-3 py-2" style="background: #ebfbee; color: #2b8a3e; border-radius: 8px;">Finalizada</span>
                                 }
-                                @* Cambia la condición de Pendiente a En Proceso *@
                                 else if (cita.Estado == "En Proceso")
                                 {
                                     <span class="badge px-3 py-2" style="background: #e1f5fe; color: #0288d1; border-radius: 8px;">En Proceso</span>
                                 }
-                                else if (cita.Estado == "Atendida")
+                                else if (cita.Estado == "Ausente")
                                 {
-                                    <span class="badge px-3 py-2" style="background: #ebfbee; color: #2b8a3e; border-radius: 8px;">Finalizada</span>
+                                    <span class="badge px-3 py-2" style="background: #fff5f5; color: #e03131; border-radius: 8px;">Ausente</span>
+                                }
+                                else
+                                {
+                                    <span class="badge px-3 py-2" style="background: #fff9db; color: #f08c00; border-radius: 8px;">Programada</span>
+                                }
+
+                                @if (cita.FueReprogramada)
+                                {
+                                    <div class="mt-1">
+                                        <span class="badge bg-light text-muted border" style="font-size: 0.65rem;"
+                                              title="Original: @cita.FechaOriginal?.ToString("dd/MM/yyyy HH:mm")">
+                                            <i class="bi bi-clock-history"></i> Reprogramada
+                                        </span>
+                                    </div>
                                 }
                             </td>
+
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-sm btn-light border shadow-sm rounded-pill px-2"
@@ -110,11 +125,18 @@
                                         <i class="bi bi-eye-fill text-primary"></i>
                                     </button>
 
-                                    @if (cita.Estado == "Programada" || cita.Estado == "En Proceso")
+                                    @if (cita.Estado == "Programada" || cita.Estado == "Ausente")
+                                    {
+                                        <button class="btn btn-sm btn-light border shadow-sm rounded-pill px-2"
+                                                title="Reprogramar"
+                                                onclick="abrirModalReprogramar('@cita.Id', '@cita.FechaHora?.ToString("yyyy-MM-ddTHH:mm")')">
+                                            <i class="bi bi-calendar-range-fill text-info"></i>
+                                        </button>
+                                    }
+
+                                    @if (cita.Estado == "Programada" || cita.Estado == "En Proceso" || cita.Estado == "Ausente")
                                     {
                                         string destinoController = (cita.Tipo == "Seguimiento") ? "Seguimiento" : "Fichas";
-
-                                        
                                         bool esProceso = (cita.Estado == "En Proceso");
                                         string colorBoton = esProceso ? "#4299e1" : "#38b2ac";
                                         string textoBoton = esProceso ? "Continuar" : "Atender";
@@ -136,7 +158,6 @@
                                     </button>
                                 </div>
                             </td>
-
                         </tr>
                     }
                 </tbody>
@@ -203,6 +224,44 @@
                 borderRadius: '15px'
             });
         }
+
+
+
+
+                function abrirModalReprogramar(id, fechaActual) {
+            Swal.fire({
+                title: 'Reprogramar Cita',
+                html: `
+                    <div class="text-start">
+                        <label class="form-label small fw-bold">Nueva Fecha y Hora:</label>
+                        <input type="datetime-local" id="swal-new-date" class="form-control mb-3" value="${fechaActual}">
+                        <label class="form-label small fw-bold">Motivo del cambio:</label>
+                        <textarea id="swal-reason" class="form-control" rows="2" placeholder="Opcional..."></textarea>
+                    </div>`,
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar Cambio',
+                confirmButtonColor: '#764ba2',
+                preConfirm: () => {
+                    return {
+                        citaId: id,
+                        nuevaFecha: document.getElementById('swal-new-date').value,
+                        motivo: document.getElementById('swal-reason').value
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('@Url.Action("Reprogramar", "Citas")', result.value, function(res) {
+                        if(res.success) {
+                            Swal.fire('¡Actualizado!', 'La cita ha sido reprogramada.', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
 
                 function confirmarEliminacion(id, nombre) {
             

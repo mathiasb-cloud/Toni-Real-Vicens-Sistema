@@ -70,5 +70,10 @@ namespace Toni_Real_Vicens_Sistema.Models
 
 
         public int TotalFichasDiagnosticas { get; set; } = 0;
+
+        public int TotalFichasSeguimiento { get; set; } = 0;
+
+
+        public string AulaComplementaria { get; set; } = "";
     }
 }

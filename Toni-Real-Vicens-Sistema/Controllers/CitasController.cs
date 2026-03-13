@@ -8,15 +8,15 @@ namespace Toni_Real_Vicens_Sistema.Controllers
     {
         private readonly CitaService _citaService;
         private readonly AlumnoService _alumnoService;
-        private readonly FichaService _fichaService; // Agregado
-        private readonly SeguimientoService _seguimientoService; // Agregado
+        private readonly FichaService _fichaService; 
+        private readonly SeguimientoService _seguimientoService; 
 
         public CitasController(IConfiguration config)
         {
             _citaService = new CitaService(config);
             _alumnoService = new AlumnoService(config);
-            _fichaService = new FichaService(config); // Inicializado
-            _seguimientoService = new SeguimientoService(config); // Inicializado
+            _fichaService = new FichaService(config);
+            _seguimientoService = new SeguimientoService(config); 
         }
 
         public async Task<IActionResult> Index()
@@ -28,7 +28,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
             foreach (var cita in citas)
             {
-                // 1. Lógica para Seguimiento
+                
                 if (cita.Tipo == "Seguimiento")
                 {
                     
@@ -59,7 +59,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            // Necesitamos cargar la lista de alumnos para que el dropdown del HTML funcione
+            
             ViewBag.Alumnos = await _alumnoService.GetAllAsync();
             return View();
         }
@@ -69,12 +69,33 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Cita cita, string accion)
         {
+            
             if (!ModelState.IsValid)
             {
                 ViewBag.Alumnos = await _alumnoService.GetAllAsync();
                 return View(cita);
             }
 
+            
+            var citasExistentes = await _citaService.GetAllAsync();
+
+            
+            bool yaExisteCita = citasExistentes.Any(c =>
+                c.AlumnoId == cita.AlumnoId &&
+                c.FechaHora.HasValue && 
+                cita.FechaHora.HasValue && 
+                c.FechaHora.Value.Date == cita.FechaHora.Value.Date);
+
+            if (yaExisteCita)
+            {
+                ModelState.AddModelError("FechaHora", "El alumno ya tiene una cita programada para este día.");
+                TempData["Error"] = "Ya existe una cita para este alumno en la fecha seleccionada.";
+
+                ViewBag.Alumnos = await _alumnoService.GetAllAsync();
+                return View(cita);
+            }
+
+            
             cita.Estado = "Programada";
             string citaId = await _citaService.AddAsync(cita);
 
@@ -86,6 +107,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                     : RedirectToAction("Create", "Seguimiento", new { citaId = citaId });
             }
 
+            TempData["Mensaje"] = "Cita programada con éxito";
             return RedirectToAction("Index");
         }
 
@@ -100,5 +122,39 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             }
             catch (Exception ex) { return Json(new { success = false, message = ex.Message }); }
         }
+
+
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> Reprogramar(string citaId, DateTime nuevaFecha, string motivo)
+        {
+            try
+            {
+                var cita = await _citaService.GetByIdAsync(citaId);
+                if (cita == null) return Json(new { success = false });
+
+                
+                if (!cita.FechaOriginal.HasValue)
+                {
+                    cita.FechaOriginal = cita.FechaHora;
+                }
+
+                cita.FechaHora = nuevaFecha;
+                cita.MotivoReprogramacion = motivo;
+
+                await _citaService.UpdateAsync(cita); 
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
+
     }
 }

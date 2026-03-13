@@ -21,22 +21,24 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // 1. Obtenemos todos los alumnos
-            var alumnos = await _alumnoService.GetAllAsync();
+            
+            var taskAlumnos = _alumnoService.GetAllAsync();
+            var taskFichas = _fichaService.GetAllAsync(); 
+            var taskSeguimientos = _seguimientoService.GetAllAsync(); 
 
-            // 2. Obtenemos todas las fichas para poder contar cuántas tiene cada alumno
-            // Nota: Esto es opcional, pero hará que los contadores de las "tarjetas" funcionen
+            await Task.WhenAll(taskAlumnos, taskFichas, taskSeguimientos);
+
+            var alumnos = await taskAlumnos;
+            var todasLasFichas = await taskFichas;
+            var todosLosSeguimientos = await taskSeguimientos;
+
+           
             foreach (var alumno in alumnos)
             {
-                var fichas = await _fichaService.GetByAlumnoAsync(alumno.Id);
-                var seguimientos = await _seguimientoService.GetByAlumnoAsync(alumno.Id);
-
-                // Asignamos los conteos (Asegúrate de que estas propiedades existan en tu modelo Alumno)
-                alumno.TotalFichasDiagnosticas = fichas.Count;
-                // Si no tienes una propiedad para seguimiento, puedes usar un ViewBag o una propiedad temporal
+                alumno.TotalFichasDiagnosticas = todasLasFichas.Count(f => f.AlumnoId == alumno.Id);
+                alumno.TotalFichasSeguimiento = todosLosSeguimientos.Count(s => s.AlumnoId == alumno.Id);
             }
 
-            // 3. Devolvemos la lista de alumnos (ordenada por apellido)
             return View(alumnos.OrderBy(a => a.Apellidos).ToList());
         }
 
@@ -188,5 +190,113 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
             return View(ficha);
         }
+
+
+        public IActionResult VerSeguimientoDetalle(string id)
+        {
+
+            return View();
+        }
+
+
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> List()
+        {
+            
+            var taskAlumnos = _alumnoService.GetAllAsync();
+            var taskFichas = _fichaService.GetAllAsync();
+            var taskSeguimientos = _seguimientoService.GetAllAsync();
+
+            await Task.WhenAll(taskAlumnos, taskFichas, taskSeguimientos);
+
+            var alumnos = await taskAlumnos;
+            var fichas = await taskFichas;
+            var seguimientos = await taskSeguimientos;
+
+            
+            var historialCombinado = new List<dynamic>();
+
+            
+            foreach (var f in fichas)
+            {
+                var alu = alumnos.FirstOrDefault(a => a.Id == f.AlumnoId);
+                historialCombinado.Add(new
+                {
+                    Id = f.Id,
+                    Fecha = f.Fecha,
+                    Alumno = alu != null ? $"{alu.Apellidos}, {alu.Nombres}" : "Desconocido",
+                    Tipo = "Diagnóstica",
+                    Psicologo = f.FuenteInformacion ?? "No asignado",
+                    BadgeColor = "#e7f5ff",
+                    TextColor = "#1971c2"
+                });
+            }
+
+            
+            foreach (var s in seguimientos)
+            {
+                var alu = alumnos.FirstOrDefault(a => a.Id == s.AlumnoId);
+                historialCombinado.Add(new
+                {
+                    Id = s.Id,
+                    Fecha = s.Fecha,
+                    Alumno = alu != null ? $"{alu.Apellidos}, {alu.Nombres}" : "Desconocido",
+                    Tipo = "Seguimiento",
+                    Psicologo = s.Psicologo ?? "No asignado",
+                    BadgeColor = "#fff4e6",
+                    TextColor = "#fd7e14"
+                });
+            }
+
+            
+            ViewBag.Historial = historialCombinado.OrderByDescending(x => x.Fecha).ToList();
+
+
+            var mensaje = TempData["Mensaje"]?.ToString();
+            ViewBag.MensajeAlerta = mensaje;
+
+            return View(); 
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            
+            var ficha = await _fichaService.GetByIdAsync(id);
+            if (ficha == null) return NotFound();
+
+            
+            var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
+            var cita = await _citaService.GetByIdAsync(ficha.CitaId);
+
+            CargarDatosAlumnoEnVista(alumno, cita);
+
+            
+            return View(ficha);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(FichaDiagnostica ficha)
+        {
+            try
+            {
+                
+                await _fichaService.UpdateAsync(ficha);
+
+                TempData["Mensaje"] = "Ficha actualizada correctamente";
+                return RedirectToAction("List"); 
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al actualizar: " + ex.Message;
+                return View(ficha);
+            }
+        }
+
+
     }
 }

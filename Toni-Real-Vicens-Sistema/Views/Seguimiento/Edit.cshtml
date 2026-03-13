@@ -1,0 +1,305 @@
+﻿@model Toni_Real_Vicens_Sistema.Models.FichaSeguimiento
+
+@{
+    ViewData["Title"] = "Editar Seguimiento";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-white py-4 border-0">
+            <h3 class="text-center fw-bold" style="color: #891c75;">Editar Ficha de Seguimiento</h3>
+            <p class="text-center text-muted">Alumno: <span class="fw-bold">@ViewBag.AlumnoNombre</span></p>
+
+            <div class="stepper-wrapper d-flex justify-content-between mt-4">
+                <div class="stepper-item active" id="step-i-1">
+                    <div class="step-counter">1</div>
+                    <div class="step-name d-none d-md-block">Responsable / Dx</div>
+                </div>
+                <div class="stepper-item" id="step-i-2">
+                    <div class="step-counter">2</div>
+                    <div class="step-name d-none d-md-block">Psicoedu. / Eval.</div>
+                </div>
+                <div class="stepper-item" id="step-i-3">
+                    <div class="step-counter">3</div>
+                    <div class="step-name d-none d-md-block">Terapias / Visitas</div>
+                </div>
+                <div class="stepper-item" id="step-i-4">
+                    <div class="step-counter">4</div>
+                    <div class="step-name d-none d-md-block">Interconsulta</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <form asp-controller="Seguimiento" asp-action="Edit" id="msform" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="AlumnoId" />
+                <input type="hidden" asp-for="CitaId" />
+
+                <section class="step-section" id="step-1">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">1. Responsable y Diagnóstico (Dx)</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Forma de Ingreso</label>
+                            <input asp-for="FormasIngreso" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Psicólogo Responsable</label>
+                            <input asp-for="Psicologo" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Motivo</label>
+                            <input asp-for="Motivo" class="form-control" />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Diagnóstico Nosológico</label>
+                            <input asp-for="DxNosologico" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Código</label>
+                            <input asp-for="DxCodigo" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Nivel</label>
+                            <select asp-for="DxNivel" class="form-select">
+                                <option value="LEVE">LEVE</option>
+                                <option value="MODERADO">MODERADO</option>
+                                <option value="SEVERO">SEVERO</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="step-section d-none" id="step-2">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">2. Psicoeducación y Evaluaciones</h5>
+                    <div class="row g-3">
+                        <p class="fw-bold mb-0">Psicoeducación</p>
+                        <div class="col-md-4">
+                            <label class="form-label small">Sesión 1</label>
+                            <input type="date" asp-for="Psicoeducacion1" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Sesión 2</label>
+                            <input type="date" asp-for="Psicoeducacion2" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Sesión 3</label>
+                            <input type="date" asp-for="Psicoeducacion3" class="form-control" />
+                        </div>
+
+                        <p class="fw-bold mt-4 mb-0">Evaluaciones</p>
+                        <div class="col-md-2"><label class="form-label small">Eval 1</label><input type="date" asp-for="Evaluacion1" class="form-control" /></div>
+                        <div class="col-md-2"><label class="form-label small">Eval 2</label><input type="date" asp-for="Evaluacion2" class="form-control" /></div>
+                        <div class="col-md-2"><label class="form-label small">Eval 3</label><input type="date" asp-for="Evaluacion3" class="form-control" /></div>
+                        <div class="col-md-2"><label class="form-label small">Eval 4</label><input type="date" asp-for="Evaluacion4" class="form-control" /></div>
+                        <div class="col-md-2"><label class="form-label small">Eval 5</label><input type="date" asp-for="Evaluacion5" class="form-control" /></div>
+                    </div>
+                </section>
+
+                <section class="step-section d-none" id="step-3">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">3. Tratamiento: Terapias y Visitas</h5>
+                    <div class="row g-3">
+                        <p class="fw-bold mb-0">Terapia Individual</p>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S1</label><input type="date" asp-for="TerapiaInd1" class="form-control" /></div>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S2</label><input type="date" asp-for="TerapiaInd2" class="form-control" /></div>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S3</label><input type="date" asp-for="TerapiaInd3" class="form-control" /></div>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S4</label><input type="date" asp-for="TerapiaInd4" class="form-control" /></div>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S5</label><input type="date" asp-for="TerapiaInd5" class="form-control" /></div>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S6</label><input type="date" asp-for="TerapiaInd6" class="form-control" /></div>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S7</label><input type="date" asp-for="TerapiaInd7" class="form-control" /></div>
+                        <div class="col-md-3 mb-2"><label class="form-label small">S8</label><input type="date" asp-for="TerapiaInd8" class="form-control" /></div>
+
+                        <div class="col-12"><hr /></div>
+
+                        <div class="col-md-8">
+                            <p class="fw-bold mb-2">Terapia Familiar</p>
+                            <div class="d-flex gap-2">
+                                <input type="date" asp-for="TerapiaFam1" class="form-control" />
+                                <input type="date" asp-for="TerapiaFam2" class="form-control" />
+                                <input type="date" asp-for="TerapiaFam3" class="form-control" />
+                                <input type="date" asp-for="TerapiaFam4" class="form-control" />
+                                <input type="date" asp-for="TerapiaFam5" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <p class="fw-bold mb-2">Visita Domiciliaria</p>
+                            <div class="d-flex gap-2">
+                                <input type="date" asp-for="VisitaDom1" class="form-control" />
+                                <input type="date" asp-for="VisitaDom2" class="form-control" />
+                                <input type="date" asp-for="VisitaDom3" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="step-section d-none" id="step-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">4. Interconsulta y Cierre</h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Institución de Derivación</label>
+                            <input asp-for="InstitucionDerivacion" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fecha de Derivación</label>
+                            <input type="date" asp-for="FechaDerivacion" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Motivo de derivación</label>
+                            <input asp-for="MotivoDerivacion" class="form-control" />
+                        </div>
+                        <div class="col-12 mt-4">
+                            <div class="form-check form-switch p-3 border rounded">
+                                <input class="form-check-input ms-0 me-3" type="checkbox" asp-for="IsFinalizada" id="checkFinalizar">
+                                <label class="form-check-label fw-bold">Finalizar Seguimiento y Cerrar Cita</label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="d-flex justify-content-between align-items-center mt-5">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary px-4 d-none" id="prevBtn" onclick="nextPrev(-1)">Anterior</button>
+                        <button type="button" class="btn btn-outline-info px-4 rounded-pill" id="saveProgressBtn" onclick="guardarAvance()">
+                            <i class="bi bi-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                    <button type="button" class="btn text-white px-4" style="background-color: #891c75;" id="nextBtn" onclick="nextPrev(1)">Siguiente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        
+        .stepper-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .stepper-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+            .stepper-item::before {
+                position: absolute;
+                content: "";
+                border-bottom: 2px solid #ccc;
+                width: 100%;
+                top: 20px;
+                left: -50%;
+                z-index: 0;
+            }
+
+            .stepper-item:first-child::before {
+                content: none;
+            }
+
+        .step-counter {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ccc;
+            color: white;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .active .step-counter {
+            background-color: #891c75;
+        }
+
+        .active .step-name {
+            color: #891c75;
+            font-weight: bold;
+        }
+
+        .completed .step-counter {
+            background-color: #28a745;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        var currentTab = 0;
+        showTab(currentTab);
+
+        function showTab(n) {
+            var tabs = document.getElementsByClassName("step-section");
+            tabs[n].classList.remove("d-none");
+
+            
+            if (n == 0) {
+                document.getElementById("prevBtn").classList.add("d-none");
+            } else {
+                document.getElementById("prevBtn").classList.remove("d-none");
+            }
+
+            
+            var nextBtn = document.getElementById("nextBtn");
+            if (n == (tabs.length - 1)) {
+                nextBtn.innerHTML = "Actualizar Ficha Completa";
+                nextBtn.className = "btn btn-success px-4 shadow-sm fw-bold";
+            } else {
+                nextBtn.innerHTML = "Siguiente";
+                nextBtn.className = "btn text-white px-4";
+                nextBtn.style.backgroundColor = "#891c75";
+            }
+            updateStepper(n);
+        }
+
+        function nextPrev(n) {
+            var tabs = document.getElementsByClassName("step-section");
+
+            
+            if (n == 1 && currentTab >= tabs.length - 1) {
+                guardarAvance();
+                return false;
+            }
+
+            tabs[currentTab].classList.add("d-none");
+            currentTab = currentTab + n;
+            showTab(currentTab);
+        }
+
+        function guardarAvance() {
+            Swal.fire({
+                title: 'Guardando cambios...',
+                text: 'Se actualizará la información de la ficha.',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            
+            document.getElementById("msform").submit();
+        }
+
+        function updateStepper(n) {
+            var items = document.getElementsByClassName("stepper-item");
+            for (var i = 0; i < items.length; i++) {
+                items[i].classList.remove("active", "completed");
+                if(i < n) items[i].classList.add("completed");
+                if(i == n) items[i].classList.add("active");
+            }
+        }
+
+        
+    </script>
+}
