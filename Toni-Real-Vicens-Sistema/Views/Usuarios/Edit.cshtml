@@ -1,0 +1,49 @@
+﻿@model Toni_Real_Vicens_Sistema.Models.Usuario
+
+<div class="container mt-4">
+    <div class="card border-0 shadow-lg" style="border-radius: 15px;">
+        <div class="card-header bg-white py-3">
+            <h4 class="fw-bold mb-0" style="color: #4a5568;">Editar Usuario</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="IsActivo" />
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Nombre</label>
+                        <input asp-for="Nombre" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Primer Apellido</label>
+                        <input asp-for="Apellido" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Segundo Apellido</label>
+                        <input asp-for="SegundoApellido" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Cargo</label>
+                        <select asp-for="Cargo" class="form-select">
+                            <option value="Psicologo">Psicólogo</option>
+                            <option value="Director">Director</option>
+                            <option value="Tutor">Tutor</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Celular</label>
+                        <input asp-for="Telefono" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn text-white px-4" style="background: #667eea; border-radius: 10px;">
+                        Guardar Cambios
+                    </button>
+                    <a asp-action="Index" class="btn btn-light px-4" style="border-radius: 10px;">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

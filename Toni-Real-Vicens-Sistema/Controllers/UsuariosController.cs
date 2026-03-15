@@ -26,19 +26,17 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             return View();
         }
 
-        // Acción de Creación (POST) - AQUÍ ESTABA EL ERROR 405
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Usuario usuario)
         {
             if (ModelState.IsValid)
             {
-                // Por defecto los nuevos usuarios están activos
                 usuario.IsActivo = true;
-
                 bool creado = await _usuarioService.AddAsync(usuario);
                 if (creado)
                 {
+                    TempData["Accion"] = "creado"; // <--- Añadido para animación
                     return RedirectToAction(nameof(Index));
                 }
                 ModelState.AddModelError("", "El correo o teléfono ya existen.");
@@ -46,23 +44,60 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             return View(usuario);
         }
 
-        // Acción para Activar/Desactivar
+
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+            var usuario = await _usuarioService.GetByIdAsync(id);
+            if (usuario == null) return NotFound();
+
+            
+            if (usuario.Cargo == "Administrador")
+            {
+                TempData["Error"] = "La cuenta de Administrador está protegida, no se puede editar.";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(usuario);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Usuario usuario)
+        {
+            
+            var dbUser = await _usuarioService.GetByIdAsync(usuario.Id);
+            if (dbUser.Cargo == "Administrador") return RedirectToAction(nameof(Index));
+
+            if (ModelState.IsValid)
+            {
+                await _usuarioService.UpdateAsync(usuario);
+                TempData["Accion"] = "editado";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(usuario);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> ToggleEstado(string id)
         {
             var usuario = await _usuarioService.GetByIdAsync(id);
-            if (usuario != null)
+
+            
+            if (usuario != null && usuario.Cargo != "Administrador")
             {
                 usuario.IsActivo = !usuario.IsActivo;
                 await _usuarioService.UpdateAsync(usuario);
+                return Json(new { success = true, nuevoEstado = usuario.IsActivo });
             }
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = false, message = "Acción no permitida para Administradores" });
         }
 
 
 
 
-        
+
         public async Task<IActionResult> Perfil()
         {
             string userId = HttpContext.Session.GetString("UsuarioId");
