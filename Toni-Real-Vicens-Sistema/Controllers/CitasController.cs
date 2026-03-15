@@ -24,14 +24,20 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             var citas = await _citaService.GetAllAsync();
             var alumnos = await _alumnoService.GetAllAsync();
 
+            
+            var todosLosSeguimientos = await _seguimientoService.GetAllAsync();
+            
+            ViewBag.CitasConSeguimiento = todosLosSeguimientos
+                .Where(s => !string.IsNullOrEmpty(s.CitaId))
+                .Select(s => s.CitaId)
+                .ToHashSet();
+
             ViewBag.NombresAlumnos = alumnos.ToDictionary(a => a.Id, a => a.Nombres + " " + a.Apellidos);
 
             foreach (var cita in citas)
             {
-                
                 if (cita.Tipo == "Seguimiento")
                 {
-                    
                     List<FichaSeguimiento> seguimientos = await _seguimientoService.GetByAlumnoAsync(cita.AlumnoId);
                     var seg = seguimientos.FirstOrDefault(s => s.CitaId == cita.Id);
                     if (seg != null)
@@ -39,10 +45,8 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                         cita.Estado = seg.IsFinalizada ? "Atendida" : "En Proceso";
                     }
                 }
-               
                 else if (cita.Tipo == "Evaluación")
                 {
-                    
                     List<FichaDiagnostica> fichas = await _fichaService.GetByAlumnoAsync(cita.AlumnoId);
                     var ficha = fichas.FirstOrDefault(f => f.CitaId == cita.Id);
                     if (ficha != null)

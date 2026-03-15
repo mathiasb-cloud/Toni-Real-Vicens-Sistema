@@ -27,7 +27,11 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             var alumno = await _alumnoService.GetByIdAsync(cita.AlumnoId);
             if (alumno == null) return NotFound();
 
+            
             ViewBag.AlumnoNombre = $"{alumno.Nombres} {alumno.Apellidos}";
+            ViewBag.DNI = alumno.DNI;
+            ViewBag.Grado = alumno.Grado;
+            ViewBag.Psicologo = cita.Psicologo;
 
             var seguimientos = await _seguimientoService.GetByAlumnoAsync(cita.AlumnoId);
             var existente = seguimientos.FirstOrDefault(s => s.CitaId == citaId);
@@ -56,7 +60,6 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 if (string.IsNullOrEmpty(ficha.Id))
                 {
                     ficha.Fecha = DateTime.Now;
-                    
                     ficha.Id = await _seguimientoService.AddAsync(ficha);
                 }
                 else
@@ -69,14 +72,23 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 {
                     await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
                     TempData["Mensaje"] = "actualizado";
+                   
                     return RedirectToAction("Detalle", "Fichas", new { id = ficha.AlumnoId });
                 }
                 else
                 {
+                    
                     await _citaService.UpdateEstadoAsync(ficha.CitaId, "En Proceso");
 
+                    
                     var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
-                    ViewBag.AlumnoNombre = alumno != null ? $"{alumno.Nombres} {alumno.Apellidos}" : "Alumno";
+                    if (alumno != null)
+                    {
+                        ViewBag.AlumnoNombre = $"{alumno.Nombres} {alumno.Apellidos}";
+                        ViewBag.DNI = alumno.DNI;
+                        ViewBag.Grado = alumno.Grado;
+                        ViewBag.Psicologo = ficha.Psicologo;
+                    }
 
                     TempData["Mensaje"] = "actualizado";
                     return View(ficha);
@@ -84,7 +96,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = ex.Message;
+                TempData["Error"] = "Error al procesar: " + ex.Message;
                 return View(ficha);
             }
         }

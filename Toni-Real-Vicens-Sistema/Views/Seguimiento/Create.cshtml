@@ -8,7 +8,16 @@
     <div class="card shadow-lg border-0 rounded-4">
         <div class="card-header bg-white py-4 border-0">
             <h3 class="text-center fw-bold" style="color: #891c75;">Ficha de Seguimiento</h3>
-            <p class="text-center text-muted">Alumno: <span class="fw-bold">@ViewBag.AlumnoNombre</span></p>
+            
+            <div class="card-body bg-light rounded-3 my-3 border">
+                <div class="row text-center small">
+                    <div class="col-md-3 border-end"><strong>Estudiante:</strong><br>@ViewBag.AlumnoNombre</div>
+                    <div class="col-md-2 border-end"><strong>DNI:</strong><br>@ViewBag.DNI</div>
+                    <div class="col-md-2 border-end"><strong>Grado:</strong><br>@ViewBag.Grado</div>
+                    <div class="col-md-3 border-end"><strong>Psicólogo Asignado:</strong><br><span class="text-primary fw-bold">@ViewBag.Psicologo</span></div>
+                    <div class="col-md-2"><strong>Fecha de Ficha:</strong><br>@DateTime.Now.ToString("dd/MM/yyyy")</div>
+                </div>
+            </div>
 
             <div class="stepper-wrapper d-flex justify-content-between mt-4">
                 <div class="stepper-item active" id="step-i-1">
@@ -41,11 +50,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Forma de Ingreso</label>
-                            <input asp-for="FormasIngreso" class="form-control" />
+                            <input asp-for="FormasIngreso" class="form-control" placeholder="Ej. Derivación Escolar" />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Psicólogo Responsable</label>
-                            <input asp-for="Psicologo" class="form-control" readonly />
+                            <input asp-for="Psicologo" class="form-control bg-light" readonly />
                         </div>
                         <div class="col-md-12">
                             <label class="form-label fw-bold">Motivo</label>
@@ -97,13 +106,15 @@
                     <h5 class="fw-bold mb-3 border-bottom pb-2">3. Tratamiento: Terapias y Visitas</h5>
                     <div class="row g-3">
                         <p class="fw-bold mb-0">Terapia Individual</p>
-                        @for (int i = 1; i <= 8; i++)
-                        {
-                            <div class="col-md-3 mb-2">
-                                <label class="form-label small">Sesión @i</label>
-                                <input type="date" name="TerapiaInd@i" class="form-control" />
-                            </div>
-                        }
+                        <div class="row row-cols-2 row-cols-md-4 g-2">
+                            @for (int i = 1; i <= 8; i++)
+                            {
+                                <div class="col mb-2">
+                                    <label class="form-label small">Sesión @i</label>
+                                    <input type="date" name="TerapiaInd@i" class="form-control form-control-sm" />
+                                </div>
+                            }
+                        </div>
 
                         <div class="col-12"><hr /></div>
 
@@ -114,7 +125,7 @@
                                 {
                                     <div class="col">
                                         <label class="form-label small">@i</label>
-                                        <input type="date" name="TerapiaFam@i" class="form-control" />
+                                        <input type="date" name="TerapiaFam@i" class="form-control form-control-sm" />
                                     </div>
                                 }
                             </div>
@@ -127,7 +138,7 @@
                                 {
                                     <div class="col">
                                         <label class="form-label small">@i</label>
-                                        <input type="date" name="VisitaDom@i" class="form-control" />
+                                        <input type="date" name="VisitaDom@i" class="form-control form-control-sm" />
                                     </div>
                                 }
                             </div>
@@ -151,9 +162,10 @@
                             <input asp-for="MotivoDerivacion" class="form-control" />
                         </div>
                         <div class="col-12 mt-4">
-                            <div class="form-check form-switch p-3 border rounded">
+                            <div class="form-check form-switch p-3 border rounded bg-light">
                                 <input class="form-check-input ms-0 me-3" type="checkbox" asp-for="IsFinalizada">
-                                <label class="form-check-label fw-bold">Finalizar Seguimiento y Cerrar Cita</label>
+                                <label class="form-check-label fw-bold" for="IsFinalizada">Finalizar Seguimiento y Cerrar Cita</label>
+                                <p class="text-muted small mb-0 ms-5">Al marcar esta opción, la ficha se considerará concluida y no podrá editarse.</p>
                             </div>
                         </div>
                     </div>
@@ -162,13 +174,11 @@
                 <div class="d-flex justify-content-between align-items-center mt-5">
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-secondary px-4 d-none" id="prevBtn" onclick="nextPrev(-1)">Anterior</button>
-
                         <button type="button" class="btn btn-outline-info px-4 rounded-pill" id="saveProgressBtn" onclick="guardarAvance()">
                             <i class="bi bi-save me-2"></i>Guardar Avance
                         </button>
                     </div>
-
-                    <button type="button" class="btn text-white px-4" style="background-color: #891c75;" id="nextBtn" onclick="nextPrev(1)">Siguiente</button>
+                    <button type="button" class="btn text-white px-5" style="background-color: #891c75;" id="nextBtn" onclick="nextPrev(1)">Siguiente</button>
                 </div>
             </form>
         </div>
