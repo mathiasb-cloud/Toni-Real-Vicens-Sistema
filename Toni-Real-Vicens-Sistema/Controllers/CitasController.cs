@@ -23,10 +23,11 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         {
             var citas = await _citaService.GetAllAsync();
             var alumnos = await _alumnoService.GetAllAsync();
+            var ahora = DateTime.Now;
+            int minutosGracia = 15; // Ajusta este valor según prefieras
 
-            
             var todosLosSeguimientos = await _seguimientoService.GetAllAsync();
-            
+
             ViewBag.CitasConSeguimiento = todosLosSeguimientos
                 .Where(s => !string.IsNullOrEmpty(s.CitaId))
                 .Select(s => s.CitaId)
@@ -36,6 +37,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
             foreach (var cita in citas)
             {
+                
                 if (cita.Tipo == "Seguimiento")
                 {
                     List<FichaSeguimiento> seguimientos = await _seguimientoService.GetByAlumnoAsync(cita.AlumnoId);
@@ -52,6 +54,18 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                     if (ficha != null)
                     {
                         cita.Estado = ficha.EsFinalizada ? "Atendida" : "En Proceso";
+                    }
+                }
+
+                
+                if (cita.Estado == "Programada" && cita.FechaHora.HasValue)
+                {
+                    
+                    if (ahora > cita.FechaHora.Value.AddMinutes(minutosGracia))
+                    {
+                        cita.Estado = "Ausente";
+                        
+                        await _citaService.UpdateEstadoAsync(cita.Id, "Ausente");
                     }
                 }
             }

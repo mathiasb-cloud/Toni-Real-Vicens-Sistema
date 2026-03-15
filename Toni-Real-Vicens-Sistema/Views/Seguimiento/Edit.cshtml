@@ -32,7 +32,6 @@
 
         <div class="card-body p-4">
             <form asp-controller="Seguimiento" asp-action="Edit" id="msform" method="post">
-                <input type="hidden" name="id" value="@Model.Id" />
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="AlumnoId" />
                 <input type="hidden" asp-for="CitaId" />

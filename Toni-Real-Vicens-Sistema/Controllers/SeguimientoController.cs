@@ -125,6 +125,12 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             try
             {
                 
+                if (string.IsNullOrEmpty(seguimiento.Id))
+                {
+                    
+                    seguimiento.Id = Request.Form["id"];
+                }
+
                 await _seguimientoService.UpdateAsync(seguimiento.Id, seguimiento);
 
                 if (seguimiento.IsFinalizada)
@@ -133,6 +139,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 }
 
                 TempData["Mensaje"] = "Seguimiento actualizado con éxito";
+
                 
                 return RedirectToAction("List", "Fichas", new { id = seguimiento.AlumnoId });
             }
