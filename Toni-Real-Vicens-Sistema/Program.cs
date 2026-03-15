@@ -17,6 +17,8 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 // --- 2. CONFIGURACIÓN DEL PIPELINE (EL ORDEN IMPORTA) ---

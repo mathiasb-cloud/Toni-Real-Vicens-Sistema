@@ -1,0 +1,111 @@
+﻿<div id="recuperacion-container" class="card shadow p-4" style="max-width: 400px; margin: auto; border-radius: 15px; margin-top: 50px;">
+    <h3 class="text-center fw-bold" style="color: #764ba2;">Recuperar Acceso</h3>
+    <hr />
+
+    <div id="step1">
+        <label class="small fw-bold text-secondary">Ingresa tu celular registrado:</label>
+        <div class="input-group mb-3">
+            <span class="input-group-text">+51</span>
+            <input type="tel" id="txtTelefono" class="form-control" placeholder="987654321">
+        </div>
+        <div id="recaptcha-container"></div> <button onclick="intentarEnviarSms()" class="btn text-white w-100 mt-2" style="background: #667eea;">
+            Enviar Código SMS
+        </button>
+    </div>
+
+    <div id="step2" style="display:none;">
+        <p class="small text-muted">Hemos enviado un código a tu celular.</p>
+        <label class="small fw-bold text-secondary">Código de 6 dígitos:</label>
+        <input type="text" id="txtCodigo" class="form-control mb-3" placeholder="123456">
+        <button onclick="validarCodigoFirebase()" class="btn btn-success w-100">Verificar Código</button>
+    </div>
+
+    <div id="step3" style="display:none;">
+        <label class="small fw-bold text-secondary">Nueva Contraseña:</label>
+        <input type="password" id="txtNuevaPass" class="form-control mb-3" placeholder="Mínimo 6 caracteres">
+        <button onclick="guardarNuevaPass()" class="btn btn-dark w-100">Cambiar Contraseña</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+     const firebaseConfig = {
+      apiKey: "AIzaSyAWjg_gqT02YgUVX_4U5YBD9yQIDuT2TnE",
+      authDomain: "sistema-toni-real-vicens.firebaseapp.com",
+      databaseURL: "https://sistema-toni-real-vicens-default-rtdb.firebaseio.com",
+      projectId: "sistema-toni-real-vicens",
+      storageBucket: "sistema-toni-real-vicens.firebasestorage.app",
+      messagingSenderId: "428205253641",
+      appId: "1:428205253641:web:7dc138d3a37057307984d8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 2. CONFIGURAR RECAPTCHA
+    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => { }
+    }, auth);
+
+    // 3. FUNCIÓN PARA ENVIAR SMS
+    window.intentarEnviarSms = function() {
+        const tel = document.getElementById("txtTelefono").value;
+
+        // Primero verificamos en nuestro AccountController si el teléfono existe en la DB
+        $.post('/Account/VerificarTelefono', { telefono: tel }, function(res) {
+            if(res.success) {
+                window.userIdActual = res.userId; // Guardamos el ID que nos devolvió el C#
+
+                const phoneNumber = "+51" + tel;
+                const appVerifier = window.recaptchaVerifier;
+
+                signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+                    .then((confirmationResult) => {
+                        window.confirmationResult = confirmationResult;
+                        Swal.fire("Código Enviado", "Revisa tus mensajes de texto", "success");
+                        $("#step1").hide();
+                        $("#step2").show();
+                    }).catch((error) => {
+                        console.error(error);
+                        Swal.fire("Error Firebase", "Demasiados intentos o número inválido", "error");
+                    });
+            } else {
+                Swal.fire("Error", res.message, "error");
+            }
+        });
+    }
+
+    // 4. FUNCIÓN PARA VALIDAR EL CÓDIGO SMS
+    window.validarCodigoFirebase = function() {
+        const code = document.getElementById("txtCodigo").value;
+
+        window.confirmationResult.confirm(code).then((result) => {
+            // Si el código es correcto, pasamos al paso de nueva contraseña
+            $("#step2").hide();
+            $("#step3").show();
+        }).catch((error) => {
+            Swal.fire("Error", "Código incorrecto o expirado", "error");
+        });
+    }
+
+    // 5. FUNCIÓN PARA GUARDAR EN LA DB
+    window.guardarNuevaPass = function() {
+        const pass = document.getElementById("txtNuevaPass").value;
+        if(pass.length < 6) {
+            Swal.fire("Atención", "La contraseña debe tener al menos 6 caracteres", "warning");
+            return;
+        }
+
+        $.post('/Account/RestablecerPassword', { userId: window.userIdActual, nuevaPassword: pass }, function(res) {
+            if(res.success) {
+                Swal.fire("¡Éxito!", "Tu contraseña ha sido actualizada.", "success")
+                    .then(() => window.location.href = '/Account/Login');
+            } else {
+                Swal.fire("Error", "No se pudo actualizar la contraseña", "error");
+            }
+        });
+    }
+</script>

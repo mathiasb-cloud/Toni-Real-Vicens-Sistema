@@ -109,5 +109,54 @@
         function setAccion(valor) {
             document.getElementById('inputAccion').value = valor;
         }
+
+
+
+                $(document).ready(function() {
+            let alumnoSeleccionadoAnterior = "";
+
+            
+            $('.select-buscador').on('select2:select', function (e) {
+                var alumnoId = e.params.data.id;
+
+                
+                if (alumnoSeleccionadoAnterior && alumnoSeleccionadoAnterior !== alumnoId) {
+                    liberarAlumno(alumnoSeleccionadoAnterior);
+                }
+
+                
+                if (alumnoId) {
+                    $.post('@Url.Action("BloquearAlumno", "Citas")', { alumnoId: alumnoId }, function(data) {
+                        if (!data.success) {
+                            Swal.fire({
+                                title: 'Alumno en Uso',
+                                text: data.message,
+                                icon: 'warning',
+                                confirmButtonColor: '#764ba2'
+                            });
+                            
+                            $('.select-buscador').val(null).trigger('change');
+                            alumnoSeleccionadoAnterior = "";
+                        } else {
+                            alumnoSeleccionadoAnterior = alumnoId;
+                        }
+                    });
+                }
+            });
+
+            
+            function liberarAlumno(id) {
+                if (id) {
+                    $.post('@Url.Action("DesbloquearAlumno", "Citas")', { alumnoId: id });
+                }
+            }
+
+            
+            window.addEventListener('beforeunload', function() {
+                if (alumnoSeleccionadoAnterior) {
+                    liberarAlumno(alumnoSeleccionadoAnterior);
+                }
+            });
+        });
     </script>
 }

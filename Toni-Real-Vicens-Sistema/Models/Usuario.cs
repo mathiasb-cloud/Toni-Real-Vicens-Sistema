@@ -2,12 +2,14 @@
 {
     public class Usuario
     {
-        public string Id { get; set; } 
-        public string Nombre { get; set; }
-        public string Apellido { get; set; }
-        public string SegundoApellido { get; set; }
-        public string Cargo { get; set; } 
-        public string Correo { get; set; }
-        public string Contrasena { get; set; } 
+        public string Id { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Apellido { get; set; } = string.Empty;
+        public string SegundoApellido { get; set; } = string.Empty;
+        public string Cargo { get; set; } = string.Empty;
+        public string Correo { get; set; } = string.Empty;
+        public string Contrasena { get; set; } = string.Empty;
+        public string Telefono { get; set; } = string.Empty; 
+        public bool IsActivo { get; set; } = true; 
     }
 }

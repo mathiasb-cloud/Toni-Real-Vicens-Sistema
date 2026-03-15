@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Toni_Real_Vicens_Sistema.Models;
 using Toni_Real_Vicens_Sistema.Service;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Toni_Real_Vicens_Sistema.Controllers
 {
@@ -9,14 +10,16 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         private readonly CitaService _citaService;
         private readonly AlumnoService _alumnoService;
         private readonly FichaService _fichaService; 
-        private readonly SeguimientoService _seguimientoService; 
+        private readonly SeguimientoService _seguimientoService;
+        private readonly IMemoryCache _cache;
 
-        public CitasController(IConfiguration config)
+        public CitasController(IConfiguration config, IMemoryCache cache)
         {
             _citaService = new CitaService(config);
             _alumnoService = new AlumnoService(config);
             _fichaService = new FichaService(config);
-            _seguimientoService = new SeguimientoService(config); 
+            _seguimientoService = new SeguimientoService(config);
+            _cache = cache;
         }
 
         public async Task<IActionResult> Index()
@@ -117,6 +120,8 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             cita.Estado = "Programada";
             string citaId = await _citaService.AddAsync(cita);
 
+            _cache.Remove($"bloqueo_alumno_{cita.AlumnoId}");
+
             if (accion == "continuar")
             {
                 await _citaService.UpdateEstadoAsync(citaId, "En Proceso");
@@ -170,6 +175,47 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+
+
+
+        [HttpPost]
+        public IActionResult BloquearAlumno(string alumnoId)
+        {
+            if (string.IsNullOrEmpty(alumnoId)) return Json(new { success = true });
+
+            string usuarioActual = HttpContext.Session.GetString("UsuarioNombre") ?? "Otro Psicólogo";
+            string key = $"bloqueo_alumno_{alumnoId}";
+
+            
+            if (_cache.TryGetValue(key, out string usuarioBloqueador))
+            {
+                if (usuarioBloqueador != usuarioActual)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Este alumno está siendo atendido actualmente por: {usuarioBloqueador}. Por favor, elige a otro alumno o espera a que termine."
+                    });
+                }
+            }
+
+            
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+
+            _cache.Set(key, usuarioActual, cacheEntryOptions);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public IActionResult DesbloquearAlumno(string alumnoId)
+        {
+            if (!string.IsNullOrEmpty(alumnoId))
+            {
+                _cache.Remove($"bloqueo_alumno_{alumnoId}");
+            }
+            return Json(new { success = true });
         }
 
 

@@ -1,0 +1,69 @@
+﻿@model Toni_Real_Vicens_Sistema.Models.Usuario
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="card-header border-0 py-4 text-white"
+                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+                    <h4 class="mb-0 text-center fw-bold text-uppercase">
+                        <i class="bi bi-person-badge-fill me-2"></i> Mi Perfil
+                    </h4>
+                </div>
+                <div class="card-body p-5 bg-white">
+                    @if (ViewBag.Success != null)
+                    {
+                        <div class="alert alert-success border-0 shadow-sm mb-4">@ViewBag.Success</div>
+                    }
+
+                    <form asp-action="Perfil" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row g-4">
+                            <div class="col-md-12 text-center mb-3">
+                                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 80px; height: 80px; font-size: 2rem; color: #667eea;">
+                                    @Model.Nombre[0]@Model.Apellido[0]
+                                </div>
+                                <h5 class="mt-2 fw-bold text-dark">@Model.Cargo</h5>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary small">Nombre</label>
+                                <input asp-for="Nombre" class="form-control border-0 bg-light" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary small">Primer Apellido</label>
+                                <input asp-for="Apellido" class="form-control border-0 bg-light" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary small">Segundo Apellido</label>
+                                <input asp-for="SegundoApellido" class="form-control border-0 bg-light" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Correo</label>
+                                <input asp-for="Correo" type="email" class="form-control border-0 bg-light" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Celular (Recuperación)</label>
+                                <input asp-for="Telefono" class="form-control border-0 bg-light" placeholder="987654321" />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-secondary small">Nueva Contraseña (dejar en blanco para no cambiar)</label>
+                                <input asp-for="Contrasena" type="password" class="form-control border-0 bg-light" value="" placeholder="******" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-lg text-white shadow" style="background: #764ba2; border-radius: 12px;">
+                                Actualizar mis Datos <i class="bi bi-save ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

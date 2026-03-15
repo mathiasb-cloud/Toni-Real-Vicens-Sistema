@@ -15,7 +15,8 @@
                     <tr>
                         <th class="ps-4 py-3 border-0 text-secondary small">USUARIO</th>
                         <th class="py-3 border-0 text-secondary small">CARGO</th>
-                        <th class="py-3 border-0 text-secondary small">CORREO</th>
+                        <th class="py-3 border-0 text-secondary small">CORREO / TEL</th>
+                        <th class="py-3 border-0 text-secondary small">ESTADO</th>
                         <th class="py-3 border-0 text-secondary small text-center">ACCIONES</th>
                     </tr>
                 </thead>
@@ -40,14 +41,32 @@
                                     @item.Cargo
                                 </span>
                             </td>
-                            <td class="text-secondary">@item.Correo</td>
+                            <td class="text-secondary">
+                                <div class="small">@item.Correo</div>
+                                <div class="text-muted small">@item.Telefono</div>
+                            </td>
+                            <td>
+                                @if (item.IsActivo)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3">Inactivo</span>
+                                }
+                            </td>
                             <td class="text-center">
-                                <button class="btn btn-light btn-sm rounded-circle shadow-sm me-1" title="Editar">
-                                    <i class="bi bi-pencil text-primary"></i>
-                                </button>
-                                <button class="btn btn-light btn-sm rounded-circle shadow-sm" title="Eliminar">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </button>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-sm rounded-circle shadow-sm" title="Editar">
+                                        <i class="bi bi-pencil text-primary"></i>
+                                    </a>
+
+                                    <form asp-action="ToggleEstado" asp-route-id="@item.Id" method="post">
+                                        <button type="submit" class="btn btn-light btn-sm rounded-circle shadow-sm" title="@(item.IsActivo ? "Desactivar" : "Activar")">
+                                            <i class="bi bi-power @(item.IsActivo ? "text-warning" : "text-success")"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }

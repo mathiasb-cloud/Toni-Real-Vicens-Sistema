@@ -110,9 +110,24 @@
                                 <i class="bi bi-house-door me-1"></i>Inicio
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
-                        </li>
+
+                        
+                        @if (Context.Session.GetString("UsuarioCargo") == "Administrador")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                            </li>
+                        }
+                        else
+                        {
+                            
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Usuarios" asp-action="Perfil">
+                                    <i class="bi bi-person-gear me-1"></i>Mi Perfil
+                                </a>
+                            </li>
+                        }
+
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Alumnos" asp-action="Index">Alumnos</a>
                         </li>
@@ -127,16 +142,20 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Matriculas" asp-action="Promocion">
-                                <i class="bi bi-arrow-up-circle-fill me-1 text-success"></i>Promoción
+                             <i class="bi bi-arrow-up-circle-fill me-1 text-success"></i>Promoción
                             </a>
                         </li>
+                        
                     </ul>
 
-                    <hr class="d-lg-none text-muted"> <ul class="navbar-nav align-items-center">
+                    <hr class="d-lg-none text-muted">
+                    <ul class="navbar-nav align-items-center">
                         <li class="nav-item d-none d-lg-inline">
-                            <span class="text-muted small me-3">
+                            
+                            <a asp-controller="Usuarios" asp-action="Perfil" class="text-decoration-none text-muted small me-3">
                                 <i class="bi bi-person-circle me-1"></i>@Context.Session.GetString("UsuarioNombre")
-                            </span>
+                                <span class="badge bg-light text-dark ms-1">@Context.Session.GetString("UsuarioCargo")</span>
+                            </a>
                         </li>
                         <li class="nav-item w-100">
                             <a class="nav-link btn-logout" asp-controller="Account" asp-action="Logout">
