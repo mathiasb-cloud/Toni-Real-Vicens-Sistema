@@ -3,6 +3,7 @@ using Toni_Real_Vicens_Sistema.Models;
 using Toni_Real_Vicens_Sistema.Service;
 using Microsoft.Extensions.Caching.Memory;
 
+
 namespace Toni_Real_Vicens_Sistema.Controllers
 {
     public class CitasController : Controller
@@ -12,6 +13,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         private readonly FichaService _fichaService; 
         private readonly SeguimientoService _seguimientoService;
         private readonly IMemoryCache _cache;
+        
 
         public CitasController(IConfiguration config, IMemoryCache cache)
         {
@@ -27,7 +29,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             var citas = await _citaService.GetAllAsync();
             var alumnos = await _alumnoService.GetAllAsync();
             var ahora = DateTime.Now;
-            int minutosGracia = 15; // Ajusta este valor según prefieras
+            int minutosGracia = 15; 
 
             var todosLosSeguimientos = await _seguimientoService.GetAllAsync();
 
@@ -218,6 +220,18 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             return Json(new { success = true });
         }
 
+
+        public async Task<IActionResult> Agenda()
+        {
+            var todasLasCitas = await _citaService.GetAllAsync();
+
+            
+            var citasFiltradas = todasLasCitas
+                .Where(c => c.Estado == "Programada" || c.Estado == "Reprogramada")
+                .ToList();
+
+            return View(citasFiltradas);
+        }
 
 
     }

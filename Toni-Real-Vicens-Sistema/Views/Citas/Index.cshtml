@@ -38,18 +38,25 @@
                         <option value="Programada">📅 Programadas</option>
                         <option value="Pendiente">⏳ En Proceso</option>
                         <option value="Atendida">✅ Finalizadas</option>
+                        <option value="Ausente">❌ Ausentes</option>
                     </select>
                 </div>
 
-                <div class="col-md-5 text-end">
-                    <span class="small text-muted me-2">Ordenar por fecha:</span>
-                    <select id="sortOrder" class="btn btn-sm btn-light border shadow-none fw-bold" style="border-radius: 8px;">
-                        <option value="desc">Más recientes</option>
-                        <option value="asc">Más antiguos</option>
-                    </select>
+                <div class="col-md-5">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small text-muted fw-bold text-nowrap">Desde:</span>
+                        <input type="date" id="dateStart" class="form-control form-control-sm border-0 bg-light" style="border-radius: 8px;">
+                        <span class="small text-muted fw-bold text-nowrap">Hasta:</span>
+                        <input type="date" id="dateEnd" class="form-control form-control-sm border-0 bg-light" style="border-radius: 8px;">
+                        <button id="clearDates" class="btn btn-sm btn-outline-secondary border-0" title="Limpiar fechas">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+
+
     </div>
 
     <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
@@ -194,12 +201,20 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function(){
+                $(document).ready(function(){
+
             
-            $("#searchInput, #filterEstado, #filterTipo").on("keyup change", function() {
+            $("#searchInput, #filterEstado, #filterTipo, #dateStart, #dateEnd").on("keyup change", function() {
                 var search = $("#searchInput").val().toLowerCase();
                 var estado = $("#filterEstado").val();
                 var tipo = $("#filterTipo").val();
+
+                
+                var start = $("#dateStart").val() ? new Date($("#dateStart").val()) : null;
+                var end = $("#dateEnd").val() ? new Date($("#dateEnd").val()) : null;
+
+                
+                if(end) end.setHours(23, 59, 59, 999);
 
                 $("#citasTable tbody tr").each(function() {
                     var row = $(this);
@@ -207,32 +222,30 @@
                     var rowEstado = row.data("estado");
                     var rowTipo = row.data("tipo");
 
+                   
+                    var fechaTexto = row.find("td:first").text().trim().split(' ')[0]; 
+                    var partes = fechaTexto.split('/');
+                    var rowDate = new Date(partes[2], partes[1] - 1, partes[0]);
+
                     var matchSearch = text.indexOf(search) > -1;
                     var matchEstado = (estado === "todos" || rowEstado === estado);
                     var matchTipo = (tipo === "todos" || rowTipo === tipo);
 
                     
-                    row.toggle(matchSearch && matchEstado && matchTipo);
+                    var matchDate = true;
+                    if (start && rowDate < start) matchDate = false;
+                    if (end && rowDate > end) matchDate = false;
+
+                    row.toggle(matchSearch && matchEstado && matchTipo && matchDate);
                 });
             });
 
             
-            $("#sortOrder").on("change", function() {
-                var tbody = $("#citasTable tbody");
-                var rows = tbody.find("tr").get();
-                var order = $(this).val();
-
-                rows.sort(function(a, b) {
-                    var keyA = $(a).data("ticks");
-                    var keyB = $(b).data("ticks");
-                    return order === "asc" ? keyA - keyB : keyB - keyA;
-                });
-                $.each(rows, function(index, row) { tbody.append(row); });
+            $("#clearDates").click(function(){
+                $("#dateStart, #dateEnd").val("").trigger("change");
             });
-
-            
-            $("#sortOrder").trigger("change");
         });
+
 
         function verDetalleCita(alumno, fecha, tipo, psicologo, estado) {
             Swal.fire({

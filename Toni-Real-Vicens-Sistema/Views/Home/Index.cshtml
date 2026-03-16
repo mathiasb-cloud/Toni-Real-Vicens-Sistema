@@ -115,6 +115,34 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm p-4" style="border-radius: 20px; background-color: #ffffff;">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">
+                                <i class="bi bi-calendar3 me-2 text-primary"></i>Agenda Semanal de Citas
+                            </h5>
+                            <p class="text-muted small mb-0">Visualización de carga de trabajo para los próximos 7 días.</p>
+                        </div>
+                        <a asp-controller="Citas" asp-action="Agenda" class="btn btn-sm btn-light rounded-pill px-3 fw-bold shadow-sm">
+                            Ver Agenda Completa
+                        </a>
+                    </div>
+
+                    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-7 g-3" id="weeklySchedule">
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+        
+
+
+
     </div>
 </div>
 
@@ -182,6 +210,62 @@
     canvas {
         width: 100% !important;
     }
+
+    .day-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 15px 10px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        height: 100%;
+    }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            background: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-card.today {
+            border-color: #891c75;
+            background: #fff5fd;
+        }
+
+    .day-name {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .day-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        display: block;
+        color: #1e293b;
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    .citas-badge {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+    }
+
+    .has-citas {
+        background: #891c75;
+        color: white;
+    }
+
+    .no-citas {
+        background: #e2e8f0;
+        color: #64748b;
+    }
 </style>
 
 @section Scripts {
@@ -229,5 +313,47 @@
                 }
             }
         });
+
+
+
+            
+        function initWeeklySchedule() {
+            const container = document.getElementById('weeklySchedule');
+            const hoy = new Date();
+            const nombresDias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+           
+            const citasHoyCount = @ViewBag.CitasHoy;
+
+            for (let i = 0; i < 7; i++) {
+                let fechaIterada = new Date();
+                fechaIterada.setDate(hoy.getDate() + i);
+
+                let diaNombre = nombresDias[fechaIterada.getDay()];
+                let diaNum = fechaIterada.getDate();
+                let esHoy = i === 0;
+
+                
+                let count = esHoy ? citasHoyCount : 0;
+                let badgeClass = count > 0 ? "has-citas" : "no-citas";
+                let label = esHoy ? `${count} Citas` : "Disponible";
+
+                const col = document.createElement('div');
+                col.className = 'col';
+                col.innerHTML = `
+                    <div class="day-card ${esHoy ? 'today shadow-sm' : ''}">
+                        <span class="day-name">${diaNombre}</span>
+                        <span class="day-number">${diaNum}</span>
+                        <span class="citas-badge ${badgeClass}">
+                            ${esHoy && count > 0 ? '<i class="bi bi-dot"></i> ' : ''}${label}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(col);
+            }
+        }
+
+        
+        initWeeklySchedule();
     </script>
 }

@@ -1,0 +1,199 @@
+﻿@model List<Toni_Real_Vicens_Sistema.Models.Cita>
+
+<div class="container-fluid mt-4 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark"><i class="bi bi-clock-history me-2 text-primary"></i>Agenda Semanal</h2>
+            <p class="text-muted" id="currentWeekRange">Semana del...</p>
+        </div>
+        <div class="btn-group shadow-sm">
+            <button class="btn btn-white border" onclick="changeWeek(-1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="btn btn-white border fw-bold" onclick="resetToToday()">Hoy</button>
+            <button class="btn btn-white border" onclick="changeWeek(1)"><i class="bi bi-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0" id="scheduleTable">
+                <thead class="bg-light text-center">
+                    <tr>
+                        <th style="width: 100px;" class="py-3 border-0">Hora</th>
+                        <th class="py-3 border-0">Lunes</th>
+                        <th class="py-3 border-0">Martes</th>
+                        <th class="py-3 border-0">Miércoles</th>
+                        <th class="py-3 border-0">Jueves</th>
+                        <th class="py-3 border-0">Viernes</th>
+                        <th class="py-3 border-0">Sábado</th>
+                        <th class="py-3 border-0">Domingo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int h = 7; h <= 18; h++) // De 7 AM a 6 PM
+                    {
+                        <tr>
+                            <td class="text-center align-middle fw-bold bg-light small text-muted">
+                                @(h > 12 ? h - 12 : h):00 @(h >= 12 ? "PM" : "AM")
+                            </td>
+                            @for (int d = 1; d <= 7; d++)
+                            {
+                                <td class="schedule-slot p-1" data-hour="@h" data-day="@d" style="min-height: 80px; width: 13%;">
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .schedule-slot {
+        height: 85px;
+        background-color: #ffffff;
+        transition: background 0.2s;
+        position: relative;
+        border: 1px solid #f1f5f9 !important;
+    }
+
+        .schedule-slot:hover {
+            background-color: #f8fafc;
+            cursor: pointer;
+        }
+
+    .appointment-block {
+        font-size: 0.75rem;
+        padding: 6px;
+        border-radius: 8px;
+        border-left: 4px solid;
+        margin-bottom: 2px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .type-evaluacion {
+        background: #e0e7ff;
+        color: #3730a3;
+        border-color: #6366f1;
+    }
+
+    .type-seguimiento {
+        background: #ecfdf5;
+        color: #065f46;
+        border-color: #10b981;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    .appointment-block {
+        min-height: 60px;
+        border-radius: 6px;
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        line-height: 1.2;
+        border-left: 4px solid;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+        
+        .appointment-block.type-reprogramada {
+            border-left-style: dashed;
+        }
+
+    
+    .text-truncate {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+
+@section Scripts {
+    <script>
+        let currentStartDate = getMonday(new Date());
+
+        function getMonday(d) {
+            d = new Date(d);
+            var day = d.getDay(),
+                diff = d.getDate() - day + (day == 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+                function renderCitas() {
+            $(".schedule-slot").empty();
+            const citas = @Html.Raw(Json.Serialize(Model));
+
+            citas.forEach(cita => {
+                const fechaCita = new Date(cita.fechaHora);
+
+                
+                const endOfWeek = new Date(currentStartDate);
+                endOfWeek.setDate(currentStartDate.getDate() + 6);
+
+                if (fechaCita >= currentStartDate && fechaCita <= endOfWeek) {
+                    const diaSemana = fechaCita.getDay() === 0 ? 7 : fechaCita.getDay();
+                    const hora = fechaCita.getHours();
+
+                    const slot = $(`.schedule-slot[data-hour="${hora}"][data-day="${diaSemana}"]`);
+
+                    if(slot.length) {
+                        
+                        const esReprogramada = cita.estado === "Reprogramada";
+                        const badgeEstado = esReprogramada
+                            ? '<span class="badge bg-warning text-dark" style="font-size:0.6rem;">REPROG.</span>'
+                            : '';
+
+                        
+                        const claseTipo = cita.tipo === "Evaluación" ? "type-evaluacion" : "type-seguimiento";
+
+                        const html = `
+                            <div class="appointment-block ${claseTipo}" title="Psicólogo: ${cita.psicologo}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <strong class="text-truncate" style="max-width: 80%;">${cita.nombreAlumno}</strong>
+                                    ${badgeEstado}
+                                </div>
+                                <div class="small opacity-75">${cita.psicologo}</div>
+                                <div class="small fw-bold">${fechaCita.getHours()}:${fechaCita.getMinutes().toString().padStart(2, '0')}</div>
+                            </div>
+                        `;
+                        slot.append(html);
+                    }
+                }
+            });
+            updateHeader();
+        }
+
+        function updateHeader() {
+            const options = { day: 'numeric', month: 'short' };
+            const end = new Date(currentStartDate);
+            end.setDate(currentStartDate.getDate() + 6);
+            $("#currentWeekRange").text(`Semana del ${currentStartDate.toLocaleDateString(undefined, options)} al ${end.toLocaleDateString(undefined, options)}`);
+        }
+
+        function changeWeek(weeks) {
+            currentStartDate.setDate(currentStartDate.getDate() + (weeks * 7));
+            renderCitas();
+        }
+
+        function resetToToday() {
+            currentStartDate = getMonday(new Date());
+            renderCitas();
+        }
+
+        $(document).ready(renderCitas);
+    </script>
+}

@@ -13,14 +13,14 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             _usuarioService = new UsuarioService(config);
         }
 
-        // Listado de Usuarios
+        
         public async Task<IActionResult> Index()
         {
             var usuarios = await _usuarioService.GetAllAsync();
             return View(usuarios);
         }
 
-        // Vista de Creación (GET)
+        
         public IActionResult Create()
         {
             return View();
@@ -104,10 +104,17 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login", "Account");
 
             var usuario = await _usuarioService.GetByIdAsync(userId);
+
+            
+            if (usuario.Cargo == "Administrador")
+            {
+                ViewBag.IsAdmin = true;
+            }
+
             return View(usuario);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Perfil(Usuario model)

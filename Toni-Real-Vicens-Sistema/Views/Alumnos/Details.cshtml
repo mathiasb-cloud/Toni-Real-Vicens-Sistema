@@ -1,90 +1,272 @@
 ﻿@model Toni_Real_Vicens_Sistema.Models.Alumno
 
 <style>
-    .card-custom {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    :root {
+        --primary-color: #891c75;
+        --secondary-color: #4a0f3f;
     }
 
-    .section-title {
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #667eea;
-        margin-bottom: 1.5rem;
-        border-bottom: 2px solid #f0f4f8;
-        padding-bottom: 5px;
-        font-weight: bold;
+    .card-custom {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .section-header {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 10px;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        border-left: 5px solid var(--primary-color);
     }
 
     .data-label {
-        font-size: 0.75rem;
-        color: #a0aec0;
+        font-size: 0.7rem;
+        color: #94a3b8;
         text-transform: uppercase;
-        font-weight: bold;
+        letter-spacing: 0.5px;
+        font-weight: 800;
+        margin-bottom: 2px;
         display: block;
     }
 
     .data-value {
-        font-size: 1rem;
-        color: #2d3748;
-        font-weight: 500;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #edf2f7;
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 600;
+        margin-bottom: 15px;
         display: block;
-        margin-bottom: 1rem;
+        min-height: 1.2rem;
+    }
+
+    .badge-estado {
+        font-size: 0.8rem;
+        padding: 8px 16px;
+        border-radius: 12px;
+    }
+
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(137, 28, 117, 0.3);
     }
 </style>
 
 <div class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card card-custom">
-                <div class="card-body p-4 p-md-5">
-
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 50px; height: 50px;">
-                                <i class="bi bi-person-badge fs-4"></i>
+        <div class="col-lg-11">
+            <div class="card card-custom overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="p-4 p-md-5 border-bottom bg-white">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                            <div class="d-flex align-items-center mb-3 mb-md-0">
+                                <div class="avatar-placeholder me-4">
+                                    @Model.Nombres[0]@Model.Apellidos[0]
+                                </div>
+                                <div>
+                                    <h2 class="fw-bold mb-1 text-dark">@Model.Nombres @Model.Apellidos</h2>
+                                    <p class="text-muted mb-0">
+                                        <i class="bi bi-card-text me-1"></i> DNI: <strong>@Model.DNI</strong> |
+                                        <i class="bi bi-calendar-event me-1"></i> Registro: @Model.FechaRegistro.ToShortDateString()
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="fw-bold mb-0">@Model.Nombres @Model.Apellidos</h3>
-                                <p class="text-muted mb-0">DNI: @Model.DNI | Nivel: @Model.Nivel</p>
+                            <div class="text-center text-md-end">
+                                <span class="badge badge-estado @(Model.Estado == "Estudiante" ? "bg-success" : "bg-secondary") mb-2">
+                                    @Model.Estado.ToUpper()
+                                </span>
+                                <div class="small text-muted">Aula Comp.: @(string.IsNullOrEmpty(Model.AulaComplementaria) ? "Ninguna" : Model.AulaComplementaria)</div>
                             </div>
                         </div>
-                        <span class="badge rounded-pill bg-success px-4 py-2">@Model.Estado</span>
                     </div>
 
-                    <div class="section-title">1. Identidad y Ubicación</div>
-                    <div class="row mb-4">
-                        <div class="col-md-3"><span class="data-label">Grado</span><span class="data-value">@Model.Grado</span></div>
-                        <div class="col-md-3"><span class="data-label">Sección</span><span class="data-value">@(Model.Seccion ?? "N/A")</span></div>
-                        <div class="col-md-3"><span class="data-label">Sexo</span><span class="data-value">@Model.Sexo</span></div>
-                        <div class="col-md-3"><span class="data-label">F. Nacimiento</span><span class="data-value">@Model.FechaNacimiento?.ToShortDateString()</span></div>
-                    </div>
+                    <div class="p-4 p-md-5">
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="section-header">
+                                    <i class="bi bi-book me-2"></i> 1. UBICACIÓN ACADÉMICA ACTUAL
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <span class="data-label">Nivel</span>
+                                        <span class="data-value">@Model.Nivel</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Grado</span>
+                                        <span class="data-value">@Model.Grado</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Sección</span>
+                                        <span class="data-value">@(Model.Seccion ?? "No asignada")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Año Académico</span>
+                                        <span class="data-value text-primary">@(Model.MatriculaActual?.Anio.ToString() ?? "2026")</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="section-title">2. Salud y Discapacidad</div>
-                    <div class="row mb-4">
-                        <div class="col-md-4"><span class="data-label">¿Posee Discapacidad?</span><span class="data-value">@Model.Discapacidad</span></div>
-                        <div class="col-md-4"><span class="data-label">Tipo</span><span class="data-value">@(Model.TipoDiscapacidad ?? "Ninguno")</span></div>
-                        <div class="col-md-4"><span class="data-label">Detalle</span><span class="data-value">@(Model.OtraDiscapacidad ?? "Sin detalles")</span></div>
-                    </div>
+                            <div class="col-12 mb-4">
+                                <div class="section-header">
+                                    <i class="bi bi-person-lines-fill me-2"></i> 2. INFORMACIÓN PERSONAL Y NACIMIENTO
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <span class="data-label">Sexo</span>
+                                        <span class="data-value">@Model.Sexo</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Fecha de Nacimiento</span>
+                                        <span class="data-value">@Model.FechaNacimiento?.ToShortDateString()</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Lugar de Nacimiento</span>
+                                        <span class="data-value">@(Model.LugarNacimiento ?? "-")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Región</span>
+                                        <span class="data-value">@(Model.Region ?? "-")</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <span class="data-label">Dirección Domiciliaria</span>
+                                        <span class="data-value">@(Model.Direccion ?? "-")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Inst. de Procedencia</span>
+                                        <span class="data-value">@(Model.Institucion ?? "Ninguna")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Registro Nacimiento</span>
+                                        <span class="data-value">@(Model.NacimientoRegistrado ?? "No especifica")</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="section-title">3. Contacto y Familia</div>
-                    <div class="row mb-4">
-                        <div class="col-md-6"><span class="data-label">Tutor Responsable</span><span class="data-value">@Model.Tutor</span></div>
-                        <div class="col-md-6"><span class="data-label">Dirección</span><span class="data-value">@Model.Direccion</span></div>
-                        <div class="col-md-4"><span class="data-label">Celular Tutor</span><span class="data-value">@(Model.TutorTelefono ?? "-")</span></div>
-                        <div class="col-md-4"><span class="data-label">Celular Alumno</span><span class="data-value">@(Model.TelefonoAlumno ?? "-")</span></div>
-                        <div class="col-md-4"><span class="data-label">Emergencias</span><span class="data-value">@(Model.TelefonoEmergencia ?? "-")</span></div>
-                    </div>
+                            <div class="col-12 mb-4">
+                                <div class="section-header">
+                                    <i class="bi bi-heart-pulse me-2"></i> 3. SALUD Y NECESIDADES ESPECIALES
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <span class="data-label">¿Posee Discapacidad?</span>
+                                        <span class="data-value">
+                                            @if (Model.Discapacidad == "Sí")
+                                            {
+                                                <i class="bi bi-check-circle-fill text-danger me-1"></i>
+                                            }
+                                            @Model.Discapacidad
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Tipo Discapacidad</span>
+                                        <span class="data-value">@(Model.TipoDiscapacidad ?? "N/A")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Condición</span>
+                                        <span class="data-value">@(Model.CondicionDiscapacidad ?? "N/A")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="data-label">Carnet CONADIS</span>
+                                        <span class="data-value text-uppercase">@(Model.TieneConadis ? "SÍ CUENTA" : "NO CUENTA")</span>
+                                    </div>
+                                    <div class="col-12">
+                                        <span class="data-label">Otras Observaciones de Salud</span>
+                                        <span class="data-value">@(Model.OtraDiscapacidad ?? "Sin observaciones adicionales.")</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="d-flex justify-content-between mt-5">
-                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Volver al Listado</a>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary px-5">Editar esta Ficha</a>
-                    </div>
+                            <div class="col-12 mb-4">
+                                <div class="section-header">
+                                    <i class="bi bi-people me-2"></i> 4. ENTORNO FAMILIAR Y CONTACTOS DE EMERGENCIA
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 border-end">
+                                        <p class="small fw-bold text-muted mb-2">DATOS DE LOS PADRES</p>
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <span class="data-label">Madre</span>
+                                                <span class="data-value">@(Model.MadreNombre ?? "-")</span>
+                                            </div>
+                                            <div class="col-4">
+                                                <span class="data-label">DNI</span>
+                                                <span class="data-value">@(Model.MadreDNI ?? "-")</span>
+                                            </div>
+                                            <div class="col-8">
+                                                <span class="data-label">Padre</span>
+                                                <span class="data-value">@(Model.PadreNombre ?? "-")</span>
+                                            </div>
+                                            <div class="col-4">
+                                                <span class="data-label">DNI</span>
+                                                <span class="data-value">@(Model.PadreDNI ?? "-")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-md-4">
+                                        <p class="small fw-bold text-muted mb-2">APODERADO Y TUTORÍA</p>
+                                        <div class="row">
+                                            <div class="col-7">
+                                                <span class="data-label">Apoderado</span>
+                                                <span class="data-value">@(Model.ApoderadoNombre ?? "-")</span>
+                                            </div>
+                                            <div class="col-5">
+                                                <span class="data-label">Cel. Apoderado</span>
+                                                <span class="data-value">@(Model.ApoderadoCelular ?? "-")</span>
+                                            </div>
+                                            <div class="col-7">
+                                                <span class="data-label">Tutor (Personal)</span>
+                                                <span class="data-value">@(Model.Tutor ?? "-")</span>
+                                            </div>
+                                            <div class="col-5">
+                                                <span class="data-label">Tel. Tutor</span>
+                                                <span class="data-value">@(Model.TutorTelefono ?? "-")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3 bg-light p-3 rounded-3">
+                                    <div class="col-md-4">
+                                        <span class="data-label">Celular del Alumno</span>
+                                        <span class="data-value text-primary">@(Model.TelefonoAlumno ?? "Sin celular")</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="data-label">CONTACTO EMERGENCIA</span>
+                                        <span class="data-value text-danger fw-bold">@(Model.TelefonoEmergencia ?? "-")</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="data-label">Usuario que Registró</span>
+                                        <span class="data-value small">@(Model.UsuarioRegistro ?? "Sistema")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                            <a asp-action="Index" class="btn btn-light px-4 py-2 border rounded-pill">
+                                <i class="bi bi-arrow-left me-2"></i>Volver al Listado
+                            </a>
+                            <div class="d-flex gap-2">
+                                <button onclick="window.print()" class="btn btn-outline-dark px-4 py-2 rounded-pill">
+                                    <i class="bi bi-printer me-2"></i>Imprimir Ficha
+                                </button>
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn text-white px-5 py-2 rounded-pill shadow-sm" style="background: var(--primary-color);">
+                                    <i class="bi bi-pencil-square me-2"></i>Editar Datos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
