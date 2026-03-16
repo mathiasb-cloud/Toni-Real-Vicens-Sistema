@@ -19,17 +19,17 @@
                 <thead class="bg-light text-center">
                     <tr>
                         <th style="width: 100px;" class="py-3 border-0">Hora</th>
-                        <th class="py-3 border-0">Lunes</th>
-                        <th class="py-3 border-0">Martes</th>
-                        <th class="py-3 border-0">Miércoles</th>
-                        <th class="py-3 border-0">Jueves</th>
-                        <th class="py-3 border-0">Viernes</th>
-                        <th class="py-3 border-0">Sábado</th>
-                        <th class="py-3 border-0">Domingo</th>
+                        <th class="py-3 border-0">LUNES <span id="day-1" class="d-block small text-primary"></span></th>
+                        <th class="py-3 border-0">MARTES <span id="day-2" class="d-block small text-primary"></span></th>
+                        <th class="py-3 border-0">MIÉRCOLES <span id="day-3" class="d-block small text-primary"></span></th>
+                        <th class="py-3 border-0">JUEVES <span id="day-4" class="d-block small text-primary"></span></th>
+                        <th class="py-3 border-0">VIERNES <span id="day-5" class="d-block small text-primary"></span></th>
+                        <th class="py-3 border-0">SÁBADO <span id="day-6" class="d-block small text-primary"></span></th>
+                        <th class="py-3 border-0">DOMINGO <span id="day-7" class="d-block small text-primary"></span></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for (int h = 7; h <= 18; h++) // De 7 AM a 6 PM
+                    @for (int h = 7; h <= 23; h++)
                     {
                         <tr>
                             <td class="text-center align-middle fw-bold bg-light small text-muted">
@@ -124,7 +124,9 @@
 
 @section Scripts {
     <script>
+        // Forzamos que la fecha inicial no tenga horas para evitar desfases en comparaciones
         let currentStartDate = getMonday(new Date());
+        currentStartDate.setHours(0, 0, 0, 0);
 
         function getMonday(d) {
             d = new Date(d);
@@ -133,41 +135,54 @@
             return new Date(d.setDate(diff));
         }
 
-                function renderCitas() {
+        function renderCitas() {
             $(".schedule-slot").empty();
+
+            // Serialización del modelo
             const citas = @Html.Raw(Json.Serialize(Model));
 
             citas.forEach(cita => {
-                const fechaCita = new Date(cita.fechaHora);
+                // FALLBACK DE PROPIEDADES: Intentamos minúscula (JSON standard) y Mayúscula (C#)
+                const fechaRaw = cita.fechaHora || cita.FechaHora;
+                if (!fechaRaw) return;
 
-                
+                const fechaCita = new Date(fechaRaw);
+
+                // Rango de visualización (Lunes 00:00 a Domingo 23:59)
                 const endOfWeek = new Date(currentStartDate);
                 endOfWeek.setDate(currentStartDate.getDate() + 6);
+                endOfWeek.setHours(23, 59, 59, 999);
 
                 if (fechaCita >= currentStartDate && fechaCita <= endOfWeek) {
-                    const diaSemana = fechaCita.getDay() === 0 ? 7 : fechaCita.getDay();
-                    const hora = fechaCita.getHours();
+                    // JS: 0=Dom, 1=Lun... -> Transformamos a: 1=Lun, 7=Dom
+                    let diaSemana = fechaCita.getDay();
+                    if (diaSemana === 0) diaSemana = 7;
 
+                    const hora = fechaCita.getHours();
                     const slot = $(`.schedule-slot[data-hour="${hora}"][data-day="${diaSemana}"]`);
 
                     if(slot.length) {
-                        
-                        const esReprogramada = cita.estado === "Reprogramada";
-                        const badgeEstado = esReprogramada
-                            ? '<span class="badge bg-warning text-dark" style="font-size:0.6rem;">REPROG.</span>'
-                            : '';
+                        // REPARACIÓN DE NOMBRES (Prioridad a lo que el controlador envía ahora)
+                        const nombreAlumno = cita.nombreAlumno || cita.NombreAlumno || "Alumno N/A";
+                        const psicologo = cita.psicologo || cita.Psicologo || "Sin asignar";
+                        const tipo = (cita.tipo || cita.Tipo || "").toLowerCase();
+                        const estado = (cita.estado || cita.Estado || "").toLowerCase();
 
-                        
-                        const claseTipo = cita.tipo === "Evaluación" ? "type-evaluacion" : "type-seguimiento";
+                        const esRepro = estado === "reprogramada" || cita.fueReprogramada;
+                        const badgeRepro = esRepro ? '<span class="badge bg-warning text-dark" style="font-size:0.6rem;">REPROG.</span>' : '';
+
+                        const claseTipo = tipo.includes("evalua") ? "type-evaluacion" : "type-seguimiento";
 
                         const html = `
-                            <div class="appointment-block ${claseTipo}" title="Psicólogo: ${cita.psicologo}">
+                            <div class="appointment-block ${claseTipo}" title="Psicólogo: ${psicologo}">
                                 <div class="d-flex justify-content-between align-items-start">
-                                    <strong class="text-truncate" style="max-width: 80%;">${cita.nombreAlumno}</strong>
-                                    ${badgeEstado}
+                                    <strong class="text-truncate" style="max-width: 80%;">${nombreAlumno}</strong>
+                                    ${badgeRepro}
                                 </div>
-                                <div class="small opacity-75">${cita.psicologo}</div>
-                                <div class="small fw-bold">${fechaCita.getHours()}:${fechaCita.getMinutes().toString().padStart(2, '0')}</div>
+                                <div class="small opacity-75">${psicologo}</div>
+                                <div class="small fw-bold">
+                                    ${fechaCita.getHours().toString().padStart(2, '0')}:${fechaCita.getMinutes().toString().padStart(2, '0')}
+                                </div>
                             </div>
                         `;
                         slot.append(html);
@@ -177,11 +192,31 @@
             updateHeader();
         }
 
-        function updateHeader() {
-            const options = { day: 'numeric', month: 'short' };
+                function updateHeader() {
+            // 1. Actualizar el rango de texto principal (Semana del... al...)
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
             const end = new Date(currentStartDate);
             end.setDate(currentStartDate.getDate() + 6);
-            $("#currentWeekRange").text(`Semana del ${currentStartDate.toLocaleDateString(undefined, options)} al ${end.toLocaleDateString(undefined, options)}`);
+            $("#currentWeekRange").text(`Semana del ${currentStartDate.toLocaleDateString('es-ES', options)} al ${end.toLocaleDateString('es-ES', options)}`);
+
+            // 2. Actualizar los números individuales de cada día en la cabecera
+            for (let i = 0; i < 7; i++) {
+                const dateDay = new Date(currentStartDate);
+                dateDay.setDate(currentStartDate.getDate() + i);
+
+                const dayNumber = dateDay.getDate(); // Esto obtiene el 16, 17, etc.
+
+                // El ID en el HTML es day-1, day-2... hasta day-7
+                $(`#day-${i + 1}`).text(dayNumber);
+
+                // Opcional: Resaltar el día de hoy con un color diferente si está en la semana actual
+                const today = new Date();
+                if (dateDay.toDateString() === today.toDateString()) {
+                    $(`#day-${i + 1}`).closest('th').addClass('bg-primary-subtle text-primary');
+                } else {
+                    $(`#day-${i + 1}`).closest('th').removeClass('bg-primary-subtle text-primary');
+                }
+            }
         }
 
         function changeWeek(weeks) {
@@ -191,8 +226,29 @@
 
         function resetToToday() {
             currentStartDate = getMonday(new Date());
+            currentStartDate.setHours(0, 0, 0, 0);
             renderCitas();
         }
+
+        // FUNCIONALIDAD EXTRA: Al hacer clic en un slot vacío, ir a Crear Cita
+        $(document).on("click", ".schedule-slot", function(e) {
+            // Si hicimos clic en una cita existente, no hacer nada aquí
+            if ($(e.target).closest('.appointment-block').length) return;
+
+            const dayOffset = $(this).data("day") - 1;
+            const hour = $(this).data("hour");
+
+            const selectedDate = new Date(currentStartDate);
+            selectedDate.setDate(selectedDate.getDate() + dayOffset);
+
+            // Formatear para el input datetime-local (yyyy-MM-ddThh:mm)
+            const formattedDate = selectedDate.toISOString().split('T')[0];
+            const formattedTime = hour.toString().padStart(2, '0') + ":00";
+
+            // Redirigir a la vista de creación con parámetros (opcional, requiere ajustar el Create)
+            // window.location.href = `/Citas/Create?fecha=${formattedDate}T${formattedTime}`;
+            console.log("Slot seleccionado:", formattedDate, formattedTime);
+        });
 
         $(document).ready(renderCitas);
     </script>

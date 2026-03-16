@@ -88,42 +88,48 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         }
 
 
-
         [HttpPost]
         public async Task<IActionResult> Create(Cita cita, string accion)
         {
-            
+            // 1. Validar el modelo
             if (!ModelState.IsValid)
             {
                 ViewBag.Alumnos = await _alumnoService.GetAllAsync();
                 return View(cita);
             }
 
-            
-            var citasExistentes = await _citaService.GetAllAsync();
+            // 2. OBTENER EL NOMBRE DEL ALUMNO ANTES DE GUARDAR
+            // Esto es vital para que la Agenda y el Index funcionen rápido
+            var alumno = await _alumnoService.GetByIdAsync(cita.AlumnoId);
+            if (alumno != null)
+            {
+                cita.NombreAlumno = $"{alumno.Nombres} {alumno.Apellidos}";
+            }
 
-            
+            // 3. Validación de duplicados (Optimizado)
+            var citasExistentes = await _citaService.GetAllAsync();
             bool yaExisteCita = citasExistentes.Any(c =>
                 c.AlumnoId == cita.AlumnoId &&
-                c.FechaHora.HasValue && 
-                cita.FechaHora.HasValue && 
+                c.FechaHora.HasValue &&
+                cita.FechaHora.HasValue &&
                 c.FechaHora.Value.Date == cita.FechaHora.Value.Date);
 
             if (yaExisteCita)
             {
                 ModelState.AddModelError("FechaHora", "El alumno ya tiene una cita programada para este día.");
                 TempData["Error"] = "Ya existe una cita para este alumno en la fecha seleccionada.";
-
                 ViewBag.Alumnos = await _alumnoService.GetAllAsync();
                 return View(cita);
             }
 
-            
+            // 4. Guardar la cita con el nombre incluido
             cita.Estado = "Programada";
             string citaId = await _citaService.AddAsync(cita);
 
+            // Limpiar cache de bloqueo
             _cache.Remove($"bloqueo_alumno_{cita.AlumnoId}");
 
+            // 5. Lógica de redirección según el botón presionado
             if (accion == "continuar")
             {
                 await _citaService.UpdateEstadoAsync(citaId, "En Proceso");
@@ -223,11 +229,28 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
         public async Task<IActionResult> Agenda()
         {
+            
             var todasLasCitas = await _citaService.GetAllAsync();
+            var alumnos = await _alumnoService.GetAllAsync();
+
+            
+            var diccionarioAlumnos = alumnos.ToDictionary(a => a.Id, a => a.Nombres + " " + a.Apellidos);
 
             
             var citasFiltradas = todasLasCitas
                 .Where(c => c.Estado == "Programada" || c.Estado == "Reprogramada")
+                .Select(c => {
+                    
+                    if (diccionarioAlumnos.ContainsKey(c.AlumnoId))
+                    {
+                        c.NombreAlumno = diccionarioAlumnos[c.AlumnoId];
+                    }
+                    else
+                    {
+                        c.NombreAlumno = "Alumno no encontrado";
+                    }
+                    return c;
+                })
                 .ToList();
 
             return View(citasFiltradas);

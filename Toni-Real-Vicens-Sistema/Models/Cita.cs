@@ -20,7 +20,7 @@ namespace Toni_Real_Vicens_Sistema.Models
 
         public string Estado { get; set; } = "Programada";
 
-        
+        public string? NombreAlumno { get; set; }
         public DateTime? FechaOriginal { get; set; }
         public string? MotivoReprogramacion { get; set; }
 

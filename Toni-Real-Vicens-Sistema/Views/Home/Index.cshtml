@@ -316,14 +316,15 @@
 
 
 
-            
-        function initWeeklySchedule() {
+                         function initWeeklySchedule() {
             const container = document.getElementById('weeklySchedule');
             const hoy = new Date();
             const nombresDias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-           
-            const citasHoyCount = @ViewBag.CitasHoy;
+            // Traemos el array generado en el Controller
+            const conteoRealSemanal = @Html.Raw(Json.Serialize(ViewBag.ConteoSemanal));
+
+            container.innerHTML = ""; // Limpiar contenido previo
 
             for (let i = 0; i < 7; i++) {
                 let fechaIterada = new Date();
@@ -333,10 +334,10 @@
                 let diaNum = fechaIterada.getDate();
                 let esHoy = i === 0;
 
-                
-                let count = esHoy ? citasHoyCount : 0;
+                // Usamos el índice 'i' para obtener el conteo de ese día específico
+                let count = conteoRealSemanal[i];
                 let badgeClass = count > 0 ? "has-citas" : "no-citas";
-                let label = esHoy ? `${count} Citas` : "Disponible";
+                let label = count > 0 ? `${count} Citas` : "Disponible";
 
                 const col = document.createElement('div');
                 col.className = 'col';
@@ -345,7 +346,7 @@
                         <span class="day-name">${diaNombre}</span>
                         <span class="day-number">${diaNum}</span>
                         <span class="citas-badge ${badgeClass}">
-                            ${esHoy && count > 0 ? '<i class="bi bi-dot"></i> ' : ''}${label}
+                            ${count > 0 ? '<i class="bi bi-dot"></i> ' : ''}${label}
                         </span>
                     </div>
                 `;

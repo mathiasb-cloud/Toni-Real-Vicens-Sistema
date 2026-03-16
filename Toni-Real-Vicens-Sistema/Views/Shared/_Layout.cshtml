@@ -18,10 +18,10 @@
 
     <style>
         :root {
-            /* Usando tu color principal solicitado */
             --primary-color: #891c75;
             --secondary-color: #4a0f3f;
             --bg-light: #f8f9fa;
+            --logout-red: #ff4d4d;
         }
 
         body {
@@ -35,7 +35,6 @@
             padding: 0.5rem 1rem;
         }
 
-        /* Estilo para el logo en el nav */
         .navbar-logo {
             height: 40px;
             width: auto;
@@ -61,42 +60,68 @@
                 transform: translateY(-1px);
             }
 
-        
-        @@media (max-width: 575px) {
-            .btn-logout {
-                width: 100%;
-                text-align: center;
-                margin-top: 10px;
-            }
-
-            .navbar-brand {
-                font-size: 0.9rem; 
-            }
+        /* --- Sección de Usuario y Logout --- */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .btn-logout {
-            border-radius: 20px;
-            padding: 5px 15px;
+            border-radius: 12px;
+            padding: 6px 16px;
             font-size: 0.85rem;
-            border: 1px solid #ff4d4d;
-            color: #ff4d4d !important;
+            border: 1.5px solid var(--logout-red);
+            color: var(--logout-red) !important;
             font-weight: 600;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
             .btn-logout:hover {
-                background: #ff4d4d;
+                background: var(--logout-red);
                 color: white !important;
+                box-shadow: 0 4px 8px rgba(255, 77, 77, 0.2);
             }
+
+        
+        @@media (max-width: 991px) {
+            .navbar-brand {
+                font-size: 0.9rem;
+            }
+
+            .user-section {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                padding: 12px 0;
+                margin-top: 10px;
+                border-top: 1px solid #eee;
+            }
+
+            .btn-logout {
+                width: auto;
+                min-width: 100px;
+                padding: 8px 15px;
+            }
+
+            .user-info-text {
+                text-align: left;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light border-bottom mb-4">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/img/logo-colegio.jpeg" alt="Logo" class="navbar-logo"
-                         onerror="this.style.display='none'">
-                    <span class="d-inline-block">TONI REAL VICENS</span>
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <img src="~/img/logo-colegio.jpeg" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+                    <span>TONI REAL VICENS</span>
                 </a>
 
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
@@ -105,64 +130,45 @@
 
                 <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav flex-grow-1 ms-lg-4">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house-door me-1"></i>Inicio
-                            </a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-1"></i>Inicio</a></li>
 
-                        
                         @if (Context.Session.GetString("UsuarioCargo") == "Administrador")
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
-                            </li>
-                        }
-                        else
-                        {
-                            
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Usuarios" asp-action="Perfil">
-                                    <i class="bi bi-person-gear me-1"></i>Mi Perfil
-                                </a>
-                            </li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a></li>
                         }
 
+                        <li class="nav-item"><a class="nav-link" asp-controller="Alumnos" asp-action="Index">Alumnos</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Citas" asp-action="Index">Citas</a></li>
+
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Alumnos" asp-action="Index">Alumnos</a>
+                            <a class="nav-link" asp-controller="Citas" asp-action="Agenda">
+                                Agenda
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Citas" asp-action="Index">Citas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Fichas" asp-action="Index">Expedientes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Fichas" asp-action="List">Fichas</a>
-                        </li>
+
+                        <li class="nav-item"><a class="nav-link" asp-controller="Fichas" asp-action="Index">Expedientes</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Fichas" asp-action="List">Fichas</a></li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Matriculas" asp-action="Promocion">
-                             <i class="bi bi-arrow-up-circle-fill me-1 text-success"></i>Promoción
+                                <i class="bi bi-arrow-up-circle-fill me-1 text-success"></i>Promoción
                             </a>
                         </li>
-                        
                     </ul>
 
-                    <hr class="d-lg-none text-muted">
-                    <ul class="navbar-nav align-items-center">
-                        <li class="nav-item d-none d-lg-inline">
-                            
-                            <a asp-controller="Usuarios" asp-action="Perfil" class="text-decoration-none text-muted small me-3">
-                                <i class="bi bi-person-circle me-1"></i>@Context.Session.GetString("UsuarioNombre")
-                                <span class="badge bg-light text-dark ms-1">@Context.Session.GetString("UsuarioCargo")</span>
+                    <div class="user-section ms-lg-auto">
+                        <div class="user-info-text d-flex flex-column justify-content-center">
+                            <a asp-controller="Usuarios" asp-action="Perfil" class="text-decoration-none" style="line-height: 1.1;">
+                                <span class="fw-bold text-dark d-block" style="font-size: 0.85rem;">@Context.Session.GetString("UsuarioNombre")</span>
+                                <span class="badge rounded-pill mt-1" style="font-size: 0.65rem; background-color: #f0e6ef; color: #891c75;">
+                                    @Context.Session.GetString("UsuarioCargo")
+                                </span>
                             </a>
-                        </li>
-                        <li class="nav-item w-100">
-                            <a class="nav-link btn-logout" href="javascript:void(0)" onclick="confirmarLogout()">
-                                <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesion
-                            </a>
-                        </li>
-                    </ul>
+                        </div>
+
+                        <a class="btn-logout" href="javascript:void(0)" onclick="confirmarLogout()">
+                            <i class="bi bi-box-arrow-right me-1"></i><span>Salir</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>

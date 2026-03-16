@@ -27,25 +27,33 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // 1. Obtener datos reales de los servicios
+            
             var alumnos = await _alumnoService.GetAllAsync();
             var citas = await _citaService.GetAllAsync();
             var fichas = await _fichaService.GetAllAsync();
 
-            // 2. Calcular estadísticas reales
+            
             ViewBag.TotalAlumnos = alumnos.Count();
-            ViewBag.CitasHoy = citas.Count(c => c.FechaHora.HasValue && c.FechaHora.Value.Date == DateTime.Today);
+            var hoy = DateTime.Today;
+            ViewBag.CitasHoy = citas.Count(c => c.FechaHora.HasValue && c.FechaHora.Value.Date == hoy);
             ViewBag.TotalFichas = fichas.Count();
-
-            // Nueva estadística clave: Alumnos inscritos en alguna Aula Complementaria
             ViewBag.TotalTalleres = alumnos.Count(a => !string.IsNullOrEmpty(a.AulaComplementaria));
 
-            // Datos para el gráfico: Conteo por Nivel
+            
+            var conteoSemanal = new int[7];
+            for (int i = 0; i < 7; i++)
+            {
+                var fechaObjetivo = hoy.AddDays(i);
+                conteoSemanal[i] = citas.Count(c => c.FechaHora.HasValue && c.FechaHora.Value.Date == fechaObjetivo);
+            }
+            ViewBag.ConteoSemanal = conteoSemanal;
+
+            
             ViewBag.DataNiveles = new int[] {
-                alumnos.Count(a => a.Nivel == "Inicial"),
-                alumnos.Count(a => a.Nivel == "Primaria"),
-                alumnos.Count(a => a.Nivel == "Secundaria")
-            };
+        alumnos.Count(a => a.Nivel == "Inicial"),
+        alumnos.Count(a => a.Nivel == "Primaria"),
+        alumnos.Count(a => a.Nivel == "Secundaria")
+    };
 
             return View();
         }
