@@ -321,10 +321,10 @@
             const hoy = new Date();
             const nombresDias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-            // Traemos el array generado en el Controller
+            
             const conteoRealSemanal = @Html.Raw(Json.Serialize(ViewBag.ConteoSemanal));
 
-            container.innerHTML = ""; // Limpiar contenido previo
+            container.innerHTML = ""; 
 
             for (let i = 0; i < 7; i++) {
                 let fechaIterada = new Date();
@@ -334,7 +334,7 @@
                 let diaNum = fechaIterada.getDate();
                 let esHoy = i === 0;
 
-                // Usamos el índice 'i' para obtener el conteo de ese día específico
+                
                 let count = conteoRealSemanal[i];
                 let badgeClass = count > 0 ? "has-citas" : "no-citas";
                 let label = count > 0 ? `${count} Citas` : "Disponible";

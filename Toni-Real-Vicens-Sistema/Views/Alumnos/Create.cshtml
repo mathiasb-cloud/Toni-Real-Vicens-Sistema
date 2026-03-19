@@ -173,12 +173,12 @@
                 cargarGrados($(this).val(), "");
             });
 
-            // Lógica de Discapacidad
+            
             function toggleDiscapacidad() {
                 const tieneDiscapacidad = $('#selectDiscapacidad').val() === 'Sí';
                 if (tieneDiscapacidad) {
                     $('#divTipoD').fadeIn();
-                    toggleOtroDiscapacidad(); // Revisar si "Otro" ya estaba marcado
+                    toggleOtroDiscapacidad(); 
                 } else {
                     $('#divTipoD, #divOtroD').hide();
                 }
