@@ -7,17 +7,15 @@ namespace Toni_Real_Vicens_Sistema.Service
     {
         public UsuarioService(IConfiguration config) : base(config) { }
 
-        // MÉTODO QUE FALTABA
         public async Task<Usuario?> LoginAsync(string correo, string pass)
         {
             var usuarios = await GetAllAsync();
-            // Buscamos el usuario que coincida con correo y contraseña
-            return usuarios.FirstOrDefault(u => u.Correo == correo && u.Contrasena == pass);
+            // Buscamos el usuario ignorando mayúsculas en el correo por comodidad del usuario
+            return usuarios.FirstOrDefault(u => u.Correo?.ToLower() == correo.ToLower() && u.Contrasena == pass);
         }
 
         public async Task<bool> AddAsync(Usuario usuario)
         {
-            // Validar si el correo o el teléfono ya existen para evitar duplicados
             var existentes = await GetAllAsync();
             if (existentes.Any(u => u.Telefono == usuario.Telefono || u.Correo == usuario.Correo))
             {
@@ -32,20 +30,23 @@ namespace Toni_Real_Vicens_Sistema.Service
         {
             var data = await _firebase.Child("Usuarios").OnceAsync<Usuario>();
             return data.Select(x => {
-                x.Object.Id = x.Key;
-                return x.Object;
+                var obj = x.Object;
+                obj.Id = x.Key; // Asignamos la clave de Firebase al ID del modelo
+                return obj;
             }).ToList();
         }
 
         public async Task<Usuario?> GetByIdAsync(string id)
         {
-            var usuarios = await GetAllAsync();
-            return usuarios.FirstOrDefault(u => u.Id == id);
+            // Traer directamente el nodo es más rápido que listar todos
+            var user = await _firebase.Child("Usuarios").Child(id).OnceSingleAsync<Usuario>();
+            if (user != null) user.Id = id;
+            return user;
         }
 
         public async Task UpdateAsync(Usuario usuario)
         {
-            
+            // PutAsync sobrescribe el nodo con el ID específico
             await _firebase.Child("Usuarios").Child(usuario.Id).PutAsync(usuario);
         }
 

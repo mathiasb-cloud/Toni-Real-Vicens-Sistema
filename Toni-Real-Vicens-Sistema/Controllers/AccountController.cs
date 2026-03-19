@@ -29,10 +29,9 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                     return View();
                 }
 
-                // Guardamos información clave en la sesión
                 HttpContext.Session.SetString("UsuarioId", user.Id);
                 HttpContext.Session.SetString("UsuarioNombre", user.Nombre + " " + user.Apellido);
-                HttpContext.Session.SetString("UsuarioCargo", user.Cargo); // Usamos UsuarioCargo para consistencia
+                HttpContext.Session.SetString("UsuarioCargo", user.Cargo);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -41,7 +40,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             return View();
         }
 
-        // --- LÓGICA DE RECUPERACIÓN ---
+        // --- LÓGICA DE RECUPERACIÓN CON FIREBASE ---
 
         [HttpGet]
         public IActionResult OlvideContrasena() => View();
@@ -50,7 +49,6 @@ namespace Toni_Real_Vicens_Sistema.Controllers
         public async Task<IActionResult> VerificarTelefono(string telefono)
         {
             var usuarios = await _usuarioService.GetAllAsync();
-            // Buscamos si el teléfono existe y la cuenta está activa
             var usuario = usuarios.FirstOrDefault(u => u.Telefono == telefono);
 
             if (usuario == null)
@@ -59,21 +57,32 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             if (!usuario.IsActivo)
                 return Json(new { success = false, message = "La cuenta asociada está desactivada." });
 
-            // Retornamos el ID para que el front-end sepa a quién actualizar después
-            return Json(new { success = true, userId = usuario.Id });
+            // Guardamos el ID en sesión para que el proceso sea seguro
+            HttpContext.Session.SetString("RecoveryUserId", usuario.Id);
+
+            return Json(new { success = true });
         }
 
         [HttpPost]
-        public async Task<IActionResult> RestablecerPassword(string userId, string nuevaPassword)
+        public async Task<IActionResult> RestablecerPassword(string nuevaPassword)
         {
+            var userId = HttpContext.Session.GetString("RecoveryUserId");
+
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false, message = "La sesión ha expirado o no es válida." });
+
             var usuario = await _usuarioService.GetByIdAsync(userId);
             if (usuario != null)
             {
-                usuario.Contrasena = nuevaPassword;
+                usuario.Contrasena = nuevaPassword; // Asegúrate de hashear esto en el Service si es posible
                 await _usuarioService.UpdateAsync(usuario);
+
+                // Limpieza de seguridad
+                HttpContext.Session.Remove("RecoveryUserId");
+
                 return Json(new { success = true });
             }
-            return Json(new { success = false, message = "Error al identificar al usuario." });
+            return Json(new { success = false, message = "No se pudo encontrar el usuario para actualizar." });
         }
 
         public IActionResult Logout()

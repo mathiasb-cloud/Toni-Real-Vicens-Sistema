@@ -1,0 +1,208 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperar Contraseña - Toni Real Vicens</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #891c75 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-card {
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .icon-circle {
+            width: 70px;
+            height: 70px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto 10px auto;
+            color: #891c75;
+            font-size: 30px;
+            border: 2px solid #eee;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #667eea, #891c75);
+            border: none;
+        }
+
+        .step-tag {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #891c75;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="text-center p-4">
+            <div class="icon-circle"><i class="bi bi-shield-lock"></i></div>
+            <h4 class="fw-bold mb-1">Recuperar Acceso</h4>
+            <p id="info-text" class="text-muted small">Ingresa tu número registrado para recibir un código.</p>
+        </div>
+
+        <div class="card-body p-4 pt-0">
+            <div id="step1">
+                <span class="step-tag">Paso 1: Identificación</span>
+                <div class="mb-4 mt-2">
+                    <div class="input-group border rounded-3 overflow-hidden">
+                        <span class="input-group-text border-0 bg-light"><i class="bi bi-telephone"></i></span>
+                        <input type="text" id="phoneInput" class="form-control border-0 bg-light" placeholder="Tu número (9 dígitos)" maxlength="9">
+                    </div>
+                </div>
+                <div id="recaptcha-container"></div>
+                <button onclick="handlePhone()" class="btn btn-primary w-100 fw-bold py-2">ENVIAR CÓDIGO</button>
+            </div>
+
+            <div id="step2" style="display:none;">
+                <span class="step-tag">Paso 2: Verificación</span>
+                <div class="mb-4 mt-2">
+                    <div class="input-group border rounded-3 overflow-hidden">
+                        <span class="input-group-text border-0 bg-light"><i class="bi bi-chat-left-dots"></i></span>
+                        <input type="text" id="otpInput" class="form-control border-0 bg-light" placeholder="Código de 6 dígitos" maxlength="6">
+                    </div>
+                </div>
+                <button onclick="handleVerify()" class="btn btn-primary w-100 fw-bold py-2">VERIFICAR</button>
+            </div>
+
+            <div id="step3" style="display:none;">
+                <span class="step-tag">Paso 3: Nueva Clave</span>
+                <div class="mb-4 mt-2">
+                    <div class="input-group border rounded-3 overflow-hidden">
+                        <span class="input-group-text border-0 bg-light"><i class="bi bi-key"></i></span>
+                        <input type="password" id="passInput" class="form-control border-0 bg-light" placeholder="Nueva contraseña">
+                    </div>
+                </div>
+                <button onclick="handleReset()" class="btn btn-success w-100 fw-bold py-2">ACTUALIZAR</button>
+            </div>
+
+            <div class="text-center mt-3">
+                <a asp-action="Login" class="small text-decoration-none fw-bold" style="color: #891c75;">Regresar al Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWjg_gqT02YgUVX_4U5YBD9yQIDuT2TnE",
+            authDomain: "sistema-toni-real-vicens.firebaseapp.com",
+            projectId: "sistema-toni-real-vicens",
+            storageBucket: "sistema-toni-real-vicens.firebasestorage.app",
+            messagingSenderId: "428205253641",
+            appId: "1:428205253641:web:7dc138d3a37057307984d8"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        let confirmationResult;
+
+        // Configuración de reCAPTCHA:
+        // Si tienes problemas en localhost, cambia 'invisible' por 'normal' para debuggear
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+                console.log("reCAPTCHA resuelto con éxito");
+            }
+        });
+
+        function handlePhone() {
+            const tel = $('#phoneInput').val();
+            if(tel.length < 9) return Swal.fire('Error', 'Ingresa un número de 9 dígitos', 'error');
+
+            // Mostrar un pequeño cargando
+            Swal.showLoading();
+
+            $.post('/Account/VerificarTelefono', { telefono: tel }, function(res) {
+                if(res.success) {
+                    const phoneNumber = "+51" + tel;
+                    const appVerifier = window.recaptchaVerifier;
+
+                    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+                        .then(result => {
+                            Swal.close();
+                            confirmationResult = result;
+                            $('#step1').hide();
+                            $('#step2').fadeIn();
+                            $('#info-text').text('Ingresa el código que llegó a tu celular.');
+                        }).catch((error) => {
+                            Swal.fire('Error Firebase', 'No se pudo enviar el SMS. Verifica que tu número sea correcto o que no hayas excedido los intentos.', 'error');
+                            console.error(error);
+                            // Resetear recaptcha en caso de error para permitir reintento
+                            window.recaptchaVerifier.render().then(widgetId => {
+                                grecaptcha.reset(widgetId);
+                            });
+                        });
+                } else {
+                    Swal.fire('No encontrado', res.message, 'error');
+                }
+            });
+        }
+
+        function handleVerify() {
+            const code = $('#otpInput').val();
+            if(code.length < 6) return Swal.fire('Error', 'El código debe tener 6 dígitos', 'warning');
+
+            Swal.showLoading();
+            confirmationResult.confirm(code)
+                .then(() => {
+                    Swal.close();
+                    $('#step2').hide();
+                    $('#step3').fadeIn();
+                    $('#info-text').text('Define tu nueva contraseña de acceso.');
+                }).catch(() => {
+                    Swal.fire('Código Inválido', 'El código ingresado no coincide con el enviado.', 'error');
+                });
+        }
+
+        function handleReset() {
+            const pass = $('#passInput').val();
+            if(pass.length < 6) return Swal.fire('Error', 'La clave debe tener al menos 6 caracteres', 'warning');
+
+            Swal.showLoading();
+            $.post('/Account/RestablecerPassword', { nuevaPassword: pass }, function(res) {
+                if(res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Clave Actualizada!',
+                        text: 'Ahora puedes iniciar sesión con tu nueva contraseña.',
+                        confirmButtonText: 'Ir al Login'
+                    }).then(() => window.location.href = '/Account/Login');
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
