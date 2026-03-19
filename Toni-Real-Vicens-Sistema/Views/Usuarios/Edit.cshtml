@@ -2,46 +2,65 @@
 
 <div class="container mt-4">
     <div class="card border-0 shadow-lg" style="border-radius: 15px;">
-        <div class="card-header bg-white py-3">
-            <h4 class="fw-bold mb-0" style="color: #4a5568;">Editar Usuario</h4>
+        <div class="card-header bg-white py-3 border-0">
+            <div class="d-flex align-items-center">
+                <div class="p-2 bg-light rounded-circle me-3" style="color: #667eea;">
+                    <i class="bi bi-person-gear fs-4"></i>
+                </div>
+                <h4 class="fw-bold mb-0" style="color: #2d3748;">Editar Perfil de Usuario</h4>
+            </div>
         </div>
         <div class="card-body p-4">
             <form asp-action="Edit" method="post">
+                @* Campos ocultos necesarios para no perder datos en el POST *@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="IsActivo" />
+                <input type="hidden" asp-for="Cargo" /> <input type="hidden" asp-for="Contrasena" /> <div class="row g-4">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Nombre</label>
+                        <input asp-for="Nombre" class="form-control border-0 bg-light py-2" style="border-radius: 10px;" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Primer Apellido</label>
+                        <input asp-for="Apellido" class="form-control border-0 bg-light py-2" style="border-radius: 10px;" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Segundo Apellido</label>
+                        <input asp-for="SegundoApellido" class="form-control border-0 bg-light py-2" style="border-radius: 10px;" />
+                    </div>
 
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Nombre</label>
-                        <input asp-for="Nombre" class="form-control" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Primer Apellido</label>
-                        <input asp-for="Apellido" class="form-control" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Segundo Apellido</label>
-                        <input asp-for="SegundoApellido" class="form-control" />
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-secondary">Correo Electrónico</label>
+                        <input asp-for="Correo" class="form-control border-0 bg-light py-2" style="border-radius: 10px;" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-bold">Cargo</label>
-                        <select asp-for="Cargo" class="form-select">
-                            <option value="Psicologo">Psicólogo</option>
-                            <option value="Director">Director</option>
-                            <option value="Tutor">Tutor</option>
-                        </select>
+                        <label class="form-label small fw-bold text-secondary">Celular / Teléfono</label>
+                        <input asp-for="Telefono" class="form-control border-0 bg-light py-2" style="border-radius: 10px;" maxlength="9" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold">Celular</label>
-                        <input asp-for="Telefono" class="form-control" />
+
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-secondary">Cargo / Rol en el Sistema</label>
+                        <div class="input-group">
+                            <span class="input-group-text border-0 bg-light"><i class="bi bi-lock-fill text-muted"></i></span>
+                            <input type="text" value="@Model.Cargo" class="form-control border-0 bg-light py-2 text-muted"
+                                   style="border-radius: 0 10px 10px 0; cursor: not-allowed;" readonly />
+                        </div>
+                        <div class="form-text text-info small">
+                            <i class="bi bi-info-circle"></i> El cargo solo puede ser modificado por un Administrador de sistema.
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-4 d-flex gap-2">
-                    <button type="submit" class="btn text-white px-4" style="background: #667eea; border-radius: 10px;">
-                        Guardar Cambios
+                <hr class="my-4 text-light">
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn text-white px-5 py-2 fw-bold"
+                            style="background: linear-gradient(to right, #667eea, #891c75); border: none; border-radius: 12px;">
+                        <i class="bi bi-check2-circle me-1"></i> Actualizar Datos
                     </button>
-                    <a asp-action="Index" class="btn btn-light px-4" style="border-radius: 10px;">Cancelar</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 border-0 fw-bold" style="border-radius: 12px;">
+                        Cancelar
+                    </a>
                 </div>
             </form>
         </div>
