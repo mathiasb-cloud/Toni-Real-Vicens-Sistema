@@ -68,52 +68,52 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
         public async Task<IActionResult> Create(string citaId)
         {
+            // 1. Obtener la cita basada en el ID de la cita.
             var cita = await _citaService.GetByIdAsync(citaId);
-            if (cita == null) return NotFound();
+            if (cita == null) return NotFound();  // Si no se encuentra la cita, retornar error.
 
+            // 2. Obtener el alumno asociado con la cita.
             var alumno = await _alumnoService.GetByIdAsync(cita.AlumnoId);
-            CargarDatosAlumnoEnVista(alumno, cita);
+            CargarDatosAlumnoEnVista(alumno, cita);  // Cargar información adicional del alumno.
 
+            // 3. Verificar si ya existe una ficha previa para el alumno con la misma cita.
             var fichasExistentes = await _fichaService.GetByAlumnoAsync(cita.AlumnoId);
             var fichaPrevia = fichasExistentes.FirstOrDefault(f => f.CitaId == citaId);
 
+            // 4. Si ya existe una ficha para esa cita, devolverla.
             if (fichaPrevia != null)
             {
-                
                 return View(fichaPrevia);
             }
 
+            // 5. Crear una nueva ficha diagnóstica con los valores históricos.
             var ficha = new FichaDiagnostica
             {
                 AlumnoId = cita.AlumnoId,
                 CitaId = cita.Id,
                 Fecha = DateTime.Now,
                 AnioAcademico = DateTime.Now.Year,
-                GradoAlMomento = alumno.Grado,
-                SeccionAlMomento = alumno.Seccion,
-                FuenteInformacion = cita.Psicologo
+                GradoAlMomento = alumno.Grado,  // Captura el grado del alumno en el momento de la ficha.
+                SeccionAlMomento = alumno.Seccion,  // Captura la sección del alumno en el momento de la ficha.
+                FuenteInformacion = cita.Psicologo  // Fuente de información de la cita.
             };
 
+            // 6. Devuelve la vista con la nueva ficha diagnóstica.
             return View(ficha);
         }
+
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> Create(FichaDiagnostica ficha)
         {
-            // Obtenemos los datos necesarios para recargar la vista SIEMPRE
-            var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
-            var citaActual = await _citaService.GetByIdAsync(ficha.CitaId);
-
             try
             {
                 ficha.AnioAcademico = DateTime.Now.Year;
 
-                if (string.IsNullOrEmpty(ficha.FuenteInformacion))
-                {
-                    ficha.FuenteInformacion = HttpContext.Session.GetString("UsuarioNombre") ?? "Psicólogo";
-                }
-
-                // Guardar o Actualizar
+                // Guardar o actualizar la ficha
                 if (string.IsNullOrEmpty(ficha.Id))
                 {
                     ficha.Id = await _fichaService.AddAsync(ficha);
@@ -123,32 +123,23 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                     await _fichaService.UpdateAsync(ficha);
                 }
 
+                // Si la ficha está finalizada, se actualiza el estado de la cita
                 if (ficha.EsFinalizada)
                 {
                     await _citaService.UpdateEstadoAsync(ficha.CitaId, "Atendida");
                     TempData["Mensaje"] = "Ficha finalizada correctamente";
-                    
                     return RedirectToAction("Detalle", "Fichas", new { id = ficha.AlumnoId });
                 }
-                
                 else
                 {
                     await _citaService.UpdateEstadoAsync(ficha.CitaId, "En Proceso");
-
-                    
-                    CargarDatosAlumnoEnVista(alumno, citaActual);
-
-                    
-                    TempData["Mensaje"] = "actualizado"; 
-
+                    TempData["Mensaje"] = "Ficha actualizada correctamente";
                     return View(ficha);
                 }
             }
             catch (Exception ex)
             {
-                // En caso de error también recargamos el ViewBag para que no se vea feo
-                CargarDatosAlumnoEnVista(alumno, citaActual);
-                TempData["Error"] = "Error: " + ex.Message;
+                TempData["Error"] = "Error al guardar la ficha: " + ex.Message;
                 return View(ficha);
             }
         }
@@ -184,11 +175,11 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             var ficha = await _fichaService.GetByIdAsync(id);
             if (ficha == null) return NotFound();
 
-            
+            // Obtener los datos del alumno asociado
             var alumno = await _alumnoService.GetByIdAsync(ficha.AlumnoId);
             ViewBag.NombreAlumno = alumno != null ? $"{alumno.Apellidos}, {alumno.Nombres}" : "Estudiante no encontrado";
 
-            return View(ficha);
+            return View(ficha);  // Pasamos toda la ficha a la vista
         }
 
 

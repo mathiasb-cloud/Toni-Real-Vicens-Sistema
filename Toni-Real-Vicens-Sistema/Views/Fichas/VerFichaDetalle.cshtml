@@ -1,10 +1,4 @@
-﻿@model Toni_Real_Vicens_Sistema.Models.FichaDiagnostica
-
-@{
-    Layout = "_Layout"; // O null si quieres que sea totalmente independiente
-}
-
-<div class="container my-4 printable-area">
+﻿<div class="container my-4 printable-area">
     <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
         <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm rounded-pill">
             <i class="bi bi-arrow-left"></i> Volver
@@ -31,11 +25,12 @@
         </div>
 
         <div class="card-body p-4 p-lg-5">
+            <!-- Datos del Estudiante -->
             <div class="row mb-4 pb-3 border-bottom bg-light-subtle rounded-3 p-3">
                 <div class="col-12"><h6 class="text-uppercase fw-bold text-secondary mb-3 small"><i class="bi bi-person-vcard me-2"></i>Datos del Estudiante</h6></div>
                 <div class="col-md-4">
                     <small class="text-muted d-block">Estudiante:</small>
-                    <span class="fw-bold text-dark">@ViewBag.NombreAlumno</span>
+                    <span class="fw-bold text-dark">@(!string.IsNullOrEmpty(ViewBag.NombreAlumno) ? ViewBag.NombreAlumno : Html.Raw("<span class='missing-data'>No registrado</span>"))</span>
                 </div>
                 <div class="col-md-4 text-md-center">
                     <small class="text-muted d-block">Grado y Sección:</small>
@@ -47,164 +42,120 @@
                 </div>
             </div>
 
-            <div class="row g-4">
-
-                <div class="col-12">
-                    <h6 class="fw-bold text-primary border-bottom pb-1 mb-2">I. ASPECTO FAMILIAR</h6>
-                    <div class="row small">
-                        <div class="col-md-6">
-                            <p class="mb-1">
-                                <strong>Convive con:</strong>
-                                @(Model.ViveAmbosPadres ? "Ambos padres, " : "") @(Model.ViveSoloMadre ? "Madre, " : "")
-                                @(Model.ViveSoloPadre ? "Padre, " : "") @(Model.ViveHermanos ? $"Hermanos ({Model.NumeroHermanos}), " : "")
-                                @Model.DetalleOtrosVive
-                            </p>
-                            <p class="mb-1"><strong>Relación familiar:</strong> @Model.RelacionFamiliar</p>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                            <p class="mb-1">
-                                <strong>Apoyo en tareas:</strong>
-                                @(Model.ApoyoSolo ? "Estudia solo" : (Model.ApoyoMama ? "Mamá, " : "") + (Model.ApoyoPapa ? "Papá" : ""))
-                            </p>
-                            @if (Model.ProblemaViolencia || Model.ProblemaComunicacion)
-                            {
-                                <span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Riesgo detectado en hogar</span>
-                            }
-                        </div>
+            <!-- I. ASPECTO FAMILIAR -->
+            <div class="col-12">
+                <h6 class="fw-bold text-primary border-bottom pb-1 mb-2">I. ASPECTO FAMILIAR</h6>
+                <div class="row small">
+                    <div class="col-md-6">
+                        <p class="mb-1">
+                            <strong>Convive con:</strong>
+                            @(Model.ViveAmbosPadres ? "Ambos padres, " : "") @(Model.ViveSoloMadre ? "Madre, " : "")
+                            @(Model.ViveSoloPadre ? "Padre, " : "") @(Model.ViveHermanos ? $"Hermanos ({Model.NumeroHermanos}), " : "")
+                            @(!string.IsNullOrEmpty(Model.DetalleOtrosVive) ? Model.DetalleOtrosVive : Html.Raw("<span class='missing-data'>No registrado</span>"))
+                        </p>
+                        <p class="mb-1"><strong>Relación familiar:</strong> @(!string.IsNullOrEmpty(Model.RelacionFamiliar) ? Model.RelacionFamiliar : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
                     </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="p-3 bg-success-light rounded-3 border">
-                        <h6 class="fw-bold text-success small">II. SOCIOECONÓMICO</h6>
-                        <ul class="list-unstyled mb-0 small">
-                            <li><strong>Ingreso:</strong> @Model.IngresoFamiliarMensual</li>
-                            <li><strong>Situación laboral:</strong> @(Model.PadreTrabaja ? "Padre trabaja" : "Padre desempleado") / @(Model.MadreTrabaja ? "Madre trabaja" : "Madre desempleada")</li>
-                            <li><strong>Material vivienda:</strong> @Model.MaterialVivienda (@Model.TipoPiso)</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="p-3 bg-danger-light rounded-3 border">
-                        <h6 class="fw-bold text-danger small">III. SALUD</h6>
-                        <ul class="list-unstyled mb-0 small">
-                            <li><strong>Seguro:</strong> @Model.TipoSeguro</li>
-                            <li class="@(Model.SaludDificultadVisual ? "text-danger fw-bold" : "")">Visual: @(Model.SaludDificultadVisual ? "Presenta dificultad" : "Normal")</li>
-                            @if (Model.SufreEnfermedad)
-                            {
-                                <li class="text-danger"><strong>Enf:</strong> @Model.EspecificarEnfermedad</li>
-                            }
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <h6 class="fw-bold text-info border-bottom pb-1 mb-2">IV. DESEMPEÑO ACADÉMICO</h6>
-                    <div class="row small">
-                        <div class="col-md-4">
-                            <p class="mb-1"><strong>¿Repitió?:</strong> @(Model.RepitioAnio ? "SÍ (" + Model.CualAnioRepitio + ")" : "NO")</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="mb-1 text-success"><strong>Fortalezas:</strong> @Model.CursosFaciles</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="mb-1 text-danger"><strong>Dificultades:</strong> @Model.CursosDificiles</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="p-3 border rounded-3 @(Model.EmoPensamientoSuicida ? "border-danger bg-danger-subtle" : "bg-light")">
-                        <h6 class="fw-bold text-secondary mb-2">V. OBSERVACIONES PSICOPEDAGÓGICAS</h6>
-                        <p class="small mb-2" style="text-align: justify;">@Model.ObservacionEmocional</p>
-                        <div class="row g-2 small">
-                            <div class="col-md-6"><strong>Motivación:</strong> @Model.RecPersMotivacion</div>
-                            <div class="col-md-6"><strong>Habilidades:</strong> @Model.RecPersCualidadesHabilidades</div>
-                        </div>
-
-                        @if (Model.EmoPensamientoSuicida)
-                        {
-                            <div class="mt-2 p-2 bg-white border border-danger text-danger fw-bold rounded text-center small">
-                                <i class="bi bi-radioactive"></i> ALERTA: SE DETECTÓ IDEACIÓN SUICIDA. SE REQUIERE DERIVACIÓN O INTERVENCIÓN INMEDIATA.
-                            </div>
-                        }
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-1">
+                            <strong>Apoyo en tareas:</strong>
+                            @(Model.ApoyoSolo ? "Estudia solo" : (Model.ApoyoMama ? "Mamá, " : "") + (Model.ApoyoPapa ? "Papá" : ""))
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div class="row mt-5 pt-4 d-none d-print-flex">
-                <div class="col-6 text-center">
-                    <div class="mx-auto border-top w-75 pt-2 small">Firma del Psicólogo/Evaluador<br>@Model.FuenteInformacion</div>
-                </div>
-                <div class="col-6 text-center">
-                    <div class="mx-auto border-top w-75 pt-2 small">Sello de la Institución<br>Toni Real Vicens</div>
+            <!-- II. ASPECTO SOCIOECONÓMICO -->
+            <div class="col-md-6">
+                <div class="p-3 bg-success-light rounded-3 border">
+                    <h6 class="fw-bold text-success small">II. SOCIOECONÓMICO</h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li><strong>Ingreso:</strong> @(!string.IsNullOrEmpty(Model.IngresoFamiliarMensual) ? Model.IngresoFamiliarMensual : Html.Raw("<span class='missing-data'>No registrado</span>"))</li>
+                        <li><strong>Situación laboral:</strong> @(Model.PadreTrabaja ? "Padre trabaja" : "Padre desempleado") / @(Model.MadreTrabaja ? "Madre trabaja" : "Madre desempleada")</li>
+                        <li><strong>Material vivienda:</strong> @(!string.IsNullOrEmpty(Model.MaterialVivienda) ? Model.MaterialVivienda : Html.Raw("<span class='missing-data'>No registrado</span>")) (@Model.TipoPiso)</li>
+                    </ul>
                 </div>
             </div>
 
+            <!-- III. SALUD -->
+            <div class="col-md-6">
+                <div class="p-3 bg-danger-light rounded-3 border">
+                    <h6 class="fw-bold text-danger small">III. SALUD</h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li><strong>Seguro:</strong> @(!string.IsNullOrEmpty(Model.TipoSeguro) ? Model.TipoSeguro : Html.Raw("<span class='missing-data'>No registrado</span>"))</li>
+                        <li class="@(Model.SaludDificultadVisual ? "text-danger fw-bold" : "")">Visual: @(Model.SaludDificultadVisual ? "Presenta dificultad" : "Normal")</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- IV. DESEMPEÑO ACADÉMICO -->
+            <div class="col-12">
+                <h6 class="fw-bold text-info border-bottom pb-1 mb-2">IV. DESEMPEÑO ACADÉMICO</h6>
+                <div class="row small">
+                    <div class="col-md-4">
+                        <p class="mb-1"><strong>¿Repitió?:</strong> @(Model.RepitioAnio ? "SÍ (" + Model.CualAnioRepitio + ")" : "NO")</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-1 text-success"><strong>Fortalezas:</strong> @(!string.IsNullOrEmpty(Model.CursosFaciles) ? Model.CursosFaciles : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-1 text-danger"><strong>Dificultades:</strong> @(!string.IsNullOrEmpty(Model.CursosDificiles) ? Model.CursosDificiles : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- V. OBSERVACIONES PSICOPEDAGÓGICAS -->
+            <div class="col-12">
+                <div class="p-3 border rounded-3 @(Model.EmoPensamientoSuicida ? "border-danger bg-danger-subtle" : "bg-light")">
+                    <h6 class="fw-bold text-secondary mb-2">V. OBSERVACIONES PSICOPEDAGÓGICAS</h6>
+                    <p class="small mb-2" style="text-align: justify;">@(!string.IsNullOrEmpty(Model.ObservacionEmocional) ? Model.ObservacionEmocional : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+                </div>
+            </div>
+
+            <!-- VI. ASPECTOS DE ALIMENTACIÓN -->
+            <div class="col-12">
+                <h6 class="fw-bold text-info border-bottom pb-1 mb-2">VI. ASPECTOS DE ALIMENTACIÓN</h6>
+                <p><strong>Alimentación durante el día:</strong> Desayuno: @(Model.AlimentoDiaDesayuno ? "Sí" : "No") / Refrigerio: @(Model.AlimentoDiaRefrigerio ? "Sí" : "No") / Almuerzo: @(Model.AlimentoDiaAlmuerzo ? "Sí" : "No") / Cena: @(Model.AlimentoDiaCena ? "Sí" : "No")</p>
+                <p><strong>Alimentación en casa:</strong> Desayuno: @(Model.AlimentoCasaDesayuno ? "Sí" : "No") / Refrigerio: @(Model.AlimentoCasaRefrigerio ? "Sí" : "No") / Almuerzo: @(Model.AlimentoCasaAlmuerzo ? "Sí" : "No") / Cena: @(Model.AlimentoCasaCena ? "Sí" : "No")</p>
+            </div>
+
+            <!-- VII. ASPECTOS DE VIVIENDA -->
+            <div class="col-12">
+                <h6 class="fw-bold text-info border-bottom pb-1 mb-2">VII. ASPECTOS DE VIVIENDA</h6>
+                <p><strong>Tipo de Vivienda:</strong> @(!string.IsNullOrEmpty(Model.TipoVivienda) ? Model.TipoVivienda : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+                <p><strong>Material de la Vivienda:</strong> @(!string.IsNullOrEmpty(Model.MaterialVivienda) ? Model.MaterialVivienda : Html.Raw("<span class='missing-data'>No registrado</span>")) (@Model.TipoPiso)</p>
+            </div>
+
+            <!-- VIII. ASPECTOS SOCIALES -->
+            <div class="col-12">
+                <h6 class="fw-bold text-info border-bottom pb-1 mb-2">VIII. ASPECTOS SOCIALES</h6>
+                <p><strong>Asistencia a eventos:</strong> @(Model.SocAsisteEventos ? "Sí" : "No")</p>
+                <p><strong>Asiste a Iglesia:</strong> @(Model.SocAsisteIglesia ? "Sí" : "No")</p>
+            </div>
+
+            <!-- IX. ASPECTOS EMOCIONALES -->
+            <div class="col-12">
+                <h6 class="fw-bold text-info border-bottom pb-1 mb-2">IX. ASPECTOS EMOCIONALES</h6>
+                <p><strong>Observación Emocional:</strong> @(!string.IsNullOrEmpty(Model.ObservacionEmocional) ? Model.ObservacionEmocional : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+            </div>
+
+            <!-- X. RECURSOS PERSONALES -->
+            <div class="col-12">
+                <h6 class="fw-bold text-info border-bottom pb-1 mb-2">X. RECURSOS PERSONALES</h6>
+                <p><strong>Motivación:</strong> @(!string.IsNullOrEmpty(Model.RecPersMotivacion) ? Model.RecPersMotivacion : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+                <p><strong>Razón para estudiar en el colegio:</strong> @(!string.IsNullOrEmpty(Model.RecPersPorqueColegio) ? Model.RecPersPorqueColegio : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+                <p><strong>Actividades que disfruta:</strong> @(!string.IsNullOrEmpty(Model.RecPersActividadesDisfruta) ? Model.RecPersActividadesDisfruta : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+                <p><strong>Cualidades y habilidades:</strong> @(!string.IsNullOrEmpty(Model.RecPersCualidadesHabilidades) ? Model.RecPersCualidadesHabilidades : Html.Raw("<span class='missing-data'>No registrado</span>"))</p>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    /* Estilos de visualización en pantalla */
-    .text-navy {
-        color: #002855;
-    }
-
-    .bg-success-light {
-        background-color: #f1fcf4;
-    }
-
-    .bg-danger-light {
-        background-color: #fff5f5;
-    }
-
-    .bg-info-light {
-        background-color: #f0faff;
-    }
-
-    @@media screen {
-        body {
-            background-color: #f8f9fa;
-        }
-    }
-
-    /* LÓGICA DE IMPRESIÓN (PDF) */
-    @@media print {
-        /* Oculta Navbar, Footers y Botones */
-        nav, footer, .navbar, .d-print-none, .btn {
-            display: none !important;
-        }
-        /* Ajusta el contenedor para usar toda la hoja */
-        .container {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        .card {
-            border: none !important;
-            box-shadow: none !important;
-        }
-
-        body {
-            background-color: white !important;
-            font-size: 11pt; /* Tamaño de letra óptimo para impresión */
-        }
-
-        .card-body {
-            padding: 10px !important;
-        }
-        /* Fuerza a que los colores de fondo se impriman */
-        .bg-light, .bg-light-subtle, .bg-success-light, .bg-danger-light {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-        /* Evita que se corten los bloques a mitad de página */
-        .row, h6, .p-3 {
-            page-break-inside: avoid;
-        }
+    .missing-data {
+        color: #6c757d;
+        font-style: italic;
+        background-color: #f8f9fa;
+        padding: 3px 5px;
+        border-radius: 4px;
     }
 </style>

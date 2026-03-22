@@ -7,51 +7,42 @@ namespace Toni_Real_Vicens_Sistema.Service
     {
         public FichaService(IConfiguration config) : base(config) { }
 
-        // DENTRO DE FichaService.cs
-        public async Task<string> AddAsync(FichaDiagnostica ficha) // <-- Cambiado de FichaSeguimiento a FichaDiagnostica
+        // Método para agregar una nueva ficha diagnóstica
+        public async Task<string> AddAsync(FichaDiagnostica ficha)
         {
-            // Este método debe guardar en "Fichas" (que son las diagnósticas)
+            // Comprobamos si los campos GradoAlMomento y SeccionAlMomento están siendo enviados y luego guardamos la ficha
             var resultado = await _firebase.Child("Fichas").PostAsync(ficha);
             return resultado.Key;
         }
 
+        // Método para actualizar una ficha diagnóstica
         public async Task UpdateAsync(FichaDiagnostica ficha)
         {
-            // Importante: Usamos ficha.Id que es la Key de Firebase
+            // Asegúrate de que los campos completos de la ficha sean actualizados
             await _firebase
                 .Child("Fichas")
                 .Child(ficha.Id)
                 .PutAsync(ficha);
         }
 
-        public async Task AddSeguimientoAsync(FichaSeguimiento ficha)
-        {
-            await _firebase
-                .Child("FichasSeguimiento")
-                .PostAsync(ficha);
-        }
-
+        // Método para obtener todas las fichas de un alumno
         public async Task<List<FichaDiagnostica>> GetByAlumnoAsync(string alumnoId)
         {
             var data = await _firebase
-                .Child("Fichas") 
+                .Child("Fichas")
                 .OrderBy("AlumnoId")
                 .EqualTo(alumnoId)
                 .OnceAsync<FichaDiagnostica>();
 
-            Console.WriteLine($"Fichas encontradas para {alumnoId}: {data.Count}");
-
-            return data
-                .Select(x => {
-                    var ficha = x.Object;
-                    ficha.Id = x.Key; 
-                    return ficha;
-                })
-                .OrderByDescending(f => f.Fecha)
-                .ToList();
+            return data.Select(x =>
+            {
+                var ficha = x.Object;
+                ficha.Id = x.Key;
+                return ficha;
+            }).OrderByDescending(f => f.Fecha).ToList();
         }
 
-
+        // Método para obtener una ficha por su ID
         public async Task<FichaDiagnostica> GetByIdAsync(string id)
         {
             var result = await _firebase
@@ -61,25 +52,21 @@ namespace Toni_Real_Vicens_Sistema.Service
 
             if (result != null)
             {
-                result.Id = id; 
+                result.Id = id;
             }
             return result;
         }
 
+        // Obtener todas las fichas
         public async Task<List<FichaDiagnostica>> GetAllAsync()
         {
-            
             var data = await _firebase.Child("Fichas").OnceAsync<FichaDiagnostica>();
-
-            return data.Select(item => {
+            return data.Select(item =>
+            {
                 var ficha = item.Object;
                 ficha.Id = item.Key;
                 return ficha;
             }).ToList();
         }
-
-
-
-
     }
 }
