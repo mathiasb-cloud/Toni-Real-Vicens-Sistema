@@ -10,7 +10,6 @@ namespace Toni_Real_Vicens_Sistema.Service
 
         public async Task AddAsync(Alumno alumno)
         {
-            // Forzamos Id nulo para que Firebase genere la clave única
             alumno.Id = null;
             await _firebase.Child("Alumnos").PostAsync(alumno);
         }
