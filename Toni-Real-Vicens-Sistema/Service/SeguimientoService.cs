@@ -17,7 +17,7 @@ namespace Toni_Real_Vicens_Sistema.Service
         public async Task<string> AddAsync(FichaSeguimiento ficha)
         {
             var resultado = await _firebase.Child("FichasSeguimiento").PostAsync(ficha);
-            return resultado.Key; // Esto es el string que necesita el controlador
+            return resultado.Key; 
         }
 
 
