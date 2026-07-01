@@ -62,7 +62,6 @@ namespace Toni_Real_Vicens_Sistema.Service
             var alumno = await GetByIdAsync(id);
             if (alumno == null) return;
 
-            // Actualizamos campos raíz
             alumno.Grado = nuevoGrado;
             alumno.Nivel = nuevoNivel;
 
