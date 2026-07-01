@@ -7,7 +7,6 @@ namespace Toni_Real_Vicens_Sistema.Service
     {
         public FichaService(IConfiguration config) : base(config) { }
 
-        // Método para agregar una nueva ficha diagnóstica
         public async Task<string> AddAsync(FichaDiagnostica ficha)
         {
             // Comprobamos si los campos GradoAlMomento y SeccionAlMomento están siendo enviados y luego guardamos la ficha
