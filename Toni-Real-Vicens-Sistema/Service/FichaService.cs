@@ -9,7 +9,6 @@ namespace Toni_Real_Vicens_Sistema.Service
 
         public async Task<string> AddAsync(FichaDiagnostica ficha)
         {
-            // Comprobamos si los campos GradoAlMomento y SeccionAlMomento están siendo enviados y luego guardamos la ficha
             var resultado = await _firebase.Child("Fichas").PostAsync(ficha);
             return resultado.Key;
         }
