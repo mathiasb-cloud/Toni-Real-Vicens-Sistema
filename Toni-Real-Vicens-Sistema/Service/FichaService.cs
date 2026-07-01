@@ -51,7 +51,6 @@ namespace Toni_Real_Vicens_Sistema.Service
             return result;
         }
 
-        // Obtener todas las fichas
         public async Task<List<FichaDiagnostica>> GetAllAsync()
         {
             var data = await _firebase.Child("Fichas").OnceAsync<FichaDiagnostica>();
