@@ -65,7 +65,6 @@ namespace Toni_Real_Vicens_Sistema.Service
             alumno.Grado = nuevoGrado;
             alumno.Nivel = nuevoNivel;
 
-            // Actualizamos el objeto de matrícula
             alumno.MatriculaActual = new Matricula
             {
                 Anio = nuevoAnio,
