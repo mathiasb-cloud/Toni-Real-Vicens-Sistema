@@ -40,7 +40,6 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             return View();
         }
 
-        // --- LÓGICA DE RECUPERACIÓN CON FIREBASE ---
 
         [HttpGet]
         public IActionResult OlvideContrasena() => View();
