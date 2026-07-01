@@ -44,7 +44,6 @@ namespace Toni_Real_Vicens_Sistema.Service
 
         public async Task UpdateAsync(Usuario usuario)
         {
-            // PutAsync sobrescribe el nodo con el ID específico
             await _firebase.Child("Usuarios").Child(usuario.Id).PutAsync(usuario);
         }
 
