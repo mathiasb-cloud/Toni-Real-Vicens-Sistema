@@ -13,7 +13,6 @@ namespace Toni_Real_Vicens_Sistema.Service
             return resultado.Key;
         }
 
-        // Método para actualizar una ficha diagnóstica
         public async Task UpdateAsync(FichaDiagnostica ficha)
         {
             // Asegúrate de que los campos completos de la ficha sean actualizados
