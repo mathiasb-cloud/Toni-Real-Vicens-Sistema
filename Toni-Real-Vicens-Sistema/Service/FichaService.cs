@@ -37,7 +37,6 @@ namespace Toni_Real_Vicens_Sistema.Service
             }).OrderByDescending(f => f.Fecha).ToList();
         }
 
-        // Método para obtener una ficha por su ID
         public async Task<FichaDiagnostica> GetByIdAsync(string id)
         {
             var result = await _firebase
