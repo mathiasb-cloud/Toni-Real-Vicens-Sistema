@@ -21,7 +21,6 @@ namespace Toni_Real_Vicens_Sistema.Service
                 .PutAsync(ficha);
         }
 
-        // Método para obtener todas las fichas de un alumno
         public async Task<List<FichaDiagnostica>> GetByAlumnoAsync(string alumnoId)
         {
             var data = await _firebase
