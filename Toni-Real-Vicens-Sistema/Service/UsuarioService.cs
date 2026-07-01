@@ -37,7 +37,6 @@ namespace Toni_Real_Vicens_Sistema.Service
 
         public async Task<Usuario?> GetByIdAsync(string id)
         {
-            // Traer directamente el nodo es más rápido que listar todos
             var user = await _firebase.Child("Usuarios").Child(id).OnceSingleAsync<Usuario>();
             if (user != null) user.Id = id;
             return user;
