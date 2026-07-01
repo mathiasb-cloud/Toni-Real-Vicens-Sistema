@@ -15,7 +15,6 @@ namespace Toni_Real_Vicens_Sistema.Service
 
         public async Task UpdateAsync(FichaDiagnostica ficha)
         {
-            // Asegúrate de que los campos completos de la ficha sean actualizados
             await _firebase
                 .Child("Fichas")
                 .Child(ficha.Id)
