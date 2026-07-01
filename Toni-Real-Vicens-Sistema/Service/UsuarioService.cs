@@ -10,7 +10,6 @@ namespace Toni_Real_Vicens_Sistema.Service
         public async Task<Usuario?> LoginAsync(string correo, string pass)
         {
             var usuarios = await GetAllAsync();
-            // Buscamos el usuario ignorando mayúsculas en el correo por comodidad del usuario
             return usuarios.FirstOrDefault(u => u.Correo?.ToLower() == correo.ToLower() && u.Contrasena == pass);
         }
 
