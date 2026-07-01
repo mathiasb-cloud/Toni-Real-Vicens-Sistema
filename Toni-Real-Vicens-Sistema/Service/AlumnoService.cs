@@ -75,7 +75,6 @@ namespace Toni_Real_Vicens_Sistema.Service
                 FechaInscripcion = DateTime.Now
             };
 
-            // Usar el nombre correcto de tu cliente Firebase (ej. _client o _firebase)
             await _firebase.Child("Alumnos").Child(id).PutAsync(alumno);
         }
     }
