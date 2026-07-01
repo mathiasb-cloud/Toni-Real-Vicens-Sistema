@@ -56,7 +56,6 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             if (!usuario.IsActivo)
                 return Json(new { success = false, message = "La cuenta asociada está desactivada." });
 
-            // Guardamos el ID en sesión para que el proceso sea seguro
             HttpContext.Session.SetString("RecoveryUserId", usuario.Id);
 
             return Json(new { success = true });
