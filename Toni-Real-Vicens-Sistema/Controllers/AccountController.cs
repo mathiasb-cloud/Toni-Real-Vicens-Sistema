@@ -72,10 +72,9 @@ namespace Toni_Real_Vicens_Sistema.Controllers
             var usuario = await _usuarioService.GetByIdAsync(userId);
             if (usuario != null)
             {
-                usuario.Contrasena = nuevaPassword; // Asegúrate de hashear esto en el Service si es posible
+                usuario.Contrasena = nuevaPassword; 
                 await _usuarioService.UpdateAsync(usuario);
 
-                // Limpieza de seguridad
                 HttpContext.Session.Remove("RecoveryUserId");
 
                 return Json(new { success = true });
