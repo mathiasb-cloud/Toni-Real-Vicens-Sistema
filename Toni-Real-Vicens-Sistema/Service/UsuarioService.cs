@@ -30,7 +30,7 @@ namespace Toni_Real_Vicens_Sistema.Service
             var data = await _firebase.Child("Usuarios").OnceAsync<Usuario>();
             return data.Select(x => {
                 var obj = x.Object;
-                obj.Id = x.Key; // Asignamos la clave de Firebase al ID del modelo
+                obj.Id = x.Key; 
                 return obj;
             }).ToList();
         }
