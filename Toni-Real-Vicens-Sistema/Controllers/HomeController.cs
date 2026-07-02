@@ -8,9 +8,9 @@ namespace Toni_Real_Vicens_Sistema.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AlumnoService _alumnoService; // Ajusta el nombre según tu servicio
-        private readonly CitaService _citaService;     // Ajusta el nombre según tu servicio
-        private readonly FichaService _fichaService;   // Ajusta el nombre según tu servicio
+        private readonly AlumnoService _alumnoService; 
+        private readonly CitaService _citaService;     // Ajusta el nombre segÃºn tu servicio
+        private readonly FichaService _fichaService;   // Ajusta el nombre segÃºn tu servicio
 
         public HomeController(ILogger<HomeController> logger, AlumnoService alumnoService, CitaService citaService, FichaService fichaService)
         {
