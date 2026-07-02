@@ -35,7 +35,6 @@ namespace Toni_Real_Vicens_Sistema.Models
 
 \        public Matricula? MatriculaActual { get; set; }
 
-        // --- DATOS DE CONTACTO Y UBICACIÓN ---
         public string? Direccion { get; set; }
         public string? Region { get; set; }
         public string? LugarNacimiento { get; set; }
