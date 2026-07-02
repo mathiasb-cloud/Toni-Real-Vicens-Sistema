@@ -47,7 +47,6 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 
                 foreach (var id in alumnosIds)
                 {
-                    // Ahora pasamos 4 argumentos al servicio
                     await _alumnoService.PromoverAlumnoAsync(id, nuevoGrado, nuevoNivel, nuevoAnio);
                 }
 
