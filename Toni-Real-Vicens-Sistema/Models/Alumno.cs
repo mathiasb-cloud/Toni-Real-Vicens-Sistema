@@ -58,7 +58,6 @@ namespace Toni_Real_Vicens_Sistema.Models
         public string? TutorTelefono { get; set; }
         public string? NacimientoRegistrado { get; set; }
 
-        // --- AUDITORÍA (Indispensable para soporte técnico) ---
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
         public string? UsuarioRegistro { get; set; } 
 
