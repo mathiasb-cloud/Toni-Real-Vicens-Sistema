@@ -36,7 +36,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
                 bool creado = await _usuarioService.AddAsync(usuario);
                 if (creado)
                 {
-                    TempData["Accion"] = "creado"; // <--- Añadido para animación
+                    TempData["Accion"] = "creado"; 
                     return RedirectToAction(nameof(Index));
                 }
                 ModelState.AddModelError("", "El correo o teléfono ya existen.");
