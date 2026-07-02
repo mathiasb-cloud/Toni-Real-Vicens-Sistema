@@ -33,7 +33,6 @@ namespace Toni_Real_Vicens_Sistema.Models
 
         public string? Seccion { get; set; }
 
-        // --- EL CAMPO CLAVE PARA LA PROMOCIÓN MASIVA ---
         // Este objeto guardará la "foto" del año escolar actual.
         public Matricula? MatriculaActual { get; set; }
 
