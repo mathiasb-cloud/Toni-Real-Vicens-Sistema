@@ -7,7 +7,7 @@ namespace Toni_Real_Vicens_Sistema.Models
         public string? Id { get; set; }
 
         [Required]
-        public string? Estado { get; set; } // Estudiante, Retirado, Egresado
+        public string? Estado { get; set; } 
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
         public string Nombres { get; set; }
