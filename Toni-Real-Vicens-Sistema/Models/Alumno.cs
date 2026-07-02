@@ -42,7 +42,7 @@ namespace Toni_Real_Vicens_Sistema.Models
         public string? TelefonoAlumno { get; set; }
         public string? TelefonoEmergencia { get; set; }
 
-        public string? Discapacidad { get; set; } // Sí / No
+        public string? Discapacidad { get; set; } 
         public string? TipoDiscapacidad { get; set; }
         public string? OtraDiscapacidad { get; set; }
         public string? CondicionDiscapacidad { get; set; }
