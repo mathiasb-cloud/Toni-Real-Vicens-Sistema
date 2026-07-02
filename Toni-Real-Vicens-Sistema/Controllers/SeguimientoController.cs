@@ -6,7 +6,7 @@ namespace Toni_Real_Vicens_Sistema.Controllers
 {
     public class SeguimientoController : Controller
     {
-        private readonly SeguimientoService _seguimientoService; // Nombre unificado
+        private readonly SeguimientoService _seguimientoService; 
         private readonly AlumnoService _alumnoService;
         private readonly CitaService _citaService;
 
