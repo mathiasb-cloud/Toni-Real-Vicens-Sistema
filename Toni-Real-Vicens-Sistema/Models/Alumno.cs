@@ -33,8 +33,7 @@ namespace Toni_Real_Vicens_Sistema.Models
 
         public string? Seccion { get; set; }
 
-        // Este objeto guardará la "foto" del año escolar actual.
-        public Matricula? MatriculaActual { get; set; }
+\        public Matricula? MatriculaActual { get; set; }
 
         // --- DATOS DE CONTACTO Y UBICACIÓN ---
         public string? Direccion { get; set; }
