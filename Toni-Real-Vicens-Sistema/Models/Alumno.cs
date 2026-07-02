@@ -48,7 +48,6 @@ namespace Toni_Real_Vicens_Sistema.Models
         public string? CondicionDiscapacidad { get; set; }
         public bool TieneConadis { get; set; }
 
-        // --- FAMILIARES ---
         public string? MadreNombre { get; set; }
         public string? MadreDNI { get; set; }
         public string? PadreNombre { get; set; }
