@@ -25,7 +25,6 @@ namespace Toni_Real_Vicens_Sistema.Models
         [Required]
         public DateTime? FechaNacimiento { get; set; }
 
-        // --- CAMPOS ACADÉMICOS ACTUALES (Para compatibilidad con tus vistas actuales) ---
         [Required]
         public string Nivel { get; set; }
 
