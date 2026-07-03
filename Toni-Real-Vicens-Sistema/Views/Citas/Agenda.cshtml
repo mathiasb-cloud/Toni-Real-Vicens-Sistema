@@ -140,7 +140,6 @@
             const citas = @Html.Raw(Json.Serialize(Model));
 
             citas.forEach(cita => {
-                // FALLBACK DE PROPIEDADES: Intentamos minúscula (JSON standard) y Mayúscula (C#)
                 const fechaRaw = cita.fechaHora || cita.FechaHora;
                 if (!fechaRaw) return;
 
