@@ -150,7 +150,6 @@
                 endOfWeek.setHours(23, 59, 59, 999);
 
                 if (fechaCita >= currentStartDate && fechaCita <= endOfWeek) {
-                    // JS: 0=Dom, 1=Lun... -> Transformamos a: 1=Lun, 7=Dom
                     let diaSemana = fechaCita.getDay();
                     if (diaSemana === 0) diaSemana = 7;
 
