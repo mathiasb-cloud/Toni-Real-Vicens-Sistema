@@ -33,7 +33,7 @@ namespace Toni_Real_Vicens_Sistema.Models
 
         public string? Seccion { get; set; }
 
-\        public Matricula? MatriculaActual { get; set; }
+        public Matricula? MatriculaActual { get; set; }
 
         public string? Direccion { get; set; }
         public string? Region { get; set; }
