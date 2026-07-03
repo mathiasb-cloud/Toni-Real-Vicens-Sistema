@@ -12,7 +12,6 @@
         </div>
         <div class="card-body p-4">
             <form asp-action="Edit" method="post">
-                @* Campos ocultos necesarios para no perder datos en el POST *@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="IsActivo" />
                 <input type="hidden" asp-for="Cargo" /> <input type="hidden" asp-for="Contrasena" /> <div class="row g-4">
