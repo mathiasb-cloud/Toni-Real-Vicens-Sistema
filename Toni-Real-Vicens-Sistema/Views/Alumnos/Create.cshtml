@@ -195,7 +195,6 @@
             $('#selectDiscapacidad').change(toggleDiscapacidad);
             $('#selectTipoD').change(toggleOtroDiscapacidad);
 
-            // Inicializar estados al cargar la página
             toggleDiscapacidad();
             // Cargar grados manteniendo el valor actual de la DB
             cargarGrados($('#selectNivel').val(), "@Model.Grado");
