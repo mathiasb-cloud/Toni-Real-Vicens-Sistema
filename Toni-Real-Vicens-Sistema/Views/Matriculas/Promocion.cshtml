@@ -96,7 +96,6 @@
         ];
 
         $(document).ready(function () {
-            // Evento al cambiar Nivel
             $('#nivelFiltro').change(function () {
                 const nivel = $(this).val();
                 const $gradoFiltro = $('#gradoFiltro');
@@ -107,7 +106,6 @@
                         $gradoFiltro.append(`<option value="${g}">${g}</option>`);
                     });
                 }
-                // Limpiar destino hasta que elijan un grado
                 $('#gradoDestino').empty().append('<option value="">-- Seleccione Grado Actual --</option>');
             });
 
