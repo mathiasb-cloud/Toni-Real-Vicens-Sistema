@@ -194,7 +194,6 @@
             end.setDate(currentStartDate.getDate() + 6);
             $("#currentWeekRange").text(`Semana del ${currentStartDate.toLocaleDateString('es-ES', options)} al ${end.toLocaleDateString('es-ES', options)}`);
 
-            // 2. Actualizar los números individuales de cada día en la cabecera
             for (let i = 0; i < 7; i++) {
                 const dateDay = new Date(currentStartDate);
                 dateDay.setDate(currentStartDate.getDate() + i);
