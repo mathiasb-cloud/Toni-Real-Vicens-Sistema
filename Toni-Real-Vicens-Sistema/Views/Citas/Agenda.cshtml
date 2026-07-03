@@ -157,7 +157,6 @@
                     const slot = $(`.schedule-slot[data-hour="${hora}"][data-day="${diaSemana}"]`);
 
                     if(slot.length) {
-                        // REPARACIÓN DE NOMBRES (Prioridad a lo que el controlador envía ahora)
                         const nombreAlumno = cita.nombreAlumno || cita.NombreAlumno || "Alumno N/A";
                         const psicologo = cita.psicologo || cita.Psicologo || "Sin asignar";
                         const tipo = (cita.tipo || cita.Tipo || "").toLowerCase();
