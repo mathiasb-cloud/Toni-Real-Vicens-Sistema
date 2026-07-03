@@ -137,7 +137,6 @@
         function renderCitas() {
             $(".schedule-slot").empty();
 
-            // Serialización del modelo
             const citas = @Html.Raw(Json.Serialize(Model));
 
             citas.forEach(cita => {
