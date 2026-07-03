@@ -145,7 +145,6 @@
 
                 const fechaCita = new Date(fechaRaw);
 
-                // Rango de visualización (Lunes 00:00 a Domingo 23:59)
                 const endOfWeek = new Date(currentStartDate);
                 endOfWeek.setDate(currentStartDate.getDate() + 6);
                 endOfWeek.setHours(23, 59, 59, 999);
